@@ -9,6 +9,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 import zlib
@@ -95,16 +96,33 @@ class OCRTests(unittest.IsolatedAsyncioTestCase):
                 await asyncio.sleep(0.01)
 
     def assert_process_gone(self, pid):
-        # A terminated child may briefly be a zombie awaiting its OS reaper.
-        if sys.platform.startswith('linux'):
-            try:
-                state = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()[0]
-            except FileNotFoundError:
+        # killpg returning does not synchronously update a non-child's /proc
+        # state. Observe the kernel acknowledgement; never replay the operation.
+        deadline = time.monotonic()+1
+        while True:
+            if sys.platform.startswith('linux'):
+                try:
+                    state = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()[0]
+                except FileNotFoundError:
+                    return
+            else:
+                result = subprocess.run(["/bin/ps", "-p", str(pid), "-o", "stat="], capture_output=True, text=True, check=False)
+                if result.returncode != 0:
+                    return
+                state = result.stdout.strip()
+            if state.startswith('Z'):
                 return
-            self.assertEqual(state, 'Z')
-            return
-        result = subprocess.run(["/bin/ps", "-p", str(pid), "-o", "stat="], capture_output=True, text=True, check=False)
-        self.assertTrue(result.returncode != 0 or result.stdout.strip().startswith("Z"), result.stdout)
+            if time.monotonic() >= deadline:
+                self.fail('Owned process did not exit within the bounded observation window: '+state)
+            time.sleep(.01)
+
+    def test_exit_observer_waits_for_kernel_acknowledgement_but_rejects_live_process(self):
+        with patch.object(sys,'platform','linux'), patch.object(Path,'read_text',side_effect=['123 (fixture) R 0','123 (fixture) Z 0']) as reads, patch.object(time,'sleep'):
+            self.assert_process_gone(123)
+            self.assertEqual(reads.call_count,2)
+        with patch.object(sys,'platform','linux'), patch.object(Path,'read_text',return_value='123 (fixture) R 0'), patch.object(time,'monotonic',side_effect=[0,2]):
+            with self.assertRaises(AssertionError):
+                self.assert_process_gone(123)
 
     async def test_maps_word_union_to_logical_points_and_preserves_unicode(self):
         result = await self.recognize()
