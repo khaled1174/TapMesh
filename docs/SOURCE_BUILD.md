@@ -21,7 +21,7 @@ The packager downloads a checksum-pinned Python build-standalone archive,
 installs the exact hashed runtime packages from requirements-product.lock, and
 embeds the companion from its verified release archive. It builds the app and
 TapMeshTools with SwiftPM. Dependency acquisition occurs only on the build
-machine. No signing secrets are needed for an ad-hoc build of a modified app.
+machine. No signing secrets are needed for an ad-hoc build of a modified app. Before signing, the packager removes group/other write and special mode bits from code and resources, including files copied from network shares; the relocated-runtime qualifier independently checks those permissions.
 
 For Developer ID distribution add `--identity '<Developer ID identity>'`.
 Notarization is a separate step and must not be claimed by an unsigned or merely

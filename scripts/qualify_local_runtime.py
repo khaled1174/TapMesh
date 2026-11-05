@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+import stat
 
 import httpx
 
@@ -79,6 +80,8 @@ def main():
         root = Path(temporary)
         bundle = root/'Application With Spaces/TapMesh.app'
         shutil.copytree(args.bundle, bundle, symlinks=True)
+        assert not any(stat.S_IMODE(path.lstat().st_mode) & 0o022 for path in [bundle,*bundle.rglob('*')] if not path.is_symlink()), 'Bundle code/resources must deny group and other writes'
+        checked('bundle code and resources deny group and other writes')
         resources = bundle/'Contents/Resources'
         python = resources/'runtime/bin/python3'
         profile = root/'Fresh Local Profile'

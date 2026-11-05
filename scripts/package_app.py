@@ -79,7 +79,7 @@ def main() -> None:
         info.update(SUFeedURL=args.update_feed,SUPublicEDKey=args.update_public_key,SUEnableAutomaticChecks=False,SUSendProfileInfo=False)
     if args.staging_updates: info['TapMeshUpdateStagingMode']=True
     (staging / "Contents/Info.plist").write_bytes(plistlib.dumps(info))
-    from bundle_runtime import clean_developer_rpaths, sign_embedded, run_codesign
+    from bundle_runtime import clean_developer_rpaths, sign_embedded, run_codesign, normalize_bundle_permissions
     frameworks=staging/'Contents/Frameworks';frameworks.mkdir()
     candidates=list((CACHE/'artifacts').glob('*/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework'))
     if len(candidates)!=1: raise SystemExit('The checksum-pinned Sparkle framework artifact is missing or ambiguous.')
@@ -99,6 +99,7 @@ def main() -> None:
         runtime_manifest['updater']={'version':'2.10.1','archive_sha256':'4c2e48a3e50ebcc2c88a58a4c7264a1a99c3c31857ce754357afb9cdb323022a','configured':bool(args.update_feed)}
         runtime_manifest['signed_mach_o_count'] = sign_embedded(resources, args.identity)+framework_count
         (resources/'runtime-manifest.json').write_text(json.dumps(runtime_manifest, indent=2)+'\n')
+    normalize_bundle_permissions(staging)
     sign = ["codesign", "--force", "--sign", args.identity]
     if args.identity != "-":
         sign += ["--options", "runtime", "--timestamp"]

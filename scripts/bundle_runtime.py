@@ -10,6 +10,7 @@ import tarfile
 import tempfile
 import urllib.request
 import time
+import stat
 
 ROOT = Path(__file__).resolve().parents[1]
 PYTHON_VERSION = '3.12.13'
@@ -32,7 +33,35 @@ def source_files():
 
 def write_source_archive(path):
     with tarfile.open(path,'w:gz') as archive:
-        for source in source_files(): archive.add(source,arcname='TapMesh/'+str(source.relative_to(ROOT)),recursive=False)
+        def metadata(info):
+            info.uid=info.gid=0
+            info.uname=info.gname=''
+            info.mode &= 0o755
+            return info
+        for source in source_files(): archive.add(source,arcname='TapMesh/'+str(source.relative_to(ROOT)),recursive=False,filter=metadata)
+
+
+def normalize_bundle_permissions(bundle):
+    """Do not inherit writable code/resource modes from an SMB source checkout."""
+    if bundle.is_symlink(): raise SystemExit('The staged bundle must be a real directory.')
+    root=bundle.resolve(strict=True)
+    entries=[]
+    for path in [bundle,*bundle.rglob('*')]:
+        details=path.lstat()
+        if stat.S_ISLNK(details.st_mode):
+            if not path.resolve(strict=True).is_relative_to(root):
+                raise SystemExit('The staged bundle contains an external symlink.')
+            continue
+        if not (stat.S_ISREG(details.st_mode) or stat.S_ISDIR(details.st_mode)):
+            raise SystemExit('The staged bundle contains a nonregular resource.')
+        entries.append((path,stat.S_IMODE(details.st_mode)))
+    changed=0
+    for path,mode in entries:
+        protected=mode & 0o755
+        if mode!=protected:
+            path.chmod(protected)
+            changed+=1
+    return changed
 
 
 def embed(resources, python_source):
@@ -138,6 +167,7 @@ def embed(resources, python_source):
     manifest = {'python': {'version': PYTHON_VERSION, 'build': PYTHON_BUILD, 'url': PYTHON_URL, 'archive_sha256': PYTHON_SHA256, 'archive_verified': unpacked is not None},
                 'companion': {'version': VERSION, 'archive_sha256': SHA256}, 'packages': inventory,
                 'omitted_distributions': omitted,
+                'bundle_permissions': 'group/other write and special mode bits removed before signing',
                 'source_evidence': 'The separate release source manifest records corresponding-source verification.'}
     (resources / 'runtime-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     return manifest
