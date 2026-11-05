@@ -20,10 +20,20 @@ def test_shared_checkout_modes_cannot_make_installed_code_group_writable(tmp_pat
     alias=bundle/'Contents/current';alias.symlink_to('TapMesh')
     normalizer()(bundle)
     assert not any(stat.S_IMODE(path.stat().st_mode)&0o022 for path in [bundle,*bundle.rglob('*')] if not path.is_symlink())
-    assert module.read_text()=='owned code' and stat.S_IMODE(module.stat().st_mode)==0o750
-    assert stat.S_IMODE(code.stat().st_mode)==0o750
+    assert module.read_text()=='owned code' and stat.S_IMODE(module.stat().st_mode)==0o755
+    assert stat.S_IMODE(code.stat().st_mode)==0o755
     assert stat.S_IMODE(executable.stat().st_mode)==0o755
     assert alias.is_symlink() and alias.resolve()==executable
+
+
+def test_public_bundle_remains_readable_if_installed_by_a_different_owner(tmp_path):
+    bundle=tmp_path/'TapMesh.app';bundle.mkdir(mode=0o700)
+    data=bundle/'Info.plist';data.write_text('public metadata');data.chmod(0o600)
+    executable=bundle/'TapMesh';executable.write_bytes(b'executable');executable.chmod(0o700)
+    normalizer()(bundle)
+    assert stat.S_IMODE(bundle.stat().st_mode)==0o755
+    assert stat.S_IMODE(data.stat().st_mode)==0o644
+    assert stat.S_IMODE(executable.stat().st_mode)==0o755
 
 
 def test_external_link_is_rejected_before_any_permission_mutation(tmp_path):

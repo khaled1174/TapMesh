@@ -36,7 +36,7 @@ def write_source_archive(path):
         def metadata(info):
             info.uid=info.gid=0
             info.uname=info.gname=''
-            info.mode &= 0o755
+            info.mode=0o755 if info.name.endswith('.sh') else 0o644
             return info
         for source in source_files(): archive.add(source,arcname='TapMesh/'+str(source.relative_to(ROOT)),recursive=False,filter=metadata)
 
@@ -54,10 +54,12 @@ def normalize_bundle_permissions(bundle):
             continue
         if not (stat.S_ISREG(details.st_mode) or stat.S_ISDIR(details.st_mode)):
             raise SystemExit('The staged bundle contains a nonregular resource.')
-        entries.append((path,stat.S_IMODE(details.st_mode)))
+        entries.append((path,stat.S_IMODE(details.st_mode),stat.S_ISDIR(details.st_mode)))
     changed=0
-    for path,mode in entries:
-        protected=mode & 0o755
+    for path,mode,is_directory in entries:
+        # Public code must also remain readable after an installer changes its
+        # owner. Credentials and mutable user state never belong in this tree.
+        protected=0o755 if is_directory or mode&0o111 else 0o644
         if mode!=protected:
             path.chmod(protected)
             changed+=1

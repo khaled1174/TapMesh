@@ -439,7 +439,7 @@ def collect_rust_sources(lock_data: bytes, destination: Path, cache: Path, offli
                                                   'source_url': 'https://www.apache.org/licenses/LICENSE-2.0.txt',
                                                   'provenance': 'Canonical text for an explicit package-declared license alternative; copyright and attribution remain in the retained source archive.'})
                     else:
-                        record['gap'] = 'crate_license_text_missing' 
+                        record['gap'] = 'crate_license_text_missing'
             except (CollectionError, OSError, ValueError) as exc:
                 record['gap'] = str(exc) if isinstance(exc, CollectionError) else 'crate_collection_failed'
         if record.get('gap'):

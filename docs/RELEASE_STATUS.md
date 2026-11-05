@@ -8,7 +8,7 @@ Apple Silicon only, with macOS 15 as its minimum deployment target.
 | --- | --- |
 | Portable services | Linux automated contracts and regressions pass in public CI. |
 | Supported Mac builds | Public CI passes on macOS 15 and 26, including standalone packaging and relocated local HTTP/MCP runtime execution. |
-| Local automated tests | 210 Python tests, 28 subtests and 36 Swift tests pass; four physical opt-in tests are skipped. |
+| Local automated tests | 211 Python tests, 28 subtests and 36 Swift tests pass; four physical opt-in tests are skipped. |
 | Runtime independence | Bundled interpreter, packages, companion and native OCR/media helper run with system-only PATH; profile isolation, authentication, restart, shutdown and preserved bundle signatures pass. |
 | Native interface | Local first launch, MCP cold start, settings restart and owned service shutdown have been observed on the development Mac. |
 | iPhone/iPad simulators | Fresh standalone HTTP/MCP, capture, Vision OCR, observed taps/text, finalized media and SHA-256 transfers pass on both owned simulators (25 checks). Explicit accessibility fails after relaunch on both (two failed checks); an hour-long capture soak is in progress. |
