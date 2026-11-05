@@ -36,9 +36,7 @@ struct TapMeshTools {
 
     static func main() async {
         do {
-            let result = try await execute(Array(CommandLine.arguments.dropFirst()))
-            let data = try JSONSerialization.data(withJSONObject: result, options: [.sortedKeys])
-            guard data.count < outputLimit else { throw Failure.outputTooLarge }
+            let data = try await encodedResult(Array(CommandLine.arguments.dropFirst()))
             FileHandle.standardOutput.write(data + Data([10]))
         } catch {
             let failure = (error as? Failure) ?? .recognitionFailed
@@ -48,6 +46,15 @@ struct TapMeshTools {
             }
             exit(1)
         }
+    }
+
+    // Older Swift 6 toolchains run nonisolated async work on the generic
+    // executor. Encode there so opaque Foundation JSON never crosses actors.
+    static func encodedResult(_ arguments: [String]) async throws -> Data {
+        let result = try await execute(arguments)
+        let data = try JSONSerialization.data(withJSONObject: result, options: [.sortedKeys])
+        guard data.count < outputLimit else { throw Failure.outputTooLarge }
+        return data
     }
 
     static func execute(_ arguments: [String]) async throws -> [String: Any] {
