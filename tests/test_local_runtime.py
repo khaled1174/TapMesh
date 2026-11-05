@@ -58,6 +58,7 @@ def test_local_environment_excludes_private_nas_and_inherited_runtime_overrides(
     configuration = profile.configure(50101, 50102, 'instance')
     agent, server = service_environment(profile, tmp_path / 'Resources', configuration)
     assert 'PYTHONPATH' not in agent
+    assert agent['PYTHONDONTWRITEBYTECODE']=='1'
     assert agent['TAPMESH_BUILD_ROOTS'] == ''
     assert agent['TAPMESH_EXPORT_ROOTS'] == str(profile.root / 'Exports')
     assert agent.get('TAPMESH_IDB_COMPANION') != '/private/owner/companion'
@@ -65,6 +66,17 @@ def test_local_environment_excludes_private_nas_and_inherited_runtime_overrides(
     assert agent['TAPMESH_OCR_URL'] == 'http://127.0.0.1:50102'
     assert configuration['api_url'] == 'http://127.0.0.1:50102'
     assert stat.S_IMODE((profile.root / 'connection.json').stat().st_mode) == 0o600
+
+
+def test_bundled_command_environment_does_not_depend_on_homebrew_or_write_signed_resources(monkeypatch):
+    from agent.process import minimal_environment
+    monkeypatch.setenv('TAPMESH_BUNDLED_RUNTIME','1')
+    monkeypatch.setenv('PATH','/private/developer/bin')
+    monkeypatch.setenv('PYTHONPATH','/private/developer/source')
+    env=minimal_environment()
+    assert env['PATH']=='/usr/bin:/bin:/usr/sbin:/sbin'
+    assert env['PYTHONDONTWRITEBYTECODE']=='1'
+    assert 'PYTHONPATH' not in env
 
 
 def test_moved_build_folder_revokes_access_without_blocking_settings(tmp_path):

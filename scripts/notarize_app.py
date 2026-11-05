@@ -30,7 +30,9 @@ def main():
         raw=source.read(32769)
     try:
         credentials=json.loads(raw)
-        if (set(credentials)!={'key_id','issuer_id','private_key'} or not re.fullmatch('[A-Z0-9]{10}',credentials['key_id'])
+        if (not isinstance(credentials,dict) or set(credentials)!={'key_id','issuer_id','private_key'}
+                or any(not isinstance(value,str) for value in credentials.values())
+                or not re.fullmatch('[A-Z0-9]{10}',credentials['key_id'])
                 or str(uuid.UUID(credentials['issuer_id']))!=credentials['issuer_id'].lower()
                 or not credentials['private_key'].startswith('-----BEGIN PRIVATE KEY-----') or len(raw)>32768):
             raise ValueError()
@@ -58,8 +60,10 @@ def main():
         subprocess.run(['/usr/bin/xcrun','stapler','staple',str(args.app)],check=True)
         subprocess.run(['/usr/bin/xcrun','stapler','validate',str(args.app)],check=True)
         subprocess.run(['/usr/sbin/spctl','--assess','--type','execute',str(args.app)],check=True)
-        args.archive.unlink()
-        subprocess.run(['/usr/bin/ditto','-c','-k','--sequesterRsrc','--keepParent',str(args.app),str(args.archive)],check=True)
+        replacement=args.archive.with_name(args.archive.name+'.notarized.zip')
+        if replacement.exists(): raise SystemExit('Review the existing notarized replacement archive before retrying.')
+        subprocess.run(['/usr/bin/ditto','-c','-k','--sequesterRsrc','--keepParent',str(args.app),str(replacement)],check=True)
+        os.replace(replacement,args.archive)
         import hashlib
         manifest=json.loads(args.manifest.read_text())
         manifest.update(notarized=True,notarization_submission_id=identifier,sha256=hashlib.sha256(args.archive.read_bytes()).hexdigest())

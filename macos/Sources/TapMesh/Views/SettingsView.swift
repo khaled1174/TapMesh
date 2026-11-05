@@ -71,6 +71,7 @@ struct SettingsView: View {
                     Divider()
                     LabeledContent("Local controller", value: store.sessionID).font(.caption.monospaced()).textSelection(.enabled)
                     Button("Refresh Diagnostics") { Task { await store.connect() } }
+                    Button("Export Diagnostics…") { Task { await SupportExporter.export(store: store) } }
                 }.padding(24)
             }.tabItem { Label("Diagnostics", systemImage: "stethoscope") }
         }.padding(12).frame(width: 660, height: 650)

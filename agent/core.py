@@ -39,6 +39,8 @@ class Router:
         self.work={}; self.generations={}; self.takeovers=set(); self.max_device_requests=32
         self.recording_locks={}; self.creation_lock=asyncio.Lock()
         self.update_deadline=0.0; self.update_lease=None; self.active_downloads=0
+        from .diagnostics import MetadataDiagnostics
+        self.diagnostics=MetadataDiagnostics(state_dir)
         from .nas_ocr import NASOCR
         self.ocr=NASOCR.configured()
     async def close(self):
@@ -257,7 +259,10 @@ class Router:
         except Exception as exc:
             diagnostic_id=uuid.uuid4().hex
             frames=[{'file':Path(frame.filename).name,'line':frame.lineno,'function':frame.name} for frame in traceback.extract_tb(exc.__traceback__)[-8:]]
-            logging.getLogger('tapmesh.diagnostics').warning(json.dumps({'event':'unexpected_backend_exception','diagnostic_id':diagnostic_id,'exception_type':type(exc).__name__,'stack':frames},separators=(',',':')))
+            from .diagnostics import sanitize_event
+            metadata=sanitize_event({'event':'unexpected_backend_exception','diagnostic_id':diagnostic_id,'exception_type':type(exc).__name__,'stack':frames})
+            self.diagnostics.append(metadata)
+            logging.getLogger('tapmesh.diagnostics').warning(json.dumps(metadata,separators=(',',':')))
             envelope.update(status='error',error=BridgeError('backend_failure','Unexpected backend failure; use the diagnostic reference in local service logs',side_effect_state='unknown' if context['sent'] else 'not_sent',details={'diagnostic_id':diagnostic_id}).public())
         finally:
             if admitted:

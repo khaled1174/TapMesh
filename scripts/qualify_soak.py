@@ -23,10 +23,14 @@ def main():
     parser.add_argument('--duration-seconds',type=int,default=3600)
     parser.add_argument('--interval-seconds',type=int,default=30)
     parser.add_argument('--report',type=Path,required=True)
+    parser.add_argument('--workspace',type=Path,default=Path.home()/'Library/Caches/TapMesh/soak-qualification')
+    parser.add_argument('--device-kind',choices=('physical','simulator'),required=True,
+                        help='Explicitly label the qualification scope; simulator results never qualify physical devices')
     args=parser.parse_args()
     if len(set(args.device_id))!=2 or args.duration_seconds<1 or args.interval_seconds<1:
         parser.error('Choose two distinct explicit devices and positive time bounds.')
-    root=Path.home()/'Library/Caches/TapMesh/soak-qualification'
+    root=args.workspace.expanduser().absolute()
+    if root.is_symlink(): raise SystemExit('The owned qualification workspace must not be a symlink.')
     root.mkdir(parents=True,exist_ok=True,mode=0o700)
     bundle=root/'TapMesh.app'
     if bundle.exists(): raise SystemExit('The previous qualification bundle must be reviewed before reusing this test workspace.')
@@ -35,7 +39,9 @@ def main():
     env={k:os.environ[k] for k in ('HOME','TMPDIR','LANG') if k in os.environ};env['PATH']='/usr/bin:/bin:/usr/sbin:/sbin'
     process=subprocess.Popen([str(resources/'runtime/bin/python3'),'-I','-B','-m','tapmesh_runtime','supervise','--state-dir',str(profile),
         '--resources',str(resources),'--parent-pid',str(os.getpid())],stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,env=env,cwd=root)
-    report={'product':'TapMesh','scope':'two-device read-only capture; no input or stored screen content','status':'running',
+    report={'product':'TapMesh','scope':'two-device read-only capture; no input or stored screen content',
+            'device_kind':args.device_kind,'status':'running',
+            'memory_scope':'runtime supervisor and all descendants; excludes CoreSimulator host services',
             'required_duration_seconds':args.duration_seconds,'interval_seconds':args.interval_seconds,'samples':[],'errors':[],'memory_samples_kib':[]}
     configuration=None
     started=time.monotonic();next_round=started;last_notice=started
@@ -69,7 +75,11 @@ def main():
                     report['samples'].append({'device':index,'at_seconds':round(time.monotonic()-started,2),'capture_seconds':round(elapsed,3),'image_size':size})
                 metadata=subprocess.check_output(['/bin/ps','-axo','pid=,ppid=,rss='],text=True)
                 rows=[tuple(map(int,line.split())) for line in metadata.splitlines() if len(line.split())==3]
-                owned={process.pid}|{pid for pid,parent,rss in rows if parent==process.pid}
+                owned={process.pid}
+                while True:
+                    descendants=owned|{pid for pid,parent,rss in rows if parent in owned}
+                    if descendants==owned: break
+                    owned=descendants
                 report['memory_samples_kib'].append(sum(rss for pid,parent,rss in rows if pid in owned))
                 report['elapsed_seconds']=round(time.monotonic()-started,2)
                 args.report.write_text(json.dumps(report,indent=2)+'\n')
@@ -96,6 +106,9 @@ def main():
     finally:
         if process.poll() is None: process.terminate();process.wait(timeout=50)
         if configuration: report['owned_listeners_stopped']=services_stopped(configuration)
+        report['bundle_signature_preserved']=subprocess.run(['/usr/bin/codesign','--verify','--deep','--strict',str(bundle)],capture_output=True).returncode==0
+        if report['status']=='passed' and (not report.get('owned_listeners_stopped') or not report['bundle_signature_preserved']):
+            report['status']='failed'
         args.report.write_text(json.dumps(report,indent=2)+'\n')
     print('Soak final status:',report['status'])
     if report['status']!='passed': raise SystemExit(1)

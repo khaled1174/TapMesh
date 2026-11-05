@@ -73,12 +73,13 @@ def main() -> None:
         "NSPrincipalClass": "NSApplication", "NSHighResolutionCapable": True,
         "LSApplicationCategoryType": "public.app-category.developer-tools",
         "NSAppTransportSecurity": {"NSAllowsLocalNetworking": True},
+        "NSLocalNetworkUsageDescription": "TapMesh connects to the Apple devices you select for local development and control.",
     }
     if args.update_feed:
         info.update(SUFeedURL=args.update_feed,SUPublicEDKey=args.update_public_key,SUEnableAutomaticChecks=False,SUSendProfileInfo=False)
     if args.staging_updates: info['TapMeshUpdateStagingMode']=True
     (staging / "Contents/Info.plist").write_bytes(plistlib.dumps(info))
-    from bundle_runtime import clean_developer_rpaths, sign_embedded
+    from bundle_runtime import clean_developer_rpaths, sign_embedded, run_codesign
     frameworks=staging/'Contents/Frameworks';frameworks.mkdir()
     candidates=list((CACHE/'artifacts').glob('*/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework'))
     if len(candidates)!=1: raise SystemExit('The checksum-pinned Sparkle framework artifact is missing or ambiguous.')
@@ -102,8 +103,8 @@ def main() -> None:
     if args.identity != "-":
         sign += ["--options", "runtime", "--timestamp"]
     if args.standalone:
-        subprocess.run(sign + [str(staging/'Contents/MacOS/tapmesh-mcp')], check=True)
-    subprocess.run(sign + [str(staging)], check=True)
+        run_codesign(sign + [str(staging/'Contents/MacOS/tapmesh-mcp')])
+    run_codesign(sign + [str(staging)])
     subprocess.run(["codesign", "--verify", "--deep", "--strict", str(staging)], check=True)
     if bundle.exists():
         shutil.rmtree(bundle)

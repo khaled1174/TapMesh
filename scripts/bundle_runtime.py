@@ -9,6 +9,7 @@ import subprocess
 import tarfile
 import tempfile
 import urllib.request
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 PYTHON_VERSION = '3.12.13'
@@ -21,7 +22,7 @@ PYTHON_URL = 'https://github.com/astral-sh/python-build-standalone/releases/down
 def source_files():
     roots=['agent','server','Contracts','tapmesh_runtime','macos','scripts','tests','Fixtures','.github']
     files=[ROOT/name for name in ('.gitignore','LICENSE','NOTICE','README.md','appcast.xml','pyproject.toml','uv.lock','requirements-product.lock','requirements-mac.lock','requirements-test.lock','requirements-server.lock')]
-    files += [ROOT/('docs/'+name) for name in ('PRODUCT_SCOPE.md','SOURCE_BUILD.md','DEPENDENCY_SOURCES.md','NATIVE_DEPENDENCY_SOURCE_AUDIT.md')]
+    files += [ROOT/('docs/'+name) for name in ('PRODUCT_SCOPE.md','SOURCE_BUILD.md','DEPENDENCY_SOURCES.md','NATIVE_DEPENDENCY_SOURCE_AUDIT.md','RELEASE_STATUS.md')]
     for name in roots:
         directory=ROOT/name
         if directory.exists():
@@ -156,6 +157,18 @@ def clean_developer_rpaths(path):
         if result.returncode: raise SystemExit('Unable to remove a developer-only runtime search path.')
 
 
+def run_codesign(arguments):
+    """Retry only a transient trusted-timestamp failure; never omit timestamping."""
+    for attempt in range(3):
+        result = subprocess.run(arguments, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.returncode == 0:
+            return
+        detail = result.stderr.lower()
+        if attempt == 2 or b'timestamp' not in detail or '--timestamp' not in arguments:
+            raise SystemExit('Code signing failed: '+result.stderr.decode('utf-8', 'replace')[:4096])
+        time.sleep(1+attempt)
+
+
 def sign_embedded(resources, identity):
     # Sign each distinct Mach-O from the leaves out. Symlink aliases are not
     # signed twice. Disallow external Homebrew/user dylib references before sign.
@@ -193,7 +206,5 @@ def sign_embedded(resources, identity):
     if companion in binaries:
         ordered.append(companion)
     for path in ordered:
-        result = subprocess.run(command + [str(path)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-        if result.returncode:
-            raise SystemExit('Embedded signing failed: '+result.stderr.decode('utf-8', 'replace')[:4096])
+        run_codesign(command + [str(path)])
     return len(binaries)

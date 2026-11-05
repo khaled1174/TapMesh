@@ -166,7 +166,7 @@ def service_environment(profile, resources, configuration):
     # Never inherit private development endpoints, shell Python injection,
     # proxy credentials, loader overrides, or a different user's helpers.
     env = {key: os.environ[key] for key in ('HOME', 'TMPDIR', 'LANG', 'DEVELOPER_DIR') if key in os.environ}
-    env.update(PATH='/usr/bin:/bin:/usr/sbin:/sbin', PYTHONUNBUFFERED='1')
+    env.update(PATH='/usr/bin:/bin:/usr/sbin:/sbin', PYTHONUNBUFFERED='1', PYTHONDONTWRITEBYTECODE='1')
     env.update({
         'TAPMESH_AGENT_TOKEN_FILE': configuration['agent_token_file'],
         'TAPMESH_SERVER_TOKEN_FILE': configuration['server_token_file'],

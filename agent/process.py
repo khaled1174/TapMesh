@@ -10,7 +10,9 @@ from .safety import BridgeError
 
 def minimal_environment(extra=None):
     result={k:os.environ[k] for k in ('HOME','PATH','TMPDIR','DEVELOPER_DIR','LANG') if k in os.environ}
-    result['PATH']='/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+    bundled=os.environ.get('TAPMESH_BUNDLED_RUNTIME')=='1'
+    result['PATH']='/usr/bin:/bin:/usr/sbin:/sbin' if bundled else '/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+    if bundled: result['PYTHONDONTWRITEBYTECODE']='1'
     result.update(extra or {})
     return result
 

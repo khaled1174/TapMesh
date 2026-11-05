@@ -6,7 +6,7 @@ enum ClientError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .configuration(let text), .protocolError(let text): text
-        case .transport(let code): "The service returned HTTP \(code). Check the tunnel, service status, and local credential files."
+        case .transport(let code): "The service returned HTTP \(code). Check local service status and reconnect TapMesh."
         case .operationBusy: "An update is waiting for active device work or recordings to finish."
         }
     }

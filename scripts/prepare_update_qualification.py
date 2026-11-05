@@ -5,7 +5,8 @@ The destination must be empty. This command never launches or installs either
 app. After its ready JSON line, change control.json's mode from "tampered" to
 "interrupted" or "valid" while exercising the installed copy manually. Stop the
 owned fixture server with SIGINT/SIGTERM. Its request log contains bounded mode,
-route and outcome metadata only. Signing stays inside the macOS Keychain.
+route and outcome metadata only. Publisher signing uses the macOS Keychain;
+--ephemeral-test-key uses a fresh in-memory key for disposable fixtures only.
 """
 from __future__ import annotations
 
@@ -41,11 +42,15 @@ class QualificationError(Exception):
     """A bounded error that does not include signing-tool output."""
 
 
-def command(arguments, *, timeout=180, required=True):
-    result = subprocess.run([str(item) for item in arguments], stdin=subprocess.DEVNULL,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+def command(arguments, *, timeout=180, required=True, private_input=None):
+    try:
+        options = {'stdin': subprocess.DEVNULL} if private_input is None else {'input': private_input}
+        result = subprocess.run([str(item) for item in arguments], **options,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        raise QualificationError('The '+Path(str(arguments[0])).name+' step did not finish within its deadline.') from exc
     if required and result.returncode:
-        raise QualificationError('A required signing or archive command failed; no secret output was retained.')
+        raise QualificationError('The '+Path(str(arguments[0])).name+' step failed with exit code '+str(result.returncode)+'.')
     return result
 
 
@@ -108,10 +113,12 @@ def stage_app(source: Path, destination: Path, info: dict, build: int, feed: str
         raise QualificationError('Staging copies must use the base application signing team.')
 
 
-def sign_and_verify(archive: Path, tampered: Path, tool: Path, account: str, key: bytes):
+def sign_and_verify(archive: Path, tampered: Path, tool: Path, account: str, key: bytes, *, test_seed=None):
     if hashlib.sha256(tool.read_bytes()).hexdigest() != SIGN_UPDATE_SHA256:
         raise QualificationError('Use the checksum-qualified Sparkle 2.10.1 sign_update tool.')
-    signed = command([tool, '--account', account, '-p', archive])
+    signing_arguments = ['--account', account] if test_seed is None else ['--ed-key-file', '-']
+    private_input = None if test_seed is None else base64.b64encode(test_seed)+b'\n'
+    signed = command([tool, *signing_arguments, '-p', archive], private_input=private_input)
     try:
         signature = signed.stdout.decode('ascii').strip()
         raw_signature = base64.b64decode(signature, validate=True)
@@ -126,8 +133,8 @@ def sign_and_verify(archive: Path, tampered: Path, tool: Path, account: str, key
         output.seek(-1, os.SEEK_CUR)
         output.write(bytes([original[0] ^ 1]))
     assert archive.stat().st_size == tampered.stat().st_size
-    command([tool, '--account', account, '--verify', archive, signature])
-    rejected = command([tool, '--account', account, '--verify', tampered, signature], required=False)
+    command([tool, *signing_arguments, '--verify', archive, signature], private_input=private_input)
+    rejected = command([tool, *signing_arguments, '--verify', tampered, signature], required=False, private_input=private_input)
     if rejected.returncode == 0:
         raise QualificationError('The signing tool accepted a modified archive.')
     # Check against the public key actually embedded in both apps, independently
@@ -283,7 +290,10 @@ def main():
     parser.add_argument('--bundle', required=True, type=Path)
     parser.add_argument('--destination', required=True, type=Path)
     parser.add_argument('--identity', required=True)
-    parser.add_argument('--public-key-file', required=True, type=Path)
+    key_mode = parser.add_mutually_exclusive_group(required=True)
+    key_mode.add_argument('--public-key-file', type=Path)
+    key_mode.add_argument('--ephemeral-test-key', action='store_true',
+                          help='Generate a new in-memory signing key for these disposable copies; does not qualify the publisher key')
     parser.add_argument('--sparkle-tools', required=True, type=Path)
     parser.add_argument('--keychain-account', default='io.tapmesh.mac')
     args = parser.parse_args()
@@ -303,7 +313,16 @@ def main():
         build = int(info['CFBundleVersion'])
         if not 0 < build < 2**64-1:
             raise QualificationError('The base build must be a positive incrementable integer.')
-        key_text, key_bytes = public_key(args.public_key_file.expanduser())
+        test_seed = None
+        if args.ephemeral_test_key:
+            from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+            from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, PublicFormat, NoEncryption
+            test_key = Ed25519PrivateKey.generate()
+            test_seed = test_key.private_bytes(Encoding.Raw, PrivateFormat.Raw, NoEncryption())
+            key_bytes = test_key.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)
+            key_text = base64.b64encode(key_bytes).decode('ascii')
+        else:
+            key_text, key_bytes = public_key(args.public_key_file.expanduser())
         command(['/usr/bin/codesign', '--verify', '--deep', '--strict', bundle])
         team = signing_team(bundle)
         prepare_destination(destination)
@@ -319,23 +338,29 @@ def main():
         command(['/usr/bin/ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', candidate, archive])
         if not INTERRUPTED_BYTES < archive.stat().st_size <= MAX_ARCHIVE_BYTES:
             raise QualificationError('The qualification update must be between 1 MiB and 192 MiB.')
-        signature = sign_and_verify(archive, destination/'update-tampered.zip', args.sparkle_tools.expanduser()/'bin/sign_update', args.keychain_account, key_bytes)
+        signature = sign_and_verify(archive, destination/'update-tampered.zip', args.sparkle_tools.expanduser()/'bin/sign_update', args.keychain_account, key_bytes, test_seed=test_seed)
+        test_seed = None
+        if args.ephemeral_test_key:
+            test_key = None
         (destination/'appcast.xml').write_bytes(appcast(build+1, str(info['CFBundleShortVersionString']),
             str(info.get('LSMinimumSystemVersion', '15.0')), feed_root, archive.stat().st_size, signature))
         private_json(state.control, {'mode': 'tampered'})
         private_json(destination/'qualification.json', {'installed_build': build, 'candidate_build': build+1,
             'archive_sha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
-            'public_signature_checks': 'passed', 'installed_app': str(installed), 'port': port})
+            'public_signature_checks': 'passed', 'signing_key': 'ephemeral-test-only' if args.ephemeral_test_key else 'publisher-keychain',
+            'installed_app': str(installed), 'port': port, 'server_pid': os.getpid()})
         thread = threading.Thread(target=server.serve_forever, name='TapMesh update fixture', daemon=True)
         thread.start()
         print(json.dumps({'installed_app': str(installed), 'port': port, 'control_file': str(state.control),
-                          'public_signature_checks': 'passed'}, separators=(',', ':')), flush=True)
+                          'server_pid': os.getpid(), 'public_signature_checks': 'passed'}, separators=(',', ':')), flush=True)
         stopped.wait()
     except QualificationError as exc:
         print('TapMesh update qualification: '+str(exc), file=__import__('sys').stderr)
         raise SystemExit(1)
-    except (OSError, ValueError, KeyError, ImportError, subprocess.SubprocessError):
-        print('TapMesh update qualification preparation failed. Check the signed base app, empty local destination, public key and existing Keychain signing account.', file=__import__('sys').stderr)
+    except (OSError, ValueError, KeyError, ImportError, subprocess.SubprocessError) as exc:
+        import traceback
+        frame=traceback.extract_tb(exc.__traceback__)[-1]
+        print('TapMesh update qualification preparation failed: '+type(exc).__name__+' at '+frame.name+':'+str(frame.lineno)+'. Check the signed base app, empty local destination, public key and existing Keychain signing account.', file=__import__('sys').stderr)
         raise SystemExit(1)
     finally:
         if server:
