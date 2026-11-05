@@ -1,6 +1,6 @@
 # TapMesh release qualification
 
-Updated 2026-11-05. The public repository contains the standalone local product
+Updated 2026-11-06 (Asia/Riyadh). The public repository contains the standalone local product
 source. No notarized public binary release is available yet. The candidate is
 Apple Silicon only, with macOS 15 as its minimum deployment target.
 
@@ -11,7 +11,7 @@ Apple Silicon only, with macOS 15 as its minimum deployment target.
 | Local automated tests | 212 Python tests, 28 subtests and 36 Swift tests pass; four physical opt-in tests are skipped. |
 | Runtime independence | Bundled interpreter, packages, companion and native OCR/media helper run with system-only PATH; profile isolation, authentication, restart, shutdown and preserved bundle signatures pass. |
 | Native interface | Local first launch, MCP cold start, settings restart and owned service shutdown have been observed on the development Mac. |
-| iPhone/iPad simulators | Fresh standalone HTTP/MCP, capture, Vision OCR, observed taps/text, finalized media and SHA-256 transfers pass on both owned simulators (25 checks). Explicit accessibility fails after relaunch on both (two failed checks); an hour-long capture soak is in progress. |
+| iPhone/iPad simulators | Fresh standalone HTTP/MCP, capture, Vision OCR, observed taps/text, finalized media and SHA-256 transfers pass on both owned simulators (25 checks). Explicit accessibility fails after relaunch on both (two failed checks); a 3,600-second capture soak passes with 240 decoded captures, zero errors, stopped owned listeners and preserved signatures. Both owned simulators were shut down afterward. |
 | Physical devices | Earlier development slices exist; final standalone physical qualification is deferred until the owner reconnects the devices. |
 | Updates | Official signing and independent public verification pass. Native modified-download rejection, interrupted-download handling, valid build 2→3 installation/relaunch, profile credential preservation and post-update signatures pass on a disposable copy using an ephemeral test key. Production signing-key authorization remains pending. |
 | Signing and notarization | Developer ID hardened signatures are verified locally. Apple notarization credentials and successful notarization/stapling are pending. |
