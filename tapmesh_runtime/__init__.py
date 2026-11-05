@@ -301,7 +301,7 @@ def supervise(profile, resources, parent_pid):
             for module, env, listener in zip(('agent.app', 'server.app'), environments, sockets):
                 env['TAPMESH_LISTEN_FD'] = str(listener.fileno())
                 children.append(subprocess.Popen(
-                    [sys.executable, '-I', '-m', module], env=env, cwd=str(profile.root),
+                    [sys.executable, '-I', '-B', '-m', module], env=env, cwd=str(profile.root),
                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                     start_new_session=True, pass_fds=(listener.fileno(),),
                 ))

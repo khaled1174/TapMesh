@@ -206,7 +206,7 @@ class MacBackend:
         if len(args)>=2 and args[0]=='ui' and args[1]=='describe-all':
             if '--client-type' not in args: args=(*args,'--client-type','xctest')
             if '--format' not in args: args=(*args,'--format','complete')
-        command=[sys.executable,'-I','-m','idb.cli.main'] if os.environ.get('TAPMESH_BUNDLED_RUNTIME')=='1' else [self.idb_path]
+        command=[sys.executable,'-I','-B','-m','idb.cli.main'] if os.environ.get('TAPMESH_BUNDLED_RUNTIME')=='1' else [self.idb_path]
         argv=[*command,'--log','ERROR','--companion',str(socket),*map(str,args)]
         if json_output: argv+=['--json']
         output=await self.runner.run(argv,timeout=timeout,mutation=mutation)

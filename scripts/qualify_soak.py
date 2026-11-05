@@ -33,7 +33,7 @@ def main():
     shutil.copytree(args.bundle,bundle,symlinks=True)
     resources=bundle/'Contents/Resources';profile=root/'Local'
     env={k:os.environ[k] for k in ('HOME','TMPDIR','LANG') if k in os.environ};env['PATH']='/usr/bin:/bin:/usr/sbin:/sbin'
-    process=subprocess.Popen([str(resources/'runtime/bin/python3'),'-I','-m','tapmesh_runtime','supervise','--state-dir',str(profile),
+    process=subprocess.Popen([str(resources/'runtime/bin/python3'),'-I','-B','-m','tapmesh_runtime','supervise','--state-dir',str(profile),
         '--resources',str(resources),'--parent-pid',str(os.getpid())],stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,env=env,cwd=root)
     report={'product':'TapMesh','scope':'two-device read-only capture; no input or stored screen content','status':'running',
             'required_duration_seconds':args.duration_seconds,'interval_seconds':args.interval_seconds,'samples':[],'errors':[],'memory_samples_kib':[]}

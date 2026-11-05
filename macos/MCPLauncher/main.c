@@ -18,11 +18,11 @@ int main(int argc, char **argv) {
     *last = '\0';
     if (snprintf(python, sizeof(python), "%s/../Resources/runtime/bin/python3", resolved) >= sizeof(python) ||
         snprintf(bundle, sizeof(bundle), "%s/../..", resolved) >= sizeof(bundle)) return 70;
-    char **arguments = calloc((size_t)argc + 8, sizeof(char *));
+    char **arguments = calloc((size_t)argc + 9, sizeof(char *));
     if (arguments == NULL) return 70;
-    char *fixed[] = {python, "-I", "-m", "tapmesh_runtime", "stdio", "--app-bundle", bundle};
-    for (int i = 0; i < 7; i++) arguments[i] = fixed[i];
-    for (int i = 1; i < argc; i++) arguments[i + 6] = argv[i];
+    char *fixed[] = {python, "-I", "-B", "-m", "tapmesh_runtime", "stdio", "--app-bundle", bundle};
+    for (int i = 0; i < 8; i++) arguments[i] = fixed[i];
+    for (int i = 1; i < argc; i++) arguments[i + 7] = argv[i];
     execv(python, arguments);
     free(arguments);
     fputs("TapMesh could not start its bundled MCP runtime. Reinstall the complete app.\n", stderr);

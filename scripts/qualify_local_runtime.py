@@ -66,6 +66,7 @@ def main():
     parser.add_argument('--bundle', type=Path, required=True)
     parser.add_argument('--report', type=Path)
     args = parser.parse_args()
+    subprocess.run(['/usr/bin/codesign','--verify','--deep','--strict',str(args.bundle)],check=True)
     report = {'product': 'TapMesh', 'checks': [], 'status': 'running'}
 
     def checked(name):
@@ -86,11 +87,11 @@ def main():
         env = {key: os.environ[key] for key in ('HOME', 'TMPDIR', 'LANG') if key in os.environ}
         env['PATH'] = '/usr/bin:/bin:/usr/sbin:/sbin'
         code = 'import sys,agent,server,tapmesh_runtime,pymobiledevice3,idb; assert all(m.__file__.startswith(sys.prefix) for m in [agent,server,tapmesh_runtime,pymobiledevice3,idb]); print("bundled imports")'
-        subprocess.run([str(python), '-I', '-c', code], cwd=root, env=env, check=True, timeout=15)
+        subprocess.run([str(python), '-I', '-B', '-c', code], cwd=root, env=env, check=True, timeout=15)
         checked('relocated interpreter and packages with system-only PATH')
 
         def start():
-            return subprocess.Popen([str(python), '-I', '-m', 'tapmesh_runtime', 'supervise', '--state-dir', str(profile),
+            return subprocess.Popen([str(python), '-I', '-B', '-m', 'tapmesh_runtime', 'supervise', '--state-dir', str(profile),
                 '--resources', str(resources), '--parent-pid', str(os.getpid())], cwd=root, env=env,
                 stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -149,6 +150,8 @@ def main():
                 process.terminate(); process.wait(timeout=50)
             if configuration:
                 assert services_stopped(configuration)
+        subprocess.run(['/usr/bin/codesign','--verify','--deep','--strict',str(bundle)],check=True)
+        checked('bundle signature preserved after runtime and MCP execution')
     report['status'] = 'passed'
     if args.report:
         args.report.write_text(json.dumps(report, indent=2)+'\n')

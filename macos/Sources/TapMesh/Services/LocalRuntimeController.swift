@@ -74,7 +74,7 @@ final class LocalRuntimeController {
         let child = Process(), pipe = Pipe(), id = UUID()
         launchID = id; readyURL = nil
         child.executableURL = python
-        child.arguments = ["-I", "-m", "tapmesh_runtime", "supervise", "--state-dir", profile.path, "--resources", resources.path, "--parent-pid", String(ProcessInfo.processInfo.processIdentifier)]
+        child.arguments = ["-I", "-B", "-m", "tapmesh_runtime", "supervise", "--state-dir", profile.path, "--resources", resources.path, "--parent-pid", String(ProcessInfo.processInfo.processIdentifier)]
         child.standardInput = FileHandle.nullDevice
         child.standardOutput = pipe
         child.standardError = FileHandle.nullDevice
