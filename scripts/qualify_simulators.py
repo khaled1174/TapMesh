@@ -270,16 +270,18 @@ def main():
 
             def counter():
                 snapshot = client.ocr(session, did)
-                before = re.search(r"Tap\s*count\s*:\s*(\d+)", " ".join(e["label"] for e in snapshot["elements"]), re.I)
+                # Vision can render the fixture's numeric zero as letter O.
+                # Normalize only this explicitly numeric, app-owned counter.
+                before = re.search(r"Tap\s*count\s*:\s*([0-9Oo]+)", " ".join(e["label"] for e in snapshot["elements"]), re.I)
                 require(before is not None, "fixture_counter_not_observed")
-                expected = int(before.group(1)) + 1
+                expected = int(before.group(1).replace("O", "0").replace("o", "0")) + 1
                 client.ok(session, did, "tap", {"target": client.target(snapshot, "Increment")}, approve=True)
                 deadline = time.monotonic() + 6
                 while time.monotonic() < deadline:
                     time.sleep(.3)
                     observed = client.ocr(session, did)
-                    match = re.search(r"Tap\s*count\s*:\s*(\d+)", " ".join(e["label"] for e in observed["elements"]), re.I)
-                    if match and int(match.group(1)) == expected:
+                    match = re.search(r"Tap\s*count\s*:\s*([0-9Oo]+)", " ".join(e["label"] for e in observed["elements"]), re.I)
+                    if match and int(match.group(1).replace("O", "0").replace("o", "0")) == expected:
                         return {"counter_before": expected - 1, "counter_after": expected}
                 raise QualificationFailure("tap_delivery_not_verified_by_counter")
             check("approved tap changes observed fixture counter", counter, kind)
@@ -289,9 +291,15 @@ def main():
                 text = "TMQualification" + ("1" if kind == "iphone" else "2")
                 client.ok(session, did, "type_text", {"target": client.target(snapshot, "Enter name"), "text": text,
                                                     "input_method": "keyboard", "keyboard_layout": "us"}, approve=True)
-                observed = client.ocr(session, did)
-                joined = " ".join(e["label"] for e in observed["elements"])
-                require(re.search(r"Entered\s*:\s*" + re.escape(text), joined) is not None, "bounded_fixture_text_not_observed")
+                deadline = time.monotonic() + 6
+                while time.monotonic() < deadline:
+                    time.sleep(.3)
+                    observed = client.ocr(session, did)
+                    joined = " ".join(e["label"] for e in observed["elements"])
+                    if re.search(r"Entered\s*:\s*" + re.escape(text), joined) is not None:
+                        break
+                else:
+                    raise QualificationFailure("bounded_fixture_text_not_observed")
                 client.ok(session, did, "hide_keyboard", approve=True)
                 return {"character_count": len(text), "input_method": "explicit keyboard"}
             check("bounded ASCII fixture text observed through OCR", text_entry, kind)

@@ -11,11 +11,11 @@ Apple Silicon only, with macOS 15 as its minimum deployment target.
 | Local automated tests | 208 Python tests, 28 subtests and 36 Swift tests pass; four physical opt-in tests are skipped. |
 | Runtime independence | Bundled interpreter, packages, companion and native OCR/media helper run with system-only PATH; profile isolation, authentication, restart, shutdown and preserved bundle signatures pass. |
 | Native interface | Local first launch, MCP cold start, settings restart and owned service shutdown have been observed on the development Mac. |
-| iPhone/iPad simulators | Fresh standalone HTTP/MCP, input, media and hour-long capture qualification are in progress. Explicit accessibility remains limited where idb returns unusable trees. |
+| iPhone/iPad simulators | Fresh standalone HTTP/MCP, capture, Vision OCR, observed taps/text, finalized media and SHA-256 transfers pass on both owned simulators (25 checks). Explicit accessibility fails after relaunch on both (two failed checks); an hour-long capture soak is in progress. |
 | Physical devices | Earlier development slices exist; final standalone physical qualification is deferred until the owner reconnects the devices. |
-| Updates | Signature unit and integration checks pass. Disposable native installation, modified-download rejection and interrupted-download qualification are in progress with an ephemeral test key. Production signing-key authorization remains pending. |
+| Updates | Official signing and independent public verification pass. Native modified-download rejection, interrupted-download handling, valid build 2→3 installation/relaunch, profile credential preservation and post-update signatures pass on a disposable copy using an ephemeral test key. Production signing-key authorization remains pending. |
 | Signing and notarization | Developer ID hardened signatures are verified locally. Apple notarization credentials and successful notarization/stapling are pending. |
-| Corresponding source | Dependency source closure and notices have been collected. The final release must ship its matching complete source archive and checksums. Independent bit-for-bit rebuilding has not been performed. |
+| Corresponding source | A matching complete offline source archive and checksums are attached to the draft candidate: 112/112 Python sdists and assessed native dependencies, with zero source-availability gaps. Independent bit-for-bit rebuilding has not been performed. |
 
 Simulator evidence does not certify physical-device behavior. A native update on
 the development Mac does not certify installation or Gatekeeper acceptance on a
