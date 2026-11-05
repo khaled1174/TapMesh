@@ -1,0 +1,5798 @@
+{
+  "version": "0.1.0",
+  "tools": [
+    {
+      "name": "list_devices",
+      "description": "list devices. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include_all_simulators": {
+            "type": "boolean"
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "device.discover",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": false,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "start_simulator",
+      "description": "start simulator. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "simulator_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "device_type_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "runtime_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "select": {
+            "type": "boolean"
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 180000
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "simulator_id"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "device_type_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "runtime_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "name"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "required": [
+              "device_type_id",
+              "runtime_id"
+            ],
+            "not": {
+              "required": [
+                "simulator_id"
+              ]
+            }
+          }
+        ]
+      },
+      "capability": "simulator.boot",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": false,
+      "maximum_timeout_ms": 180000
+    },
+    {
+      "name": "shut_down_simulator",
+      "description": "shut down simulator. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "simulator.shutdown",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "select_device",
+      "description": "select device. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "device_id"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "device.select",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": false,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "get_device_info",
+      "description": "get device info. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "refresh": {
+            "type": "boolean"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "device.info",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "take_screenshot",
+      "description": "take screenshot. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "jpeg",
+              "png"
+            ]
+          },
+          "max_width": {
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 4096
+          },
+          "quality": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 1
+          },
+          "require_fresh": {
+            "type": "boolean"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "screen.capture",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "save_screenshot",
+      "description": "save screenshot. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "png",
+              "jpeg"
+            ]
+          },
+          "full_resolution": {
+            "type": "boolean"
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "filename": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "overwrite": {
+            "const": false
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "screen.capture",
+      "policy": "S",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "start_recording",
+      "description": "start recording. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "filename": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "overwrite": {
+            "const": false
+          },
+          "max_duration_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600
+          },
+          "resume_after_reconnect": {
+            "const": false
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "screen.record",
+      "policy": "S",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "stop_recording",
+      "description": "stop recording. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "recording_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "recording_id"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "screen.record",
+      "policy": "S",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "get_foreground_app",
+      "description": "get foreground app. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "apps.foreground",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "list_elements",
+      "description": "list elements. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "accessibility",
+              "ocr"
+            ]
+          },
+          "max_elements": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "include_invisible": {
+            "type": "boolean"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "ui.inspect",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "tap",
+      "description": "tap. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "input.tap",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "tap_text",
+      "description": "tap text. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "match": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "match": {
+                "type": "string",
+                "enum": [
+                  "exact",
+                  "contains"
+                ]
+              },
+              "case_sensitive": {
+                "type": "boolean"
+              },
+              "occurrence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000
+              }
+            },
+            "required": [
+              "text",
+              "match"
+            ],
+            "additionalProperties": false
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "accessibility",
+              "ocr"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "match"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "input.tap",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "double_tap",
+      "description": "double tap. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "interval_ms": {
+            "type": "integer",
+            "minimum": 40,
+            "maximum": 1000
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "input.double_tap",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "long_press",
+      "description": "long press. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 10000
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "input.long_press",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "swipe",
+      "description": "swipe. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "end": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 10000
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "input.swipe",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "scroll",
+      "description": "scroll. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "left",
+              "right"
+            ]
+          },
+          "distance_points": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "container_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "snapshot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "direction",
+          "distance_points"
+        ],
+        "additionalProperties": false,
+        "dependentRequired": {
+          "container_ref": [
+            "snapshot_id"
+          ],
+          "snapshot_id": [
+            "container_ref"
+          ]
+        }
+      },
+      "capability": "input.scroll",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "scroll_to",
+      "description": "scroll to. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "match": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "match": {
+                "type": "string",
+                "enum": [
+                  "exact",
+                  "contains"
+                ]
+              },
+              "case_sensitive": {
+                "type": "boolean"
+              },
+              "occurrence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000
+              }
+            },
+            "required": [
+              "text",
+              "match"
+            ],
+            "additionalProperties": false
+          },
+          "selector": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "identifier": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
+            },
+            "required": [],
+            "additionalProperties": false,
+            "minProperties": 1
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "left",
+              "right"
+            ]
+          },
+          "max_steps": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120000
+          }
+        },
+        "required": [
+          "direction"
+        ],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "match"
+            ],
+            "not": {
+              "required": [
+                "selector"
+              ]
+            }
+          },
+          {
+            "required": [
+              "selector"
+            ],
+            "not": {
+              "required": [
+                "match"
+              ]
+            }
+          }
+        ]
+      },
+      "capability": "input.scroll",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 120000
+    },
+    {
+      "name": "drag",
+      "description": "drag. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "end": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "hold_ms": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 10000
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 10000
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "input.drag",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "pinch",
+      "description": "pinch. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "center": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "scale": {
+            "type": "number",
+            "minimum": 0.25,
+            "maximum": 4
+          },
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 10000
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "center",
+          "scale"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "input.pinch",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "type_text",
+      "description": "type text. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 65536
+          },
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "input_method": {
+            "type": "string",
+            "enum": [
+              "keyboard",
+              "clipboard"
+            ],
+            "default": "keyboard"
+          },
+          "keyboard_layout": {
+            "type": "string",
+            "enum": [
+              "us"
+            ]
+          },
+          "field_context": {
+            "type": "string",
+            "enum": [
+              "ordinary_app"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "input_method": {
+                  "const": "clipboard"
+                }
+              },
+              "required": [
+                "input_method"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "keyboard_layout"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "capability": "input.text",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "fill",
+      "description": "fill. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "snapshot_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "ref",
+                  "snapshot_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16384
+                  },
+                  "coordinate_space": {
+                    "type": "string",
+                    "enum": [
+                      "device_points"
+                    ]
+                  },
+                  "observation_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "coordinate_space",
+                  "observation_id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 65536
+          },
+          "submit": {
+            "type": "boolean"
+          },
+          "input_method": {
+            "type": "string",
+            "enum": [
+              "keyboard",
+              "clipboard"
+            ],
+            "default": "keyboard"
+          },
+          "keyboard_layout": {
+            "type": "string",
+            "enum": [
+              "us"
+            ]
+          },
+          "field_context": {
+            "type": "string",
+            "enum": [
+              "ordinary_app"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "target",
+          "text"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "input_method": {
+                  "const": "clipboard"
+                }
+              },
+              "required": [
+                "input_method"
+              ]
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "keyboard_layout"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "capability": "input.fill",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "press_key",
+      "description": "press key. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "return",
+              "delete",
+              "escape",
+              "tab",
+              "space",
+              "up",
+              "down",
+              "left",
+              "right",
+              "select_all"
+            ]
+          },
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "shift",
+                "control",
+                "alt",
+                "command"
+              ]
+            },
+            "uniqueItems": true,
+            "maxItems": 4
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "input.key",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "hide_keyboard",
+      "description": "hide keyboard. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "input.keyboard_dismiss",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "press_button",
+      "description": "press button. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "button": {
+            "type": "string",
+            "enum": [
+              "home",
+              "lock",
+              "side_button",
+              "siri",
+              "volume_up",
+              "volume_down",
+              "apple_pay"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "button"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "system.button",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "system_gesture",
+      "description": "system gesture. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "gesture": {
+            "type": "string",
+            "enum": [
+              "home",
+              "app_switcher",
+              "control_center",
+              "notification_center"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "gesture"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "system.gesture",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "go_back",
+      "description": "go back. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "navigation_element",
+              "edge_gesture"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "navigation.back",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "rotate",
+      "description": "rotate. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "orientation": {
+            "type": "string",
+            "enum": [
+              "portrait",
+              "portrait_upside_down",
+              "landscape_left",
+              "landscape_right"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "orientation"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "display.rotate",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "set_appearance",
+      "description": "set appearance. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "appearance": {
+            "type": "string",
+            "enum": [
+              "light",
+              "dark",
+              "system"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "appearance"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "settings.appearance",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "set_accessibility",
+      "description": "set accessibility. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "content_size_category": {
+            "type": "string",
+            "enum": [
+              "extra-small",
+              "small",
+              "medium",
+              "large",
+              "extra-large",
+              "extra-extra-large",
+              "extra-extra-extra-large",
+              "accessibility-medium",
+              "accessibility-large",
+              "accessibility-extra-large",
+              "accessibility-extra-extra-large",
+              "accessibility-extra-extra-extra-large"
+            ]
+          },
+          "reduce_motion": {
+            "type": "boolean"
+          },
+          "bold_text": {
+            "type": "boolean"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "content_size_category"
+            ]
+          },
+          {
+            "required": [
+              "reduce_motion"
+            ]
+          },
+          {
+            "required": [
+              "bold_text"
+            ]
+          }
+        ]
+      },
+      "capability": "settings.accessibility",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "list_apps",
+      "description": "list apps. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include_system": {
+            "type": "boolean"
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "apps.list",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "launch_app",
+      "description": "launch app. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "bundle_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "maxItems": 64
+          },
+          "environment": {
+            "type": "object",
+            "properties": {
+              "LANG": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "LC_ALL": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "TAPMESH_FIXTURE_MODE": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "bundle_id"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "apps.launch",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "terminate_app",
+      "description": "terminate app. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "bundle_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "bundle_id"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "apps.terminate",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "install_app",
+      "description": "install app. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "artifact_path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "replace": {
+            "type": "boolean"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "artifact_path"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "apps.install",
+      "policy": "S",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "uninstall_app",
+      "description": "uninstall app. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "bundle_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "bundle_id"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "apps.uninstall",
+      "policy": "D",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "open_settings",
+      "description": "open settings. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "section": {
+            "type": "string",
+            "enum": [
+              "root"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "system.open_settings",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "open_url",
+      "description": "open url. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "apps.open_url",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "build_and_run",
+      "description": "build and run. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "project_path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "scheme": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "configuration": {
+            "type": "string",
+            "enum": [
+              "Debug",
+              "Release"
+            ]
+          },
+          "launch": {
+            "type": "boolean"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1800000
+          }
+        },
+        "required": [
+          "project_path",
+          "scheme"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "build.xcode",
+      "policy": "H",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 1800000
+    },
+    {
+      "name": "set_location",
+      "description": "set location. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "altitude": {
+            "type": "number",
+            "minimum": -1000,
+            "maximum": 100000
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "location.simulate",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "clear_location",
+      "description": "clear location. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "location.simulate",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "get_clipboard",
+      "description": "get clipboard. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "text"
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "clipboard.read",
+      "policy": "S",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "set_clipboard",
+      "description": "set clipboard. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 65536
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "clipboard.write",
+      "policy": "S",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "list_crashes",
+      "description": "list crashes. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "bundle_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+          },
+          "since": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "format": "date-time"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "capability": "diagnostics.crash_list",
+      "policy": "S",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "get_crash",
+      "description": "get crash. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "crash_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "symbolicate": {
+            "type": "boolean"
+          },
+          "symbols_path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "crash_id"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "diagnostics.crash_read",
+      "policy": "S",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "download_app_container",
+      "description": "download app container. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "bundle_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "filename": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "bundle_id"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "apps.container_export",
+      "policy": "S",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "request_human_action",
+      "description": "request human action. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "instructions": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "resume_condition": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "text_present"
+                  },
+                  "match": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "match": {
+                        "type": "string",
+                        "enum": [
+                          "exact",
+                          "contains"
+                        ]
+                      },
+                      "case_sensitive": {
+                        "type": "boolean"
+                      },
+                      "occurrence": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "match"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "accessibility",
+                      "ocr"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "match"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "text_absent"
+                  },
+                  "match": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "match": {
+                        "type": "string",
+                        "enum": [
+                          "exact",
+                          "contains"
+                        ]
+                      },
+                      "case_sensitive": {
+                        "type": "boolean"
+                      },
+                      "occurrence": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "match"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "accessibility",
+                      "ocr"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "match"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "element_present"
+                  },
+                  "selector": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "role": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false,
+                    "minProperties": 1
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "accessibility"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "selector"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "foreground_app"
+                  },
+                  "bundle_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "bundle_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "device_ready"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120000
+          }
+        },
+        "required": [
+          "reason",
+          "instructions"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "workflow.handoff",
+      "policy": "U",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 120000
+    },
+    {
+      "name": "handle_alert",
+      "description": "handle alert. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "button_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "button_label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30000
+          }
+        },
+        "required": [
+          "snapshot_id"
+        ],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "button_ref"
+            ],
+            "not": {
+              "required": [
+                "button_label"
+              ]
+            }
+          },
+          {
+            "required": [
+              "button_label"
+            ],
+            "not": {
+              "required": [
+                "button_ref"
+              ]
+            }
+          }
+        ]
+      },
+      "capability": "ui.alert",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 30000
+    },
+    {
+      "name": "wait_for",
+      "description": "wait for. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "condition": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "text_present"
+                  },
+                  "match": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "match": {
+                        "type": "string",
+                        "enum": [
+                          "exact",
+                          "contains"
+                        ]
+                      },
+                      "case_sensitive": {
+                        "type": "boolean"
+                      },
+                      "occurrence": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "match"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "accessibility",
+                      "ocr"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "match"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "text_absent"
+                  },
+                  "match": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "match": {
+                        "type": "string",
+                        "enum": [
+                          "exact",
+                          "contains"
+                        ]
+                      },
+                      "case_sensitive": {
+                        "type": "boolean"
+                      },
+                      "occurrence": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "match"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "accessibility",
+                      "ocr"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "match"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "element_present"
+                  },
+                  "selector": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "role": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 1024
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false,
+                    "minProperties": 1
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "accessibility"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "selector"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "foreground_app"
+                  },
+                  "bundle_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "bundle_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "const": "device_ready"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "poll_interval_ms": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 10000
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120000
+          }
+        },
+        "required": [
+          "condition"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "workflow.observe",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": true,
+      "maximum_timeout_ms": 120000
+    },
+    {
+      "name": "wait",
+      "description": "wait. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "duration_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 120000
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120000
+          }
+        },
+        "required": [
+          "duration_ms"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "workflow.delay",
+      "policy": "O",
+      "mutation": false,
+      "device_bound": false,
+      "maximum_timeout_ms": 120000
+    },
+    {
+      "name": "batch_commands",
+      "description": "batch commands. Results distinguish delivery from verified application success.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "commands": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 25,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "clear_location"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "double_tap"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "target": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "interval_ms": {
+                          "type": "integer",
+                          "minimum": 40,
+                          "maximum": 1000
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "target"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "download_app_container"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "bundle_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+                        },
+                        "destination": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "filename": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "bundle_id"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "drag"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "end": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "hold_ms": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 10000
+                        },
+                        "duration_ms": {
+                          "type": "integer",
+                          "minimum": 50,
+                          "maximum": 10000
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "fill"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "target": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 65536
+                        },
+                        "submit": {
+                          "type": "boolean"
+                        },
+                        "input_method": {
+                          "type": "string",
+                          "enum": [
+                            "keyboard",
+                            "clipboard"
+                          ],
+                          "default": "keyboard"
+                        },
+                        "keyboard_layout": {
+                          "type": "string",
+                          "enum": [
+                            "us"
+                          ]
+                        },
+                        "field_context": {
+                          "type": "string",
+                          "enum": [
+                            "ordinary_app"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "target",
+                        "text"
+                      ],
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "input_method": {
+                                "const": "clipboard"
+                              }
+                            },
+                            "required": [
+                              "input_method"
+                            ]
+                          },
+                          "then": {
+                            "not": {
+                              "required": [
+                                "keyboard_layout"
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "get_clipboard"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "format": {
+                          "type": "string",
+                          "enum": [
+                            "text"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "get_crash"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "crash_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "symbolicate": {
+                          "type": "boolean"
+                        },
+                        "symbols_path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "destination": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "crash_id"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "get_device_info"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "refresh": {
+                          "type": "boolean"
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "get_foreground_app"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "go_back"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "strategy": {
+                          "type": "string",
+                          "enum": [
+                            "auto",
+                            "navigation_element",
+                            "edge_gesture"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "handle_alert"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "snapshot_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "button_ref": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "button_label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "snapshot_id"
+                      ],
+                      "additionalProperties": false,
+                      "oneOf": [
+                        {
+                          "required": [
+                            "button_ref"
+                          ],
+                          "not": {
+                            "required": [
+                              "button_label"
+                            ]
+                          }
+                        },
+                        {
+                          "required": [
+                            "button_label"
+                          ],
+                          "not": {
+                            "required": [
+                              "button_ref"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "hide_keyboard"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "install_app"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "artifact_path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "replace": {
+                          "type": "boolean"
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "artifact_path"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "launch_app"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "bundle_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+                        },
+                        "arguments": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4096
+                          },
+                          "maxItems": 64
+                        },
+                        "environment": {
+                          "type": "object",
+                          "properties": {
+                            "LANG": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128
+                            },
+                            "LC_ALL": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128
+                            },
+                            "TAPMESH_FIXTURE_MODE": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128
+                            }
+                          },
+                          "required": [],
+                          "additionalProperties": false
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "bundle_id"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "list_apps"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "include_system": {
+                          "type": "boolean"
+                        },
+                        "query": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "list_crashes"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "bundle_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+                        },
+                        "since": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40,
+                          "format": "date-time"
+                        },
+                        "limit": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 200
+                        },
+                        "cursor": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "list_elements"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "auto",
+                            "accessibility",
+                            "ocr"
+                          ]
+                        },
+                        "max_elements": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 1000
+                        },
+                        "include_invisible": {
+                          "type": "boolean"
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "long_press"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "target": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "duration_ms": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 10000
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "target"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "open_settings"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "section": {
+                          "type": "string",
+                          "enum": [
+                            "root"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "open_url"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "url"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "pinch"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "center": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "scale": {
+                          "type": "number",
+                          "minimum": 0.25,
+                          "maximum": 4
+                        },
+                        "duration_ms": {
+                          "type": "integer",
+                          "minimum": 50,
+                          "maximum": 10000
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "center",
+                        "scale"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "press_button"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "button": {
+                          "type": "string",
+                          "enum": [
+                            "home",
+                            "lock",
+                            "side_button",
+                            "siri",
+                            "volume_up",
+                            "volume_down",
+                            "apple_pay"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "button"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "press_key"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "enum": [
+                            "return",
+                            "delete",
+                            "escape",
+                            "tab",
+                            "space",
+                            "up",
+                            "down",
+                            "left",
+                            "right",
+                            "select_all"
+                          ]
+                        },
+                        "modifiers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "shift",
+                              "control",
+                              "alt",
+                              "command"
+                            ]
+                          },
+                          "uniqueItems": true,
+                          "maxItems": 4
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "key"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "rotate"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "orientation": {
+                          "type": "string",
+                          "enum": [
+                            "portrait",
+                            "portrait_upside_down",
+                            "landscape_left",
+                            "landscape_right"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "orientation"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "save_screenshot"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "format": {
+                          "type": "string",
+                          "enum": [
+                            "png",
+                            "jpeg"
+                          ]
+                        },
+                        "full_resolution": {
+                          "type": "boolean"
+                        },
+                        "destination": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        },
+                        "filename": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255
+                        },
+                        "overwrite": {
+                          "const": false
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "scroll"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "direction": {
+                          "type": "string",
+                          "enum": [
+                            "up",
+                            "down",
+                            "left",
+                            "right"
+                          ]
+                        },
+                        "distance_points": {
+                          "type": "number",
+                          "minimum": 1,
+                          "maximum": 10000
+                        },
+                        "container_ref": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "snapshot_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1024
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "direction",
+                        "distance_points"
+                      ],
+                      "additionalProperties": false,
+                      "dependentRequired": {
+                        "container_ref": [
+                          "snapshot_id"
+                        ],
+                        "snapshot_id": [
+                          "container_ref"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "scroll_to"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "match": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "match": {
+                              "type": "string",
+                              "enum": [
+                                "exact",
+                                "contains"
+                              ]
+                            },
+                            "case_sensitive": {
+                              "type": "boolean"
+                            },
+                            "occurrence": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 1000
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "match"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "selector": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "role": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128
+                            },
+                            "identifier": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1024
+                            }
+                          },
+                          "required": [],
+                          "additionalProperties": false,
+                          "minProperties": 1
+                        },
+                        "direction": {
+                          "type": "string",
+                          "enum": [
+                            "up",
+                            "down",
+                            "left",
+                            "right"
+                          ]
+                        },
+                        "max_steps": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 25
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 120000
+                        }
+                      },
+                      "required": [
+                        "direction"
+                      ],
+                      "additionalProperties": false,
+                      "oneOf": [
+                        {
+                          "required": [
+                            "match"
+                          ],
+                          "not": {
+                            "required": [
+                              "selector"
+                            ]
+                          }
+                        },
+                        {
+                          "required": [
+                            "selector"
+                          ],
+                          "not": {
+                            "required": [
+                              "match"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "set_accessibility"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "content_size_category": {
+                          "type": "string",
+                          "enum": [
+                            "extra-small",
+                            "small",
+                            "medium",
+                            "large",
+                            "extra-large",
+                            "extra-extra-large",
+                            "extra-extra-extra-large",
+                            "accessibility-medium",
+                            "accessibility-large",
+                            "accessibility-extra-large",
+                            "accessibility-extra-extra-large",
+                            "accessibility-extra-extra-extra-large"
+                          ]
+                        },
+                        "reduce_motion": {
+                          "type": "boolean"
+                        },
+                        "bold_text": {
+                          "type": "boolean"
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false,
+                      "anyOf": [
+                        {
+                          "required": [
+                            "content_size_category"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "reduce_motion"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "bold_text"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "set_appearance"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "appearance": {
+                          "type": "string",
+                          "enum": [
+                            "light",
+                            "dark",
+                            "system"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "appearance"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "set_clipboard"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "maxLength": 65536
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "text"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "set_location"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "latitude": {
+                          "type": "number",
+                          "minimum": -90,
+                          "maximum": 90
+                        },
+                        "longitude": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "altitude": {
+                          "type": "number",
+                          "minimum": -1000,
+                          "maximum": 100000
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "latitude",
+                        "longitude"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "swipe"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "start": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "end": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "duration_ms": {
+                          "type": "integer",
+                          "minimum": 50,
+                          "maximum": 10000
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "system_gesture"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "gesture": {
+                          "type": "string",
+                          "enum": [
+                            "home",
+                            "app_switcher",
+                            "control_center",
+                            "notification_center"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "gesture"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "take_screenshot"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "format": {
+                          "type": "string",
+                          "enum": [
+                            "jpeg",
+                            "png"
+                          ]
+                        },
+                        "max_width": {
+                          "type": "integer",
+                          "minimum": 320,
+                          "maximum": 4096
+                        },
+                        "quality": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 1
+                        },
+                        "require_fresh": {
+                          "type": "boolean"
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "tap"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "target": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "target"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "tap_text"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "match": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 4096
+                            },
+                            "match": {
+                              "type": "string",
+                              "enum": [
+                                "exact",
+                                "contains"
+                              ]
+                            },
+                            "case_sensitive": {
+                              "type": "boolean"
+                            },
+                            "occurrence": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 1000
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "match"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "auto",
+                            "accessibility",
+                            "ocr"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "match"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "terminate_app"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "bundle_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "bundle_id"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "type_text"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "maxLength": 65536
+                        },
+                        "target": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "ref": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "snapshot_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "ref",
+                                "snapshot_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "x": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "y": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 16384
+                                },
+                                "coordinate_space": {
+                                  "type": "string",
+                                  "enum": [
+                                    "device_points"
+                                  ]
+                                },
+                                "observation_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "x",
+                                "y",
+                                "coordinate_space",
+                                "observation_id"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "input_method": {
+                          "type": "string",
+                          "enum": [
+                            "keyboard",
+                            "clipboard"
+                          ],
+                          "default": "keyboard"
+                        },
+                        "keyboard_layout": {
+                          "type": "string",
+                          "enum": [
+                            "us"
+                          ]
+                        },
+                        "field_context": {
+                          "type": "string",
+                          "enum": [
+                            "ordinary_app"
+                          ]
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "text"
+                      ],
+                      "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": {
+                            "properties": {
+                              "input_method": {
+                                "const": "clipboard"
+                              }
+                            },
+                            "required": [
+                              "input_method"
+                            ]
+                          },
+                          "then": {
+                            "not": {
+                              "required": [
+                                "keyboard_layout"
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "uninstall_app"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "bundle_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 30000
+                        }
+                      },
+                      "required": [
+                        "bundle_id"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "wait"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "duration_ms": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 120000
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 120000
+                        }
+                      },
+                      "required": [
+                        "duration_ms"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tool": {
+                      "const": "wait_for"
+                    },
+                    "arguments": {
+                      "type": "object",
+                      "properties": {
+                        "condition": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "const": "text_present"
+                                },
+                                "match": {
+                                  "type": "object",
+                                  "properties": {
+                                    "text": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 4096
+                                    },
+                                    "match": {
+                                      "type": "string",
+                                      "enum": [
+                                        "exact",
+                                        "contains"
+                                      ]
+                                    },
+                                    "case_sensitive": {
+                                      "type": "boolean"
+                                    },
+                                    "occurrence": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 1000
+                                    }
+                                  },
+                                  "required": [
+                                    "text",
+                                    "match"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "enum": [
+                                    "auto",
+                                    "accessibility",
+                                    "ocr"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "match"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "const": "text_absent"
+                                },
+                                "match": {
+                                  "type": "object",
+                                  "properties": {
+                                    "text": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 4096
+                                    },
+                                    "match": {
+                                      "type": "string",
+                                      "enum": [
+                                        "exact",
+                                        "contains"
+                                      ]
+                                    },
+                                    "case_sensitive": {
+                                      "type": "boolean"
+                                    },
+                                    "occurrence": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 1000
+                                    }
+                                  },
+                                  "required": [
+                                    "text",
+                                    "match"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "enum": [
+                                    "auto",
+                                    "accessibility",
+                                    "ocr"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "match"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "const": "element_present"
+                                },
+                                "selector": {
+                                  "type": "object",
+                                  "properties": {
+                                    "label": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 4096
+                                    },
+                                    "role": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 128
+                                    },
+                                    "identifier": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 1024
+                                    }
+                                  },
+                                  "required": [],
+                                  "additionalProperties": false,
+                                  "minProperties": 1
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "enum": [
+                                    "auto",
+                                    "accessibility"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "selector"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "const": "foreground_app"
+                                },
+                                "bundle_id": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 255,
+                                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "bundle_id"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "const": "device_ready"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "poll_interval_ms": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 10000
+                        },
+                        "device_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        },
+                        "timeout_ms": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 120000
+                        }
+                      },
+                      "required": [
+                        "condition"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "tool",
+                    "arguments"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "stop_on_error": {
+            "type": "boolean"
+          },
+          "device_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120000
+          }
+        },
+        "required": [
+          "commands"
+        ],
+        "additionalProperties": false
+      },
+      "capability": "workflow.batch",
+      "policy": "C",
+      "mutation": true,
+      "device_bound": true,
+      "maximum_timeout_ms": 120000
+    }
+  ]
+}

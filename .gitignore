@@ -1,0 +1,15 @@
+.DS_Store
+.venv/
+.build/
+**/__pycache__/
+.pytest_cache/
+dist/
+.runtime/
+*.egg-info/
+.env
+*.token
+*.p8
+*.p12
+*.mobileprovision
+connection.json
+credentials.json
