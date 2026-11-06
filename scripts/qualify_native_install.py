@@ -69,7 +69,11 @@ def main():
         command(['/usr/sbin/spctl','--assess','--type','execute',app])
         passed('Developer ID signature, stapled ticket and Gatekeeper assessment')
         probe=workspace/'native-window-probe'
-        command(['/usr/bin/swiftc',Path(__file__).with_name('qualify_native_window.swift'),'-o',probe],timeout=90)
+        # Compile an immutable local snapshot; SMB can update source mtimes after
+        # a new file is closed and make swiftc reject it as modified mid-build.
+        probe_source=workspace/'native-window-probe.swift'
+        probe_source.write_bytes(Path(__file__).with_name('qualify_native_window.swift').read_bytes())
+        command(['/usr/bin/swiftc',probe_source,'-o',probe],timeout=90)
         env={k:os.environ[k] for k in ('HOME','TMPDIR','LANG') if k in os.environ}
         env.update(PATH='/usr/bin:/bin:/usr/sbin:/sbin',TAPMESH_PROFILE_DIR=str(profile))
         process=subprocess.Popen([str(binary)],env=env,cwd=workspace,start_new_session=True,

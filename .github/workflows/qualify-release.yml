@@ -6,6 +6,10 @@ on:
         description: Draft release containing the exact notarized ZIP and manifest
         required: true
         default: v0.1.0
+      update_fixture_sha256:
+        description: Optional SHA-256 of the disposable notarized build 3-to-4 update fixtures
+        required: false
+        default: ''
 permissions:
   contents: read
 jobs:
@@ -22,6 +26,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern release-manifest.json --pattern 'TapMesh-*-standalone-macos-arm64.zip' --dir release-input
+      - name: Download optional notarized update fixtures
+        if: inputs.update_fixture_sha256 != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern TapMesh-CI-update-build3-4.zip --dir release-input
       - uses: actions/upload-artifact@v4
         with:
           name: notarized-release-input
@@ -46,9 +56,11 @@ jobs:
           name: notarized-release-input
           path: ${{ runner.temp }}/release-input
       - name: Bind archive to notarized manifest and install into isolated Applications
+        env:
+          UPDATE_FIXTURE_SHA256: ${{ inputs.update_fixture_sha256 }}
         run: |
           python3 - <<'PY'
-          import hashlib,json,os,pathlib,subprocess
+          import hashlib,json,os,pathlib,re,subprocess
           root=pathlib.Path(os.environ['RUNNER_TEMP'])/'release-input'
           manifest=json.loads((root/'release-manifest.json').read_text())
           assert manifest['product']=='TapMesh' and manifest['notarized'] is True
@@ -58,11 +70,24 @@ jobs:
           destination=pathlib.Path(os.environ['RUNNER_TEMP'])/'release-Applications'
           destination.mkdir(mode=0o700)
           subprocess.run(['/usr/bin/ditto','-x','-k',str(archive),str(destination)],check=True)
+          expected=os.environ['UPDATE_FIXTURE_SHA256']
+          if expected:
+              assert re.fullmatch('[a-f0-9]{64}',expected)
+              fixture=root/'TapMesh-CI-update-build3-4.zip'
+              assert hashlib.sha256(fixture.read_bytes()).hexdigest()==expected
+              target=pathlib.Path(os.environ['RUNNER_TEMP'])/'update-fixtures'
+              target.mkdir(mode=0o700)
+              subprocess.run(['/usr/bin/ditto','-x','-k',str(fixture),str(target)],check=True)
           PY
       - name: Verify notarized native first launch and cooperative quit
         run: uv run --no-sync python scripts/qualify_native_install.py --bundle "$RUNNER_TEMP/release-Applications/TapMesh.app" --workspace "$RUNNER_TEMP/native-release-qualification" --report "dist/native-${{ matrix.os }}.json"
+      - name: Verify clean-host native update and profile preservation
+        if: inputs.update_fixture_sha256 != ''
+        run: uv run --no-sync python scripts/qualify_native_update.py --fixtures "$RUNNER_TEMP/update-fixtures/TapMeshCIUpdate" --report "dist/native-update-${{ matrix.os }}.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: native-release-${{ matrix.os }}
-          path: dist/native-${{ matrix.os }}.json
+          path: |
+            dist/native-${{ matrix.os }}.json
+            dist/native-update-${{ matrix.os }}.json
