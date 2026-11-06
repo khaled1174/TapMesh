@@ -58,6 +58,8 @@ def main():
         if result.returncode:
             name=Path(str(argv[0])).name
             (workspace/(name+'-stderr.txt')).write_bytes(result.stderr[:16384])
+            report['command_error']={'executable':name,'exit_code':result.returncode,
+                'stderr_excerpt':result.stderr.decode('utf-8','replace')[:8192]}
             raise RuntimeError(name+' failed with exit code '+str(result.returncode))
         return result.stdout
     process=None;configuration=None
