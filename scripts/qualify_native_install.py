@@ -87,6 +87,7 @@ def main():
         passed('Native app starts its private local HTTP services')
         visible=json.loads(command([probe,'window',process.pid,binary]))
         assert visible['workspace_window_visible'] is True
+        report['ui_automation_trusted']=visible.get('ui_automation_trusted')
         passed('Native workspace window is visible')
         credentials={name:hashlib.sha256((profile/name).read_bytes()).hexdigest()
             for name in ('server.token','agent.token','approvals.token')}

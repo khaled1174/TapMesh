@@ -1,4 +1,5 @@
 import AppKit
+import ApplicationServices
 import CoreGraphics
 import Foundation
 
@@ -22,7 +23,8 @@ if mode == "quit" {
               let height = bounds["Height"] as? Double else { return false }
         return width >= 1000 && height >= 600
     }
-    result = ["workspace_window_visible": workspaceWindow]
+    result = ["workspace_window_visible": workspaceWindow,
+              "ui_automation_trusted": AXIsProcessTrusted()]
 } else { exit(2) }
 let data = try JSONSerialization.data(withJSONObject: result, options: [.sortedKeys])
 print(String(decoding: data, as: UTF8.self))
