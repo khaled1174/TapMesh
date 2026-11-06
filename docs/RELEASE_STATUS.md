@@ -1,7 +1,7 @@
 # TapMesh release qualification
 
 Updated 2026-11-06 (Asia/Riyadh). The public repository contains the standalone local product
-source. No notarized public binary release is available yet. The candidate is
+source. The candidate is notarized and remains in an unpublished draft release. It is
 Apple Silicon only, with macOS 15 as its minimum deployment target.
 
 | Area | Evidence and current limit |
@@ -13,8 +13,8 @@ Apple Silicon only, with macOS 15 as its minimum deployment target.
 | Native interface | Local first launch, MCP cold start, settings restart and owned service shutdown have been observed on the development Mac. |
 | iPhone/iPad simulators | Fresh standalone HTTP/MCP, capture, Vision OCR, observed taps/text, finalized media and SHA-256 transfers pass on both owned simulators (25 checks). Explicit accessibility fails after relaunch on both (two failed checks); a 3,600-second capture soak passes with 240 decoded captures, zero errors, stopped owned listeners and preserved signatures. Both owned simulators were shut down afterward. |
 | Physical devices | Earlier development slices exist; final standalone physical qualification is deferred until the owner reconnects the devices. |
-| Updates | Official signing and independent public verification pass. Native modified-download rejection, interrupted-download handling, valid build 2→3 installation/relaunch, profile credential preservation and post-update signatures pass on a disposable copy using an ephemeral test key. Production signing-key authorization remains pending. |
-| Signing and notarization | Developer ID hardened signatures are verified locally. Apple notarization credentials and successful notarization/stapling are pending. |
+| Updates | Official signing and independent public verification pass. Native modified-download rejection, interrupted-download handling, valid build 2→3 installation/relaunch, profile credential preservation and post-update signatures pass on a disposable copy using an ephemeral test key. The protected production key signed the final notarized ZIP; independent verification against the production public key passes and modified bytes are rejected. |
+| Signing and notarization | Apple accepted submission `e4f5ac9c-c172-4e24-a0df-55ebfefddc96`. The ticket is stapled to the app. After extracting the final ZIP, stapler validation, deep strict signature verification and Gatekeeper assessment pass on the development Mac (`Notarized Developer ID`). |
 | Corresponding source | A matching complete offline source archive and checksums are attached to the draft candidate: 112/112 Python sdists and assessed native dependencies, with zero source-availability gaps. Independent bit-for-bit rebuilding has not been performed. |
 
 Simulator evidence does not certify physical-device behavior. A native update on
