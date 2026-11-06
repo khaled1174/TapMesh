@@ -83,6 +83,7 @@ class MacBackend:
             self.idb_path=sys.executable if importlib.util.find_spec('idb') else None
         self.socket_root=Path(tempfile.mkdtemp(prefix='tapmesh-')); os.chmod(self.socket_root,0o700)
         self.companions={}; self.companion_locks={}; self.identities={}; self.recordings={}; self.crashes={}; self.health={}; self.discovery_lock=asyncio.Lock()
+        self.physical_recording_capabilities={}
     async def close(self):
         async def finalize(recording):
             try: await self._stop_recording(recording)
@@ -126,6 +127,27 @@ class MacBackend:
             caps['system.gesture']['limits']={'gestures':['home','app_switcher','control_center','notification_center']}
             caps['input.key']['limits']={'keys':['return','delete','escape','tab','space','up','down','left','right','select_all'],'modifiers':['shift','control','alt','command']}
         return caps
+    async def _physical_recording_capability(self, device, *, refresh=False):
+        if not device['ready']:
+            return {'status':'degraded','reason':'Reconnect the device before checking screen recording support.'}
+        did=device['device_id']; epoch=device['connection_epoch']; now=time.monotonic()
+        cached=self.physical_recording_capabilities.get(did)
+        if not refresh and cached and cached[0]==epoch and now<cached[1]:
+            return dict(cached[2])
+        # `list devices` exposes only a small discovery subset of capabilities.
+        # Only the complete, device-bound details response can establish absence.
+        capability={'status':'degraded','reason':'Xcode has not confirmed screen recording support for this device.'}
+        try:
+            details=await self._dev(['device','info','details'],device,timeout=10)
+            features=details.get('capabilities')
+            if isinstance(features,list) and all(isinstance(item,dict) and isinstance(item.get('featureIdentifier'),str) for item in features):
+                supported=any(item['featureIdentifier']=='com.apple.coredevice.feature.screenrecording' for item in features)
+                capability={'status':'supported' if supported else 'unsupported',
+                            'reason':'Xcode reports screen recording available on this device.' if supported else 'Screen recording through Xcode is not available on this device.'}
+        except BridgeError:
+            pass
+        self.physical_recording_capabilities[did]=(epoch,time.monotonic()+30,capability)
+        return dict(capability)
     async def _sim(self, *args, mutation=False, timeout=30, input=None, env=None, check=True):
         return await self.runner.run(['xcrun','simctl',*args],timeout=timeout,input=input,env=env,mutation=mutation,check=check)
     async def _dev(self, args, device=None, *, mutation=False, timeout=30, input=None):
@@ -171,10 +193,14 @@ class MacBackend:
                     # reconnection; unavailable/paired identity transitions are.
                     boot=item.get('properties',{}).get('state',item.get('deviceProperties',{})).get('bootState')
                     epoch=self._epoch(did,(hw.get('udid'),connection.get('pairingState'),state=='unavailable',boot))
-                    device=normalize_physical(item,epoch); device['capabilities']=self.capabilities('physical',device['ready']); results.append(device)
+                    device=normalize_physical(item,epoch); device['capabilities']=self.capabilities('physical',device['ready'])
+                    device['capabilities']['screen.record']=await self._physical_recording_capability(device)
+                    results.append(device)
             except (BridgeError,ValueError): self.health['devicectl']='unavailable'
             for did,(fingerprint,epoch) in list(self.identities.items()):
                 if did not in seen and fingerprint!='absent': self.identities[did]=('absent',epoch+1)
+            for did in self.physical_recording_capabilities.keys()-seen:
+                self.physical_recording_capabilities.pop(did)
             return results
     async def _companion(self, device):
         if not self.companion_path or not self.idb_path: raise BridgeError('prerequisite_required','Configure the qualified idb client and companion')
@@ -580,10 +606,16 @@ class MacBackend:
             recording=self.recordings.get(args['recording_id'])
             if not recording or recording['session_id']!=session or recording['device_id']!=did: raise BridgeError('invalid_arguments','Recording is not owned by this session and device')
             return await self._stop_recording(recording)
+        context['sent']=False
+        if device['backend']=='physical':
+            capability=await self._physical_recording_capability(device,refresh=True)
+            if capability['status']!='supported':
+                raise BridgeError('unsupported_capability' if capability['status']=='unsupported' else 'prerequisite_required',capability['reason'])
         if any(r['device_id']==did and not r.get('final') for r in self.recordings.values()): raise BridgeError('artifact_conflict','This device already has an active recording')
         store=context['router'].artifacts; store.check_storage(256*1024*1024)
         path=store.new_path('.mp4'); maximum=args.get('max_duration_seconds',600)
         argv=['xcrun','simctl','io',device['native_id'],'recordVideo','--codec=h264',str(path)] if device['backend']=='simulator' else ['xcrun','devicectl','device','capture','screen-record','--device',device['native_id'],'--destination',str(path),'--duration',str(maximum),'--codec','h264']
+        context['sent']=True
         proc=await asyncio.create_subprocess_exec(*argv,stdout=asyncio.subprocess.DEVNULL,stderr=asyncio.subprocess.PIPE,stdin=asyncio.subprocess.DEVNULL,start_new_session=True,env=minimal_environment())
         self.runner.own(proc)
         rid=uuid.uuid4().hex

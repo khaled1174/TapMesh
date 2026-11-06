@@ -87,6 +87,23 @@ async def test_stop_recording_is_scoped_and_repeatable_without_new_approval(rout
     assert result['error']['code']=='invalid_arguments'
 
 
+async def test_owned_recording_can_stop_after_device_loses_recording_capability(router):
+    r,f=router
+    discover=f.discover
+    async def unavailable(include_all=False):
+        devices=await discover(include_all)
+        devices[0]['ready']=False
+        devices[0]['capabilities']['screen.record']={'status':'unsupported','reason':'Recording no longer available'}
+        return devices
+    f.discover=unavailable
+    f.recordings={'owned':{'session_id':'a','device_id':'sim:fixture','final':{'state':'complete'}}}
+    result=await r.call('a','stop_recording',{'device_id':'sim:fixture','recording_id':'owned'})
+    assert result['status']=='success'
+    denied=await r.call('b','stop_recording',{'device_id':'sim:fixture','recording_id':'owned'})
+    assert denied['error']['code']=='invalid_arguments'
+    assert [call[0] for call in f.calls]==['stop_recording']
+
+
 async def test_unexpected_errors_have_redacted_diagnostic_reference(router, caplog):
     import logging
     r,f=router

@@ -180,7 +180,9 @@ class Router:
                 if creation_held: self.creation_lock.release()
                 if context.get('created_device_id'): self.observations.invalidate(context['created_device_id'])
     async def _preflight(self, tool, args, device):
-        self.capability(tool,device)
+        # A session must still be able to finalize its owned writer after a
+        # disconnect or capability change. Ownership is checked before dispatch.
+        if tool!='stop_recording': self.capability(tool,device)
         if tool=='batch_commands':
             did=device['device_id']
             for child in args['commands']:

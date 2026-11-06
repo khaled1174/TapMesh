@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shlex
 import struct
 import subprocess
 import sys
@@ -63,7 +64,6 @@ class OCRTests(unittest.IsolatedAsyncioTestCase):
 
     def write_executable(self, behavior):
         script = (
-            "#!" + sys.executable + "\n"
             "import json, os, pathlib, signal, subprocess, sys, time\n"
             "image = pathlib.Path(sys.argv[1])\n"
             "record = pathlib.Path(" + repr(str(self.record)) + ")\n"
@@ -71,7 +71,11 @@ class OCRTests(unittest.IsolatedAsyncioTestCase):
             "record.write_text(json.dumps(data))\n"
             + behavior + "\n"
         )
-        self.executable.write_text(script)
+        program=self.root/'tesseract-fixture.py'
+        program.write_text(script)
+        # Kernel shebang parsing cannot quote an interpreter path containing
+        # spaces (for example a virtualenv under Application Support).
+        self.executable.write_text('#!/bin/sh\nexec '+shlex.quote(sys.executable)+' -B '+shlex.quote(str(program))+' "$@"\n')
         self.executable.chmod(0o700)
 
     async def recognize(self, data=None, **kwargs):

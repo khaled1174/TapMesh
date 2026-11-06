@@ -1,0 +1,50 @@
+name: Qualify notarized release
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Draft release containing the exact notarized ZIP and manifest
+        required: true
+        default: v0.1.0
+permissions:
+  contents: read
+jobs:
+  native-install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-26]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - run: uv sync --locked
+      - name: Download exact draft candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern release-manifest.json --pattern 'TapMesh-*-standalone-macos-arm64.zip' --dir "$RUNNER_TEMP/release-input"
+      - name: Bind archive to notarized manifest and install into isolated Applications
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,subprocess
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'release-input'
+          manifest=json.loads((root/'release-manifest.json').read_text())
+          assert manifest['product']=='TapMesh' and manifest['notarized'] is True
+          assert pathlib.Path(manifest['archive']).name==manifest['archive']
+          archive=root/manifest['archive']
+          assert hashlib.sha256(archive.read_bytes()).hexdigest()==manifest['sha256']
+          destination=pathlib.Path(os.environ['RUNNER_TEMP'])/'release-Applications'
+          destination.mkdir(mode=0o700)
+          subprocess.run(['/usr/bin/ditto','-x','-k',str(archive),str(destination)],check=True)
+          PY
+      - name: Verify notarized native first launch and cooperative quit
+        run: uv run --no-sync python scripts/qualify_native_install.py --bundle "$RUNNER_TEMP/release-Applications/TapMesh.app" --workspace "$RUNNER_TEMP/native-release-qualification" --report "dist/native-${{ matrix.os }}.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-release-${{ matrix.os }}
+          path: dist/native-${{ matrix.os }}.json
