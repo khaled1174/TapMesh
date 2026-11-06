@@ -9,7 +9,26 @@ on:
 permissions:
   contents: read
 jobs:
+  download-draft:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    # GitHub only exposes draft releases to identities with push access. This
+    # isolated job only downloads data; downloaded code runs in read-only jobs.
+    permissions:
+      contents: write
+    steps:
+      - name: Download exact draft candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern release-manifest.json --pattern 'TapMesh-*-standalone-macos-arm64.zip' --dir release-input
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notarized-release-input
+          path: release-input/
+          retention-days: 3
   native-install:
+    needs: download-draft
     strategy:
       fail-fast: false
       matrix:
@@ -22,11 +41,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: uv sync --locked
-      - name: Download exact draft candidate
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
-        run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern release-manifest.json --pattern 'TapMesh-*-standalone-macos-arm64.zip' --dir "$RUNNER_TEMP/release-input"
+      - uses: actions/download-artifact@v4
+        with:
+          name: notarized-release-input
+          path: ${{ runner.temp }}/release-input
       - name: Bind archive to notarized manifest and install into isolated Applications
         run: |
           python3 - <<'PY'
