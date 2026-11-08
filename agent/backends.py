@@ -302,9 +302,13 @@ class MacBackend:
         async with self.native_lock:
             advisory=await self.native_physical.sensitive_state(serial,locked=False)
         if advisory.get('state') in {'clear','unqualified'}:
-            capture=await self._raw_screenshot(device)
-            if not frame_unavailable(capture):
-                advisory={**advisory,'_frame_pixel_sha256':frame_hash(capture),'_inspection_expires':time.monotonic()+10}
+            inspected=await self._raw_screenshot(device)
+            advisory={**advisory,'_inspection_expires':time.monotonic()+10}
+            # A changed viewport is not proof that the preceding labels belong
+            # to the resulting image. Only an unchanged before/after pair may
+            # supply a reusable advisory; changed inspections remain uncached.
+            if not frame_unavailable(inspected) and frame_hash(inspected)==binding[2]:
+                advisory={**advisory,'_frame_pixel_sha256':binding[2]}
                 self.physical_text_preflights[did]={'binding':(device['connection_epoch'],serial,advisory['_frame_pixel_sha256']),
                                                    'expires':advisory['_inspection_expires'],'advisory':deepcopy(advisory)}
         return advisory

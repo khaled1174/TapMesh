@@ -14,7 +14,7 @@ from agent.safety import BridgeError
 class Surface:
     def __init__(self, backend):
         self.backend = backend
-        self.color = 'red'
+        self.color = 'blue'
         self.locked = False
         self.audits = 0
         self.sent = 0
@@ -70,6 +70,7 @@ class Surface:
 async def test_rejected_old_view_then_fresh_fill_reuses_exact_prepared_frame(tmp_path):
     backend = MacBackend(tmp_path)
     surface = Surface(backend)
+    surface.color = 'red'
     try:
         old = await surface.context(None)
         old['sensitive_state'] = await backend.sensitive_state(surface.device)
@@ -81,7 +82,10 @@ async def test_rejected_old_view_then_fresh_fill_reuses_exact_prepared_frame(tmp
 
         fresh = await surface.context(None)
         fresh['sensitive_state'] = await backend.sensitive_state(surface.device)
-        assert surface.audits == 1  # Repeating AX would disturb the inspected view.
+        # The changed first inspection cannot be reused for the new viewport.
+        # An unchanged inspection may then be reused without another traversal.
+        fresh['sensitive_state'] = await backend.sensitive_state(surface.device)
+        assert surface.audits == 2
         result = await backend._native_input('fill', surface.device, {'text': 'second'}, fresh)
         assert result['delivery'] == 'sent'
         assert surface.sent == 1

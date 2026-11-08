@@ -43,3 +43,5 @@ empty until a qualified public binary and matching complete source are ready.
 Internal staging copies alone may use an explicit literal-loopback HTTP feed
 and their own disposable signing key. They do not change the production key or
 release feed.
+
+A final source review further restricts reuse to identical images before and after AX inspection. A changed inspection is never cached, so a scrolled or replaced view cannot inherit the earlier classification. This stricter source-only check is not included in local build 5; its packaged physical qualification remains open.
