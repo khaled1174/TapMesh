@@ -33,4 +33,15 @@ final class TextInputMethodTests: XCTestCase {
         let target = JSONValue.object(["ref": .string("field"), "snapshot_id": .string("snapshot")])
         XCTAssertEqual(TextInputMethod.clipboard.fillArguments(text: "العربية", target: target, fieldContext: .ordinaryApp)["field_context"], .string("ordinary_app"))
     }
+    func testTextTargetValidationIsAnExplicitReplacementOption() {
+        let target = JSONValue.object(["ref": .string("field"), "snapshot_id": .string("snapshot")])
+        let exact = TextInputMethod.keyboard.fillArguments(text: "A", target: target, fieldContext: .ordinaryApp)
+        XCTAssertNil(exact["frame_validation"])
+        let tolerant = TextInputMethod.keyboard.fillArguments(text: "A", target: target, fieldContext: .ordinaryApp, frameValidation: .textTarget)
+        XCTAssertEqual(tolerant["frame_validation"], .string("text_target"))
+        XCTAssertEqual(tolerant["target"], target)
+        XCTAssertEqual(tolerant["submit"], .bool(false))
+        XCTAssertEqual(tolerant["field_context"], .string("ordinary_app"))
+        XCTAssertNil(TextInputMethod.keyboard.typeArguments(text: "A", fieldContext: .ordinaryApp)["frame_validation"])
+    }
 }

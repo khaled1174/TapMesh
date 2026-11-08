@@ -242,6 +242,22 @@ async def test_simulator_never_silently_substitutes_keyboard_for_explicit_clipbo
     finally:await backend.close()
 
 
+async def test_physical_text_frame_mode_is_not_silently_ignored_by_simulator(tmp_path):
+    from agent.backends import MacBackend
+    from agent.safety import BridgeError
+    backend=MacBackend(tmp_path)
+    context={'sent':True,'targets':{'target':(10,20,None)}}
+    async def never_send(*args,**kwargs):raise AssertionError('Unsupported mode reached simulator input')
+    backend._idb=never_send
+    try:
+        with pytest.raises(BridgeError) as error:
+            await backend._input('fill',{'backend':'simulator','native_id':'fixture'},
+                                 {'text':'test','frame_validation':'text_target'},context)
+        assert error.value.code=='unsupported_capability'
+        assert error.value.side_effect_state=='not_sent' and context['sent'] is False
+    finally:await backend.close()
+
+
 @pytest.mark.parametrize('locked,labels,expected',[(True,['Name'],'protected_action_requires_human'),(None,['Name'],'prerequisite_required'),(False,[],'prerequisite_required'),(False,['Password, secure text field'],'protected_action_requires_human'),(False,['Apple account password'],'protected_action_requires_human')])
 def test_ordinary_declaration_never_overrides_protected_or_unknown(locked,labels,expected):
     from agent.native_physical import classify_sensitivity,validate_text_context

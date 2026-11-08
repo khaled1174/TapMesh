@@ -86,6 +86,8 @@ class MacBackend:
         self.companions={}; self.companion_locks={}; self.identities={}; self.recordings={}; self.crashes={}; self.health={}; self.discovery_lock=asyncio.Lock()
         self.physical_recording_capabilities={}
         self.physical_text_preflights={}
+        from .text_frame_guard import FrameAnchors
+        self.frame_anchors=FrameAnchors()
     async def close(self):
         async def finalize(recording):
             try: await self._stop_recording(recording)
@@ -96,6 +98,7 @@ class MacBackend:
         except TimeoutError: pass
         finally:
             self.companions.clear()
+            self.physical_text_preflights.clear();self.frame_anchors.clear()
             try: await self.runner.close()
             finally: shutil.rmtree(self.socket_root,ignore_errors=True)
     def _epoch(self, did, fingerprint):
@@ -120,7 +123,9 @@ class MacBackend:
         if backend=='physical':
             from .native_physical import capability_profile
             caps.update(capability_profile())
-        if backend=='simulator': caps['input.text']['limits']={'character_set':'idb HID key map; Unicode replacement is available through AX fill','implicit_clipboard_fallback':False}
+        if backend=='simulator':
+            caps['input.text']['limits']={'character_set':'idb HID key map; Unicode replacement is available through AX fill','implicit_clipboard_fallback':False}
+            caps['input.fill']['limits']={'frame_validation':['exact'],'replacement':'AX set-value'}
         caps['settings.accessibility']['limits']={'fields':['content_size_category'] if backend=='simulator' else ['content_size_category','reduce_motion']}
         caps['settings.appearance']['limits']={'appearance':['light','dark']}
         caps['location.simulate']['limits']={'altitude':False,'persistence':'until cleared'}
@@ -311,6 +316,7 @@ class MacBackend:
                 advisory={**advisory,'_frame_pixel_sha256':binding[2]}
                 self.physical_text_preflights[did]={'binding':(device['connection_epoch'],serial,advisory['_frame_pixel_sha256']),
                                                    'expires':advisory['_inspection_expires'],'advisory':deepcopy(advisory)}
+                self.frame_anchors.put('preflight',did,device['connection_epoch'],binding[2],inspected)
         return advisory
     async def _native_input(self, tool, device, args, context):
         # The router dispatch flag is refined here to the first actual native
@@ -321,18 +327,24 @@ class MacBackend:
         if lock.get('passcodeRequired') is not False:raise BridgeError('prerequisite_required','Native lock state is unavailable; no input was sent')
         geometry=await self.geometry(device)
         serial=self._native_serial(device)
-        from .native_physical import frame_hash,frame_unavailable
+        from .native_physical import frame_unavailable
+        from .text_frame_guard import TextFrameCheck
         current_capture=await self._raw_screenshot(device)
         if frame_unavailable(current_capture):raise BridgeError('prerequisite_required','Device display is black or unavailable; confirm the unlocked app manually')
         targets=context.get('targets',{})
-        if targets:
-            anchored={t[2]['public'].get('frame_pixel_sha256') for t in targets.values()}
-            if len(anchored)!=1 or None in anchored: raise BridgeError('stale_observation','Native input requires a fresh screenshot-anchored observation with a content fingerprint')
-            if frame_hash(current_capture)!=next(iter(anchored)): raise BridgeError('stale_observation','Visible content changed after target observation or safety inspection; capture a fresh frame')
-        advisory_hash=context.get('sensitive_state',{}).get('_frame_pixel_sha256')
-        if targets and advisory_hash and frame_hash(current_capture)!=advisory_hash:
-            raise BridgeError('stale_observation','Visible content changed after text inspection; capture a fresh frame')
+        check=TextFrameCheck(self.frame_anchors,tool,device,geometry,args,context)
+        proof=await check.verify(current_capture)
+        def fresh():
+            expires=(context.get('sensitive_state') or {}).get('_inspection_expires')
+            if expires is not None and time.monotonic()>=expires:
+                self.physical_text_preflights.pop(device['device_id'],None)
+                raise BridgeError('prerequisite_required','Text inspection expired during input setup; inspect again')
+            if any(t[2].get('at') is not None and time.monotonic()-t[2]['at']>30 for t in targets.values()):
+                self.physical_text_preflights.pop(device['device_id'],None)
+                raise BridgeError('stale_observation','Target observation expired during input setup')
+        fresh()
         async def guard(rsd):
+            nonlocal proof
             # native_lock is already held. Use the serialized CLI directly;
             # reacquiring its lock here would deadlock before any input.
             latest_lock=await self._dev_serialized(['device','info','lockState'],device)
@@ -341,25 +353,23 @@ class MacBackend:
                 raise BridgeError('protected_action_requires_human','Device locked during input setup')
             if latest_lock.get('passcodeRequired') is not False:
                 raise BridgeError('prerequisite_required','Native lock state is unavailable; no input was sent')
-            expires=context.get('sensitive_state',{}).get('_inspection_expires')
-            if expires is not None and time.monotonic()>=expires:
-                self.physical_text_preflights.pop(device['device_id'],None)
-                raise BridgeError('prerequisite_required','Text inspection expired during input setup; inspect again')
-            if any(t[2].get('at') is not None and time.monotonic()-t[2]['at']>30 for t in targets.values()):
-                raise BridgeError('stale_observation','Target observation expired during input setup')
+            fresh()
             latest_geometry=display_geometry(await self._dev_serialized(['device','info','displays'],device))
             if any(latest_geometry.get(key)!=geometry.get(key) for key in ('logical_size','orientation')):
                 raise BridgeError('stale_observation','Display geometry changed during input setup')
             latest=await self._raw_screenshot(device,serialized=True)
             if frame_unavailable(latest):raise BridgeError('prerequisite_required','Device display became unavailable')
-            if targets and frame_hash(latest)!=frame_hash(current_capture):
-                raise BridgeError('stale_observation','Visible content changed during input setup; capture a fresh frame')
+            proof=await check.verify(latest)
+            fresh()
         def on_send():
             self.physical_text_preflights.pop(device['device_id'],None)
+            self.frame_anchors.clear_device(device['device_id'])
             context['sent']=True
         try:
             async with self.native_lock:
-                return await self.native_physical.input(tool,serial,geometry,targets,args,guard=guard,on_send=on_send,text_context=context.get('sensitive_state'))
+                result=await self.native_physical.input(tool,serial,geometry,targets,args,guard=guard,on_send=on_send,text_context=context.get('sensitive_state'))
+                if tool=='fill':result['target_validation']=proof
+                return result
         except BaseException:
             self.physical_text_preflights.pop(device['device_id'],None)
             raise
@@ -398,6 +408,7 @@ class MacBackend:
         router=context['router']
         observation=router.observations.issue(context['session_id'],device['device_id'],device['connection_epoch'],geometry['logical_size'],image.size,'simctl' if device['backend']=='simulator' else 'devicectl',orientation=geometry['orientation'])
         if content_hash: observation['frame_pixel_sha256']=content_hash
+        if content_hash:self.frame_anchors.put('session:'+context['session_id'],device['device_id'],device['connection_epoch'],content_hash,raw)
         if geometry.get('input_geometry_qualified') is False: observation.update(input_geometry_qualified=False,geometry_source='image_pixels_only')
         if tool=='take_screenshot': return {**observation,'image':{'mime_type':'image/jpeg' if format=='jpeg' else 'image/png','data':base64.b64encode(encoded).decode()},'requested_max_width':args.get('max_width',1280),'effective_width':image.width}
         artifact=router.artifacts.write(encoded,'screenshot','.'+format,device['device_id'],device['connection_epoch'],destination=args.get('destination'),filename=args.get('filename'))
@@ -420,6 +431,7 @@ class MacBackend:
     async def invoke(self, tool, device, args, context):
         if device and CATALOG[tool]['mutation'] and tool not in {'fill','type_text'}:
             self.physical_text_preflights.pop(device['device_id'],None)
+            self.frame_anchors.clear_device(device['device_id'])
         if tool=='start_simulator':
             created=False
             if 'simulator_id' in args: native=args['simulator_id'].removeprefix('sim:')
@@ -576,6 +588,9 @@ class MacBackend:
         if not sim: return await self._native_input(tool,device,args,context)
         return await self._input(tool,device,args,context)
     async def _input(self, tool, device, args, context):
+        if tool=='fill' and args.get('frame_validation','exact')!='exact':
+            context['sent']=False
+            raise BridgeError('unsupported_capability','Text-target frame validation is a physical-device mode; no simulator input was sent')
         if tool in {'type_text','fill'} and args.get('input_method','keyboard')=='clipboard':
             context['sent']=False
             raise BridgeError('unsupported_capability','Explicit simulator clipboard-paste input is not qualified; no input was sent')

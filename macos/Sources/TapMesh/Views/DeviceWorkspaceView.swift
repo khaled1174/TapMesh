@@ -122,6 +122,7 @@ struct KeyboardSheet: View {
     @State private var method: TextInputMethod = .keyboard
     @State private var confirmedUSLayout = false
     @State private var confirmedOrdinaryField = false
+    @State private var allowClockAndCaretChanges = false
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Text(fillTarget.map { "Replace Text in \($0.label)" } ?? "Type on \(store.selectedDevice?.name ?? "Device")").font(.title2.weight(.semibold))
@@ -139,6 +140,10 @@ struct KeyboardSheet: View {
             if store.selectedDevice?.backend == "physical" {
                 Toggle("This is an ordinary app field, not a device/account authentication prompt", isOn: $confirmedOrdinaryField).toggleStyle(.checkbox)
                 Text("For device unlock, passwords, or account authentication, complete the step directly on the device. This confirmation does not override protected or uninspectable states.").font(.caption).foregroundStyle(.secondary)
+                if fillTarget != nil {
+                    Toggle("Allow clock, status icon and cursor blinking changes", isOn: $allowClockAndCaretChanges).toggleStyle(.checkbox)
+                    Text("The field’s visible text and position must stay the same. Other screen changes stop replacement.").font(.caption).foregroundStyle(.secondary)
+                }
             }
             TextEditor(text: $text).font(.body).frame(height: 150).border(.quaternary).accessibilityLabel("Text to type on device")
             if !fillTargetIsCurrent { Text("This field snapshot expired. Close this sheet and inspect the current screen to choose the field again.").font(.callout).foregroundStyle(.orange) }
@@ -150,7 +155,7 @@ struct KeyboardSheet: View {
             }
         }.padding(24).frame(width: 560)
         .onChange(of: store.controlReceipt?.ownershipGeneration) { _, _ in
-            if (store.controlReceipt?.cancelledRequests ?? 0) > 0 { confirmedOrdinaryField = false }
+            if (store.controlReceipt?.cancelledRequests ?? 0) > 0 { confirmedOrdinaryField = false; allowClockAndCaretChanges = false }
         }
     }
     private var fillTargetIsCurrent: Bool {
@@ -164,7 +169,8 @@ struct KeyboardSheet: View {
         }
         let layout: KeyboardLayoutDeclaration? = store.selectedDevice?.backend == "physical" && confirmedUSLayout ? .us : nil
         let context: TextFieldContextDeclaration? = store.selectedDevice?.backend == "physical" && confirmedOrdinaryField ? .ordinaryApp : nil
-        let arguments = fillTarget.map { method.fillArguments(text: text, target: $0.target, keyboardLayout: layout, fieldContext: context) } ?? method.typeArguments(text: text, keyboardLayout: layout, fieldContext: context)
+        let validation: TextFrameValidation = store.selectedDevice?.backend == "physical" && allowClockAndCaretChanges ? .textTarget : .exact
+        let arguments = fillTarget.map { method.fillArguments(text: text, target: $0.target, keyboardLayout: layout, fieldContext: context, frameValidation: validation) } ?? method.typeArguments(text: text, keyboardLayout: layout, fieldContext: context)
         let tool = fillTarget == nil ? "type_text" : "fill"
         Task { if let result = await store.run(tool, arguments: arguments), result.error == nil { text = ""; dismiss(); await store.capture() } }
     }

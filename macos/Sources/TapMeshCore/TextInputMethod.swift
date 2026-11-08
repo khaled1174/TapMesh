@@ -2,6 +2,7 @@ import Foundation
 
 public enum KeyboardLayoutDeclaration: String, Sendable { case us }
 public enum TextFieldContextDeclaration: String, Sendable { case ordinaryApp = "ordinary_app" }
+public enum TextFrameValidation: String, Sendable { case exact, textTarget = "text_target" }
 
 public enum TextInputMethod: String, CaseIterable, Sendable {
     case keyboard, clipboard
@@ -11,9 +12,10 @@ public enum TextInputMethod: String, CaseIterable, Sendable {
         if let fieldContext { arguments["field_context"] = .string(fieldContext.rawValue) }
         return arguments
     }
-    public func fillArguments(text: String, target: JSONValue, submit: Bool = false, keyboardLayout: KeyboardLayoutDeclaration? = nil, fieldContext: TextFieldContextDeclaration? = nil) -> [String: JSONValue] {
+    public func fillArguments(text: String, target: JSONValue, submit: Bool = false, keyboardLayout: KeyboardLayoutDeclaration? = nil, fieldContext: TextFieldContextDeclaration? = nil, frameValidation: TextFrameValidation = .exact) -> [String: JSONValue] {
         var arguments = typeArguments(text: text, keyboardLayout: keyboardLayout, fieldContext: fieldContext)
         arguments["target"] = target; arguments["submit"] = .bool(submit)
+        if frameValidation != .exact { arguments["frame_validation"] = .string(frameValidation.rawValue) }
         return arguments
     }
 }

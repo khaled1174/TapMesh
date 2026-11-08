@@ -1558,6 +1558,15 @@
               "ordinary_app"
             ]
           },
+          "frame_validation": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "text_target"
+            ],
+            "default": "exact",
+            "description": "Physical portrait text_target mode explicitly permits bounded standard clock/status and blue-caret changes after verifying the same visible text at the same point. Requires ordinary_app and no submit; app field roles are not inferred. Simulator supports exact only."
+          },
           "device_id": {
             "type": "string",
             "minLength": 1,
@@ -1592,6 +1601,31 @@
                   "keyboard_layout"
                 ]
               }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "frame_validation": {
+                  "const": "text_target"
+                }
+              },
+              "required": [
+                "frame_validation"
+              ]
+            },
+            "then": {
+              "properties": {
+                "field_context": {
+                  "const": "ordinary_app"
+                },
+                "submit": {
+                  "const": false
+                }
+              },
+              "required": [
+                "field_context"
+              ]
             }
           }
         ]
@@ -3483,6 +3517,15 @@
                             "ordinary_app"
                           ]
                         },
+                        "frame_validation": {
+                          "type": "string",
+                          "enum": [
+                            "exact",
+                            "text_target"
+                          ],
+                          "default": "exact",
+                          "description": "Physical portrait text_target mode explicitly permits bounded standard clock/status and blue-caret changes after verifying the same visible text at the same point. Requires ordinary_app and no submit; app field roles are not inferred. Simulator supports exact only."
+                        },
                         "device_id": {
                           "type": "string",
                           "minLength": 1,
@@ -3517,6 +3560,31 @@
                                 "keyboard_layout"
                               ]
                             }
+                          }
+                        },
+                        {
+                          "if": {
+                            "properties": {
+                              "frame_validation": {
+                                "const": "text_target"
+                              }
+                            },
+                            "required": [
+                              "frame_validation"
+                            ]
+                          },
+                          "then": {
+                            "properties": {
+                              "field_context": {
+                                "const": "ordinary_app"
+                              },
+                              "submit": {
+                                "const": false
+                              }
+                            },
+                            "required": [
+                              "field_context"
+                            ]
                           }
                         }
                       ]

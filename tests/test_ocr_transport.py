@@ -97,3 +97,47 @@ async def test_ocr_client_rejects_out_of_bounds_targets_and_never_creates_ax_rol
         unsafe = True
         with pytest.raises(BridgeError, match='validated'):
             await port.inspect(Backend(), {}, {})
+
+
+async def test_private_ocr_revalidates_exact_supplied_frame_without_device_recapture():
+    raw = png()
+    async def respond(request):
+        assert request.headers['Authorization'] == 'Bearer ' + AGENT
+        if request.url.path.endswith('/health'):
+            return httpx.Response(200, json={'status': 'available'})
+        import json
+        body = json.loads(request.content)
+        assert base64.b64decode(body['image_base64']) == raw
+        assert body['logical_size'] == {'width': 100, 'height': 200}
+        return httpx.Response(200, json={'source': 'ocr', 'logical_size': body['logical_size'],
+            'truncated': True, 'elements': [{'label': 'Name', 'role': 'AXTextField',
+              'bounds': {'x': 5, 'y': 10, 'width': 40, 'height': 12}, 'confidence': .99}]})
+    async with httpx.AsyncClient(base_url='http://127.0.0.1', headers={'Authorization': 'Bearer ' + AGENT},
+                                 transport=httpx.MockTransport(respond)) as client:
+        port = NASOCR('http://127.0.0.1', AGENT, client=client)
+        result = await port.inspect_frame(raw, {'width': 100, 'height': 200})
+        assert result['backend_truncated'] is True
+        assert result['elements'][0]['role'] == 'text'
+
+
+async def test_private_frame_ocr_uses_the_observation_resize_and_pixel_bound():
+    raw = io.BytesIO()
+    Image.new('RGB', (2064, 2752), 'white').save(raw, format='PNG')
+    calls = []
+    async def respond(request):
+        if request.url.path.endswith('/health'):
+            return httpx.Response(200, json={'status': 'available'})
+        import json
+        body = json.loads(request.content)
+        image = Image.open(io.BytesIO(base64.b64decode(body['image_base64'])))
+        calls.append(image.size)
+        assert image.size == (2048, 2731)
+        return httpx.Response(200, json={'source': 'ocr', 'logical_size': body['logical_size'], 'elements': []})
+    async with httpx.AsyncClient(base_url='http://127.0.0.1', transport=httpx.MockTransport(respond)) as client:
+        port = NASOCR('http://127.0.0.1', AGENT, client=client)
+        await port.inspect_frame(raw.getvalue(), {'width': 1032, 'height': 1376})
+        oversized = io.BytesIO()
+        Image.new('RGB', (3000, 3000)).save(oversized, format='PNG')
+        with pytest.raises(BridgeError):
+            await port.inspect_frame(oversized.getvalue(), {'width': 1500, 'height': 1500})
+        assert calls == [(2048, 2731)]

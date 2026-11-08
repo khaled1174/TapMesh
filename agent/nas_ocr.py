@@ -1,10 +1,13 @@
 """Private NAS OCR port; screenshots remain bound to the Mac observation."""
 import asyncio
+import base64
+import io
 import math
 import os
 import time
 from urllib.parse import urlsplit
 import httpx
+from PIL import Image
 from .safety import BridgeError, read_secret
 
 
@@ -49,13 +52,33 @@ class NASOCR:
         captured_at = time.monotonic()
         capture = await backend.invoke('take_screenshot', device,
                                        {'format': 'png', 'max_width': 2048, 'require_fresh': True}, context)
+        result=await self._recognize(capture['image']['data'],capture['logical_size'])
+        return {**result,'orientation':capture.get('orientation','unknown'),
+                '_frame_pixel_sha256':capture.get('frame_pixel_sha256'),
+                '_captured_monotonic':captured_at,'_observed_at':capture.get('observed_at')}
+
+    async def inspect_frame(self, content, logical):
+        """Recognize an existing frame with the observation resize; never recapture."""
+        if not await self.available():
+            raise BridgeError('prerequisite_required',self.name+' processor is unavailable')
+        try:
+            with Image.open(io.BytesIO(content)) as image:
+                if image.width*image.height>8_000_000:
+                    raise BridgeError('backend_failure','Frame exceeds the bounded OCR image size')
+                if image.width>2048:
+                    image.thumbnail((2048,16384))
+                    resized=io.BytesIO();image.save(resized,format='PNG');content=resized.getvalue()
+        except (OSError,ValueError,Image.DecompressionBombError) as exc:
+            raise BridgeError('backend_failure','Frame image could not be validated') from exc
+        return await self._recognize(base64.b64encode(content).decode(),logical)
+
+    async def _recognize(self, encoded, logical):
         try:
             response = await self.client.post('/internal/ocr', json={
-                'image_base64': capture['image']['data'], 'logical_size': capture['logical_size']})
+                'image_base64': encoded, 'logical_size': logical})
             if response.status_code != 200:
                 raise BridgeError('backend_failure', self.name+' did not confirm a complete observation')
             result = response.json()
-            logical = capture['logical_size']
             elements = result['elements']
             if (result.get('source') != 'ocr' or result.get('logical_size') != logical
                     or not isinstance(elements, list) or len(elements) > 1000):
@@ -73,7 +96,5 @@ class NASOCR:
                                    'bounds': box, 'source': 'ocr', 'confidence': item.get('confidence')})
         except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
             raise BridgeError('backend_failure', self.name+' response could not be validated') from exc
-        return {'elements': normalized, 'logical_size': logical, 'source': 'ocr',
-                'orientation': capture.get('orientation', 'unknown'),
-                '_frame_pixel_sha256': capture.get('frame_pixel_sha256'),
-                '_captured_monotonic': captured_at, '_observed_at': capture.get('observed_at')}
+        return {'elements':normalized,'logical_size':logical,'source':'ocr',
+                'backend_truncated':bool(result.get('truncated',False) or result.get('backend_truncated',False))}

@@ -300,6 +300,7 @@ class Router:
         await self._check_capture(session,device,capture)
         for element in elements: element['ref']=uuid.uuid4().hex
         obs=self.observations.issue(session,device['device_id'],device['connection_epoch'],result['logical_size'],None,result['source'],orientation=result.get('orientation','unknown'),elements=elements[:maximum])
+        self.observations.records[obs['observation_id']]['elements_complete']=len(elements)<=maximum and not result.get('backend_truncated',False)
         if '_captured_monotonic' in result:
             record=self.observations.records[obs['observation_id']]
             record['at']=result['_captured_monotonic']

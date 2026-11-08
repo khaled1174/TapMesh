@@ -13,6 +13,17 @@ def test_text_context_and_layout_are_closed_declarations():
             validate('type_text', {'text': 'TapMesh', **invalid})
 
 
+def test_text_target_validation_is_explicit_ordinary_and_non_submitting():
+    target={'x':10,'y':20,'coordinate_space':'device_points','observation_id':'owned'}
+    base={'target':target,'text':'TapMesh','frame_validation':'text_target','field_context':'ordinary_app'}
+    validate('fill',base)
+    for changes in [{'submit':True},{'field_context':None},{'frame_validation':'ignore_changes'}]:
+        with pytest.raises(ContractError):validate('fill',{**base,**changes})
+    del base['field_context']
+    with pytest.raises(ContractError):validate('fill',base)
+    with pytest.raises(ContractError):validate('type_text',{'text':'TapMesh','frame_validation':'text_target'})
+
+
 class Physical:
     def __init__(self, state):
         self.state = state

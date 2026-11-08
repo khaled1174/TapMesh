@@ -1,6 +1,6 @@
 # TapMesh release qualification
 
-Updated 2026-11-07 (Asia/Riyadh). The public repository contains the standalone local product
+Updated 2026-11-08 (Asia/Riyadh). The public repository contains the standalone local product
 source. The candidate is notarized and remains in an unpublished draft release. It is
 Apple Silicon only, with macOS 15 as its minimum deployment target.
 
@@ -8,7 +8,7 @@ Apple Silicon only, with macOS 15 as its minimum deployment target.
 | --- | --- |
 | Portable services | Linux automated contracts and regressions pass in public CI. |
 | Supported Mac builds | Public CI passes on macOS 15 and 26, including standalone packaging and relocated local HTTP/MCP runtime execution. |
-| Local automated tests | Current source: 238 Python tests, 28 subtests and 36 Swift tests pass; four physical opt-in tests are skipped. Eighteen additional regressions cover frame-bound text inspection, invalidation and final input guards. Build 3 retains its earlier 220-test artifact evidence. |
+| Local automated tests | Current source: 269 Python tests, 28 subtests and 37 Swift tests pass; four physical opt-in tests are skipped. Thirty-one new Python cases and one Swift case exercise text-target validation, negative dispatch, OCR transport bounds and explicit option serialization. Build 3 retains its earlier 220-test artifact evidence. |
 | Runtime independence | Bundled interpreter, packages, companion and native OCR/media helper run with system-only PATH; profile isolation, authentication, restart, shutdown and preserved bundle signatures pass. |
 | Native interface and clean hosts | The exact notarized build 3 ZIP passes native first launch, a visible workspace, authenticated HTTP/MCP, cooperative quit, stopped listeners and preserved signatures on fresh arm64 macOS 15.8.2 and 26.7.2 GitHub runners. Gatekeeper and stapled-ticket checks pass on both. Finder's first-open confirmation was not exercised. |
 | iPhone/iPad simulators | Fresh standalone HTTP/MCP, capture, Vision OCR, observed taps/text, finalized media and SHA-256 transfers pass on both owned simulators (25 checks). Explicit accessibility fails after relaunch on both (two failed checks); a 3,600-second capture soak passes with 240 decoded captures, zero errors, stopped owned listeners and preserved signatures. Both owned simulators were shut down afterward. |
@@ -45,3 +45,33 @@ and their own disposable signing key. They do not change the production key or
 release feed.
 
 A final source review further restricts reuse to identical images before and after AX inspection. A changed inspection is never cached, so a scrolled or replaced view cannot inherit the earlier classification. This stricter source-only check is not included in local build 5; its packaged physical qualification remains open.
+
+
+## Opt-in text-target validation, 2026-11-08
+
+Current source adds explicit `fill.frame_validation: "text_target"` for physical
+portrait ordinary app fields without submit. The default remains `exact`.
+Complete private OCR must confirm a unique high-confidence text target at the
+original point. Exact pixel comparison permits only bounded detected clock/status
+changes and a standard blue caret near a text edge. Other visual changes, missing
+or truncated evidence, expired observations and protected/unknown states stop
+input. Generic editable AX semantics are not inferred and app readback is still
+required. The native replacement sheet exposes this as an unchecked option.
+Private frame evidence expires from RAM after 30 seconds, has a 16 MiB aggregate
+budget and is never written to logs or disk by this guard.
+
+Real UIKit simulator captures and local Vision OCR pass six final comparisons
+with a forced minute/status-indicator change and a blinking caret. The independent
+keyboard-settling precondition, five earlier six-sample rejected runs and the
+initial zero-input startup failure remain recorded. These are algorithm checks on
+actual simulator pixels, not physical HID qualification. The owned simulator was
+restored to Shutdown and another running simulator was left untouched.
+
+The owner explicitly deferred the unavailable iPhone. No new physical input was
+sent. The new signed local build 7 must still pass repeated coordinate-fill and
+independent readback on the foreground unlocked physical fixture; its new native
+option has not been exercised interactively. Build 7 is not notarized or published
+and has no new complete distribution-source TAR. The public draft binary, matching
+complete source and empty production appcast remain bound to immutable build 3.
+See [TEXT_FRAME_GUARD_QUALIFICATION.json](TEXT_FRAME_GUARD_QUALIFICATION.json) for
+exact candidate runtime evidence, retained attempts and remaining gates.

@@ -66,7 +66,12 @@ add('pinch', {'center':TARGET,'scale':number(.25,4),'duration_ms':integer(50,100
 TEXT_OPTIONS={'input_method':{**enum('keyboard','clipboard'),'default':'keyboard'},'keyboard_layout':enum('us'),'field_context':enum('ordinary_app')}
 TEXT_RULES=[{'if':{'properties':{'input_method':{'const':'clipboard'}},'required':['input_method']},'then':{'not':{'required':['keyboard_layout']}}}]
 add('type_text', {'text':TEXT,'target':TARGET,**TEXT_OPTIONS}, ('text',),'input.text','C',True,allOf=TEXT_RULES)
-add('fill', {'target':TARGET,'text':TEXT,'submit':BOOL,**TEXT_OPTIONS}, ('target','text'),'input.fill','C',True,allOf=TEXT_RULES)
+FRAME_RULE={'if':{'properties':{'frame_validation':{'const':'text_target'}},'required':['frame_validation']},
+            'then':{'properties':{'field_context':{'const':'ordinary_app'},'submit':{'const':False}},'required':['field_context']}}
+add('fill', {'target':TARGET,'text':TEXT,'submit':BOOL,**TEXT_OPTIONS,
+             'frame_validation':{**enum('exact','text_target'),'default':'exact',
+              'description':'Physical portrait text_target mode explicitly permits bounded standard clock/status and blue-caret changes after verifying the same visible text at the same point. Requires ordinary_app and no submit; app field roles are not inferred. Simulator supports exact only.'}},
+    ('target','text'),'input.fill','C',True,allOf=[*TEXT_RULES,FRAME_RULE])
 add('press_key', {'key':enum('return','delete','escape','tab','space','up','down','left','right','select_all'),'modifiers':{'type':'array','items':enum('shift','control','alt','command'),'uniqueItems':True,'maxItems':4}}, ('key',),'input.key','C',True)
 add('hide_keyboard', {}, (), 'input.keyboard_dismiss','C',True)
 add('press_button', {'button':enum('home','lock','side_button','siri','volume_up','volume_down','apple_pay')}, ('button',),'system.button','C',True)
