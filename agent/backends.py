@@ -1,6 +1,7 @@
 """Public Apple CLI + public idb simulator adapter. No original product code."""
 import asyncio
 import base64
+from copy import deepcopy
 from datetime import datetime, timezone
 import io
 import json
@@ -84,6 +85,7 @@ class MacBackend:
         self.socket_root=Path(tempfile.mkdtemp(prefix='tapmesh-')); os.chmod(self.socket_root,0o700)
         self.companions={}; self.companion_locks={}; self.identities={}; self.recordings={}; self.crashes={}; self.health={}; self.discovery_lock=asyncio.Lock()
         self.physical_recording_capabilities={}
+        self.physical_text_preflights={}
     async def close(self):
         async def finalize(recording):
             try: await self._stop_recording(recording)
@@ -281,8 +283,31 @@ class MacBackend:
         serial=self._native_serial(device)
         lock=await self._dev(['device','info','lockState'],device)
         required=lock.get('passcodeRequired')
+        did=device['device_id']
+        if required is not False:
+            self.physical_text_preflights.pop(did,None)
+            from .native_physical import classify_sensitivity
+            return classify_sensitivity(required if isinstance(required,bool) else None,[])
+        from .native_physical import frame_hash,frame_unavailable
+        capture=await self._raw_screenshot(device)
+        cached=self.physical_text_preflights.pop(did,None)
+        if frame_unavailable(capture):return {'state':'unknown','reason':'Device display is unavailable'}
+        binding=(device['connection_epoch'],serial,frame_hash(capture))
+        if cached and cached['binding']==binding and time.monotonic()<cached['expires']:
+            self.physical_text_preflights[did]=cached
+            return deepcopy(cached['advisory'])
+        # AX traversal may scroll the viewport. Preserve its completed advisory
+        # only for that exact resulting frame, briefly, so a caller can obtain
+        # new coordinates without repeating the same disruptive inspection.
         async with self.native_lock:
-            return await self.native_physical.sensitive_state(serial,locked=required if isinstance(required,bool) else None)
+            advisory=await self.native_physical.sensitive_state(serial,locked=False)
+        if advisory.get('state') in {'clear','unqualified'}:
+            capture=await self._raw_screenshot(device)
+            if not frame_unavailable(capture):
+                advisory={**advisory,'_frame_pixel_sha256':frame_hash(capture),'_inspection_expires':time.monotonic()+10}
+                self.physical_text_preflights[did]={'binding':(device['connection_epoch'],serial,advisory['_frame_pixel_sha256']),
+                                                   'expires':advisory['_inspection_expires'],'advisory':deepcopy(advisory)}
+        return advisory
     async def _native_input(self, tool, device, args, context):
         # The router dispatch flag is refined here to the first actual native
         # input or explicit clipboard write, not tunnel/media setup.
@@ -300,13 +325,45 @@ class MacBackend:
             anchored={t[2]['public'].get('frame_pixel_sha256') for t in targets.values()}
             if len(anchored)!=1 or None in anchored: raise BridgeError('stale_observation','Native input requires a fresh screenshot-anchored observation with a content fingerprint')
             if frame_hash(current_capture)!=next(iter(anchored)): raise BridgeError('stale_observation','Visible content changed after target observation or safety inspection; capture a fresh frame')
-        async with self.native_lock:
-            return await self.native_physical.input(tool,serial,geometry,targets,args,on_send=lambda:context.__setitem__('sent',True),text_context=context.get('sensitive_state'))
-    async def _raw_screenshot(self, device):
+        advisory_hash=context.get('sensitive_state',{}).get('_frame_pixel_sha256')
+        if targets and advisory_hash and frame_hash(current_capture)!=advisory_hash:
+            raise BridgeError('stale_observation','Visible content changed after text inspection; capture a fresh frame')
+        async def guard(rsd):
+            # native_lock is already held. Use the serialized CLI directly;
+            # reacquiring its lock here would deadlock before any input.
+            latest_lock=await self._dev_serialized(['device','info','lockState'],device)
+            if latest_lock.get('passcodeRequired') is True:
+                self.physical_text_preflights.pop(device['device_id'],None)
+                raise BridgeError('protected_action_requires_human','Device locked during input setup')
+            if latest_lock.get('passcodeRequired') is not False:
+                raise BridgeError('prerequisite_required','Native lock state is unavailable; no input was sent')
+            expires=context.get('sensitive_state',{}).get('_inspection_expires')
+            if expires is not None and time.monotonic()>=expires:
+                self.physical_text_preflights.pop(device['device_id'],None)
+                raise BridgeError('prerequisite_required','Text inspection expired during input setup; inspect again')
+            if any(t[2].get('at') is not None and time.monotonic()-t[2]['at']>30 for t in targets.values()):
+                raise BridgeError('stale_observation','Target observation expired during input setup')
+            latest_geometry=display_geometry(await self._dev_serialized(['device','info','displays'],device))
+            if any(latest_geometry.get(key)!=geometry.get(key) for key in ('logical_size','orientation')):
+                raise BridgeError('stale_observation','Display geometry changed during input setup')
+            latest=await self._raw_screenshot(device,serialized=True)
+            if frame_unavailable(latest):raise BridgeError('prerequisite_required','Device display became unavailable')
+            if targets and frame_hash(latest)!=frame_hash(current_capture):
+                raise BridgeError('stale_observation','Visible content changed during input setup; capture a fresh frame')
+        def on_send():
+            self.physical_text_preflights.pop(device['device_id'],None)
+            context['sent']=True
+        try:
+            async with self.native_lock:
+                return await self.native_physical.input(tool,serial,geometry,targets,args,guard=guard,on_send=on_send,text_context=context.get('sensitive_state'))
+        except BaseException:
+            self.physical_text_preflights.pop(device['device_id'],None)
+            raise
+    async def _raw_screenshot(self, device, *, serialized=False):
         with tempfile.TemporaryDirectory(prefix='tapmesh-capture-',dir=self.state) as directory:
             path=Path(directory)/'capture.png'
             if device['backend']=='simulator': await self._sim('io',device['native_id'],'screenshot','--type=png',str(path))
-            else: await self._dev(['device','capture','screenshot','--destination',str(path)],device)
+            else: await (self._dev_serialized if serialized else self._dev)(['device','capture','screenshot','--destination',str(path)],device)
             if not path.is_file() or path.stat().st_size>32*1024*1024: raise BridgeError('backend_failure','Invalid screenshot artifact')
             return path.read_bytes()
     async def _screenshot(self, tool, device, args, context):
@@ -357,6 +414,8 @@ class MacBackend:
         if args.get('query'): apps=[app for app in apps if args['query'].casefold() in (app['bundle_id']+' '+app['name']).casefold()]
         return apps
     async def invoke(self, tool, device, args, context):
+        if device and CATALOG[tool]['mutation'] and tool not in {'fill','type_text'}:
+            self.physical_text_preflights.pop(device['device_id'],None)
         if tool=='start_simulator':
             created=False
             if 'simulator_id' in args: native=args['simulator_id'].removeprefix('sim:')

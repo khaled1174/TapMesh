@@ -273,8 +273,8 @@ class NativePhysical:
         control=None;clipboard_started=False;clipboard_changed=False
         try:
             async with self.bound(serial) as rsd:
-                if guard:await guard(rsd)
                 async with self.media_factory(rsd) as service:
+                    if guard:await guard(rsd)
                     control=TouchController(service,on_send=on_send)
                     try:
                         if tool in {'tap','double_tap','long_press'}:
