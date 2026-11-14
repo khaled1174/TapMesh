@@ -24,8 +24,9 @@ DEVICE = 'ios:text-fixture'
 
 
 def frame(*, caret=False, signal=False, clock='6:25', target='Enter name',
-          shift=0, context='TapMesh test device', mark=None, mark_color='white'):
-    im = Image.new('RGB', (440, 956), '#101010')
+          shift=0, context='TapMesh test device', mark=None, mark_color='white',
+          background='#101010', foreground='white'):
+    im = Image.new('RGB', (440, 956), background)
     draw = ImageDraw.Draw(im)
     font = ImageFont.load_default(size=20)
     rows = []
@@ -33,7 +34,7 @@ def frame(*, caret=False, signal=False, clock='6:25', target='Enter name',
                          (target, 30 + shift, 150), ('Entered:', 30, 210),
                          ('Existing value', 30, 270)]:
         box = draw.textbbox((x, y), label, font=font)
-        draw.text((x, y), label, fill='white', font=font)
+        draw.text((x, y), label, fill=foreground, font=font)
         rows.append({'label': label, 'value': None, 'role': 'text', 'source': 'ocr',
                      'confidence': .99, 'bounds': dict(zip(('x', 'y', 'width', 'height'),
                         (box[0], box[1], box[2]-box[0], box[3]-box[1])))})
@@ -208,6 +209,150 @@ async def test_ocr_box_may_include_the_standard_blue_caret_at_its_edge(physical)
     result = await fill(router, target)
     assert result['status'] == 'success', result.get('error')
     assert surface.transmissions == [('fill', point, 'MeshGood')]
+
+
+@pytest.mark.parametrize('scale', [1, 2, 3])
+@pytest.mark.parametrize('disappears', [False, True])
+@pytest.mark.parametrize('side', ['left', 'right'])
+async def test_caret_outside_visible_glyphs_survives_oversized_ocr_box(physical, scale, disappears, side):
+    router, surface = physical
+    def rendered(caret):
+        content, rows = frame(caret=caret and side == 'right', signal=not caret)
+        if side == 'left' and caret:
+            image = Image.open(io.BytesIO(content)).convert('RGB')
+            box = rows[2]['bounds']; x = box['x'] - 4
+            ImageDraw.Draw(image).rectangle((x, box['y']-3, x+2, box['y']+box['height']+3), fill='#0a84ff')
+            output = io.BytesIO(); image.save(output, format='PNG'); content = output.getvalue()
+        if scale != 1:
+            image = Image.open(io.BytesIO(content))
+            image = image.resize((image.width*scale, image.height*scale), Image.Resampling.NEAREST)
+            output = io.BytesIO(); image.save(output, format='PNG'); content = output.getvalue()
+        rows[2]['bounds']['width'] += 10
+        if side == 'left':
+            rows[2]['bounds']['x'] -= 10
+        return content, rows
+    # The image stays the same; OCR includes empty space beyond the glyphs.
+    surface.current = rendered(disappears)
+    surface.remember(surface.current)
+    target, point = await observed_target(router, surface)
+    surface.current = rendered(not disappears)
+    surface.remember(surface.current)
+    result = await fill(router, target)
+    assert result['status'] == 'success', result.get('error')
+    assert surface.transmissions == [('fill', point, 'MeshGood')]
+    assert result['data']['target_validation']['caret_edge_source'] == 'unchanged_glyph_pixels'
+
+
+@pytest.mark.parametrize('padding', [0, 10])
+@pytest.mark.parametrize('color', [(255,0,0), (0,255,0), (255,0,255)])
+async def test_saturated_color_inside_a_blue_caret_is_unexplained_input_context(physical, padding, color):
+    router, surface = physical
+    surface.current[1][2]['bounds']['width'] += padding
+    surface.remember(surface.current)
+    target, _ = await observed_target(router, surface)
+    content, rows = frame(caret=True)
+    image = Image.open(io.BytesIO(content)).convert('RGB')
+    box = rows[2]['bounds']
+    image.putpixel((int(box['x']+box['width']+4), int(box['y']+box['height']/2)), color)
+    output = io.BytesIO(); image.save(output, format='PNG')
+    rows[2]['bounds']['width'] += padding
+    surface.current = output.getvalue(), rows; surface.remember(surface.current)
+    result = await fill(router, target)
+    assert result['status'] == 'error'
+    assert result['error']['side_effect_state'] == 'not_sent'
+    assert surface.transmissions == []
+
+
+async def test_bounded_blue_caret_preserves_a_neutral_shadow_pixel(physical):
+    router, surface = physical
+    target, point = await observed_target(router, surface)
+    content, rows = frame(caret=True)
+    image = Image.open(io.BytesIO(content)).convert('RGB')
+    box = rows[2]['bounds']
+    image.putpixel((int(box['x']+box['width']+4), int(box['y']+box['height']/2)), (8,8,8))
+    output = io.BytesIO(); image.save(output, format='PNG')
+    surface.current = output.getvalue(), rows; surface.remember(surface.current)
+    result = await fill(router, target)
+    assert result['status'] == 'success', result.get('error')
+    assert surface.transmissions == [('fill', point, 'MeshGood')]
+
+
+@pytest.mark.parametrize('background', [(0,0,0), (255,255,255), (16,16,16), (255,0,0), (0,255,0)])
+@pytest.mark.parametrize('opacity', [.004, .02, .1, .5])
+async def test_quantized_blue_caret_antialias_preserves_valid_input(physical, background, opacity):
+    router, surface = physical
+    foreground = 'black' if background == (255,255,255) else 'white'
+    surface.current = frame(background=background, foreground=foreground)
+    surface.remember(surface.current)
+    target, point = await observed_target(router, surface)
+    content, rows = frame(caret=True, background=background, foreground=foreground)
+    image = Image.open(io.BytesIO(content)).convert('RGB')
+    box = rows[2]['bounds']
+    blue = (10,132,255)
+    antialias = tuple(round(background[i]+opacity*(blue[i]-background[i])) for i in range(3))
+    image.putpixel((int(box['x']+box['width']+4), int(box['y']+box['height']/2)), antialias)
+    output = io.BytesIO(); image.save(output, format='PNG')
+    surface.current = output.getvalue(), rows; surface.remember(surface.current)
+    result = await fill(router, target)
+    assert result['status'] == 'success', result.get('error')
+    assert surface.transmissions == [('fill', point, 'MeshGood')]
+
+
+async def test_oversized_ocr_box_does_not_allow_a_blue_change_over_a_glyph(physical):
+    router, surface = physical
+    surface.current[1][2]['bounds']['width'] += 10
+    surface.remember(surface.current)
+    target, _ = await observed_target(router, surface)
+    # A blue replacement over a letter is not a blinking caret on background.
+    original = frame()
+    box = original[1][2]['bounds']
+    x = box['x'] + box['width'] / 2
+    surface.show(mark=(x, box['y']-2, x+2, box['y']+box['height']+2),
+                 mark_color='#0a84ff', signal=True)
+    surface.current[1][2]['bounds']['width'] += 10
+    surface.remember(surface.current)
+    result = await fill(router, target)
+    assert result['status'] == 'error'
+    assert result['error']['side_effect_state'] == 'not_sent'
+    assert surface.transmissions == []
+
+
+async def test_oversized_box_cannot_hide_a_glyph_erased_by_blue_at_its_edge(physical):
+    router, surface = physical
+    surface.current[1][2]['bounds']['width'] += 10
+    surface.remember(surface.current)
+    target, _ = await observed_target(router, surface)
+    box = frame()[1][2]['bounds']
+    x = box['x'] + box['width'] - 4
+    surface.show(mark=(x, box['y']-3, x+2, box['y']+box['height']+3),
+                 mark_color='#0a84ff', signal=True)
+    surface.current[1][2]['bounds']['width'] += 10
+    surface.remember(surface.current)
+    result = await fill(router, target)
+    assert result['status'] == 'error'
+    assert result['error']['side_effect_state'] == 'not_sent'
+    assert surface.transmissions == []
+
+
+async def test_oversized_box_with_unprovable_background_never_transmits(physical):
+    router, surface = physical
+    def striped(caret):
+        content, rows = frame(caret=caret)
+        image = Image.open(io.BytesIO(content)).convert('RGB')
+        box = rows[2]['bounds']; box['width'] += 10
+        for y in range(int(box['y']), int(box['y']+box['height'])+1):
+            for x in range(int(box['x']), int(box['x']+box['width'])+1):
+                if image.getpixel((x,y)) == (16,16,16):
+                    level = (16,24,32)[x%3]; image.putpixel((x,y), (level,level,level))
+        output = io.BytesIO(); image.save(output, format='PNG')
+        return output.getvalue(), rows
+    surface.current = striped(False); surface.remember(surface.current)
+    target, _ = await observed_target(router, surface)
+    surface.current = striped(True); surface.remember(surface.current)
+    result = await fill(router, target)
+    assert result['status'] == 'error'
+    assert result['error']['side_effect_state'] == 'not_sent'
+    assert surface.transmissions == []
 
 
 @pytest.mark.parametrize('change', ['target_text', 'target_position', 'context_text',

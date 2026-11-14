@@ -1,0 +1,14 @@
+{
+  "product": "TapMesh",
+  "app_build": 3,
+  "checked_at": "2026-11-06T13:51:27.023499+00:00",
+  "status": "accepted_and_stapled",
+  "submission_id": "773fdb80-ffcf-4127-8695-82aca0a7ddf7",
+  "submitted_archive_sha256": "1981f0c7796769bff290f20e068220186178ebdd749cde31dc4837b4249c8cb5",
+  "stapled_archive_sha256": "dede8c910a2c01ad81893166fcd0cae93b21f70cd7fffd689bade621128ff166",
+  "stapler_validate": "passed",
+  "deep_strict_signature": "passed",
+  "gatekeeper_development_mac": "accepted_notarized_developer_id",
+  "production_ed25519_signature": "independently_verified",
+  "modified_archive_signature": "rejected"
+}

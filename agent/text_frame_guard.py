@@ -128,6 +128,58 @@ def _inside(point,box):
     return box['x']<=point[0]<box['x']+box['width'] and box['y']<=point[1]<box['y']+box['height']
 
 
+def _unchanged_glyph_edges(a,b,mask,caret,box,other,sx,sy):
+    left=min(box['x'],other['x']);top=min(box['y'],other['y'])
+    right=max(box['x']+box['width'],other['x']+other['width'])
+    bottom=max(box['y']+box['height'],other['y']+other['height'])
+    region=(max(0,math.floor(left*sx)),max(0,math.floor(top*sy)),
+            min(a.width,math.ceil(right*sx)),min(a.height,math.ceil(bottom*sy)))
+    width,height=region[2]-region[0],region[3]-region[1]
+    if bottom-top>48 or width<=0 or height<=0 or width*height>256000:return None
+    crops=[image.crop(region) for image in (a,b)]
+    colors=[crop.getcolors(1024) for crop in crops]
+    if any(not palette for palette in colors):return None
+    dominant=[max(palette,key=lambda item:item[0]) for palette in colors]
+    background=dominant[0][1]
+    if dominant[1][1]!=background or any(count<width*height/2 for count,_ in dominant):return None
+    # One frame must show only the unchanged background at every changed
+    # caret pixel. Replacing a glyph with a blue stroke cannot satisfy this.
+    clean=[]
+    for image in (a,b):
+        if all(image.getpixel((x,y))==background
+               for y in range(caret[1],caret[3]) for x in range(caret[0],caret[2])
+               if mask.getpixel((x,y))):
+            clean.append(image)
+    if not clean:return None
+    crop=clean[0].crop(region)
+    channels=ImageChops.difference(crop,Image.new('RGB',crop.size,background)).split()
+    ink=ImageChops.lighter(ImageChops.lighter(channels[0],channels[1]),channels[2]).getbbox()
+    if not ink or (ink[2]-ink[0])/sx<4 or (ink[3]-ink[1])/sy<8:return None
+    return (region[0]+ink[0])/sx,(region[0]+ink[2])/sx
+
+
+def _blue_antialias_transition(background,pixel):
+    # A rounded 8-bit blend must admit a foreground satisfying the existing
+    # blue thresholds. Solve for inverse opacity, including half-LSB rounding.
+    low,high=1.0,math.inf
+    delta=[pixel[i]-background[i] for i in range(3)]
+    constraints=[]
+    for i in range(3):
+        constraints.extend([(background[i],delta[i]+.5,0),
+                            (255-background[i],-delta[i]+.5,0)])
+    constraints.extend([(background[2],delta[2]+.5,120),
+                        (255-background[0],-delta[0]+.5,40),
+                        (255-background[1],-delta[1]+.5,20),
+                        (background[2]-background[0],delta[2]-delta[0]+1,40),
+                        (background[2]-background[1],delta[2]-delta[1]+1,20)])
+    for offset,slope,minimum in constraints:
+        if slope>0:low=max(low,(minimum-offset)/slope)
+        elif slope<0:high=min(high,(minimum-offset)/slope)
+        elif offset<minimum:return False
+        if low>high:return False
+    return True
+
+
 def validate_text_frame(before, after, logical, baseline, current, point, *, expected=None):
     """Prove a fixed text target and unchanged pixels outside system indicators/caret."""
     if (not isinstance(logical,dict) or set(logical)!={'width','height'}
@@ -199,7 +251,7 @@ def validate_text_frame(before, after, logical, baseline, current, point, *, exp
         explained=ImageChops.multiply(mask,status)
         if explained.getbbox():allowed.append('clock_status')
         remaining=ImageChops.subtract(remaining,explained)
-    caret=remaining.getbbox()
+    caret=remaining.getbbox();caret_edge_source=None
     if caret:
         left,top,right,bottom=(caret[0]/sx,caret[1]/sy,caret[2]/sx,caret[3]/sy)
         box=target['bounds'];other=replacement['bounds']
@@ -208,21 +260,35 @@ def validate_text_frame(before, after, logical, baseline, current, point, *, exp
         edge=(left>=min(box['x']+box['width'],other['x']+other['width'])-4
               and right<=max(box['x']+box['width'],other['x']+other['width'])+8
               or right<=max(box['x'],other['x'])+4 and left>=min(box['x'],other['x'])-8)
-        if (not edge or right-left>4 or not 12<=bottom-top<=40
+        if (right-left>4 or not 12<=bottom-top<=40
                 or top<min(box['y'],other['y'])-8
                 or bottom>max(box['y']+box['height'],other['y']+other['height'])+8):
             _reject('unexplained_pixels')
+        caret_edge_source='ocr'
+        if not edge:
+            glyphs=_unchanged_glyph_edges(a,b,remaining,caret,box,other,sx,sy)
+            if glyphs:
+                edge=(left>=glyphs[1]-4 and right<=glyphs[1]+8
+                      or right<=glyphs[0]+4 and left>=glyphs[0]-8)
+                caret_edge_source='unchanged_glyph_pixels'
+        if not edge:_reject('unexplained_pixels')
         count=blue=0
         for y in range(caret[1],caret[3]):
             for x in range(caret[0],caret[2]):
                 if remaining.getpixel((x,y)):
                     count+=1
+                    first,second=a.getpixel((x,y)),b.getpixel((x,y))
                     if any(rgb[2]>=120 and rgb[2]-rgb[0]>=40 and rgb[2]-rgb[1]>=20
-                           for rgb in (a.getpixel((x,y)),b.getpixel((x,y)))):blue+=1
+                           for rgb in (first,second)):blue+=1
+                    elif not (first[0]==first[1]==first[2] and second[0]==second[1]==second[2]
+                              or _blue_antialias_transition(first,second)
+                              or _blue_antialias_transition(second,first)):
+                        _reject('unqualified_caret_color')
         if count<.65*(caret[2]-caret[0])*(caret[3]-caret[1]) or blue<.9*count:
             _reject('unqualified_caret')
         allowed.append('blue_caret')
-    return {'mode':'stable_text_target','changed_pixels':changed,'allowed_changes':allowed}
+    return {'mode':'stable_text_target','changed_pixels':changed,'allowed_changes':allowed,
+            **({'caret_edge_source':caret_edge_source} if caret else {})}
 
 
 class TextFrameCheck:

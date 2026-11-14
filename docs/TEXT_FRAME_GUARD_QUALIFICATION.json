@@ -1,11 +1,11 @@
 {
   "product": "TapMesh",
-  "checked_at": "2026-11-08T06:29:14.032328+00:00",
+  "checked_at": "2026-11-14T12:21:29.976085+00:00",
   "status": "partial",
-  "scope": "Opt-in physical text-target frame verification; automated dispatch tests and real UIKit simulator frame comparisons",
+  "scope": "Opt-in physical text-target validation; retained automated/simulator baselines and final notarized build 9 physical fixture qualification",
   "production_release_ready": false,
-  "build_number": 7,
-  "python_tests_passed": 269,
+  "build_number": 9,
+  "python_tests_passed": 312,
   "python_subtests_passed": 28,
   "live_optins_skipped": 4,
   "swift_tests_passed": 37,
@@ -159,87 +159,34 @@
     "other_running_simulator_untouched": true
   },
   "physical_iPhone": {
-    "status": "deferred_by_owner",
-    "Xcode_read_only_precheck": "CoreDevice 4016; usage assertion unavailable",
-    "new_input_sent": false,
-    "remaining": "Exact packaged build7 coordinate-fill repeatability and readback on the unlocked foreground fixture"
+    "status": "partial; exercised_2026-11-14",
+    "build_number": 9,
+    "Xcode_read_only_precheck": "2026-11-14: wired, paired, Developer Mode enabled, usable developer services, passcodeRequired=false, foreground fixture confirmed",
+    "new_input_sent": true,
+    "report": "PHYSICAL_TEXT_BUILD9_QUALIFICATION.json",
+    "actual_non_exact_dispatch_passed": true,
+    "changed_native_pixels": 2942,
+    "remaining": "Repeated active-field/caret coordinate fill and AX viewport behavior; a single successful clock/status dispatch is not general repeatability",
+    "historical_Xcode_read_only_precheck_2026-11-08": "CoreDevice 4016; usage assertion unavailable",
+    "historical_Xcode_read_only_precheck_2026-11-11": "CoreDevice 4016; retained readiness receipt; superseded as current readiness by Nov14 live check"
   },
   "native_UI": {
     "option": "Unchecked opt-in on the physical replacement sheet; clears after interrupted ownership",
     "serialization_tests": "passed",
-    "interactive_new_option": "not_exercised; device deferred"
+    "interactive_new_option": "2026-11-14 final build 9: default unchecked, explicit selection and Clipboard/ordinary_app observed; three fills yielded two safe refusals and one independently confirmed outcome. Full successful response/proof mode and HTTP payload not retained. See PHYSICAL_TEXT_BUILD9_QUALIFICATION.json."
   },
   "local_package": {
     "status": "passed",
-    "build_number": 7,
-    "sha256": "d168406ab14d0afb7e432b8a3a0a18b989478143bb299137d3890bff3dea08a2",
+    "build_number": 9,
+    "sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
     "signing": "Developer_ID",
-    "notarized": false,
+    "notarized": true,
     "published": false,
-    "source_compliance": "application_source_embedded_and_verified; full_distribution_source_archive_not_assembled",
-    "application_source_matches": {
-      "agent/text_frame_guard.py": "b1bd08b13fe93240ee375a9465392a61a1f7ae62b1df9e8e6a660e3e0b1b2483",
-      "agent/backends.py": "a360f1e8551d14339f8203eccd8f1afbe9664679293755d87713dc7afff6f46a",
-      "agent/core.py": "a8f98a1c38dc8301c3809b59d55246f1968653abdd46d2be6049c186bb15ca41",
-      "agent/nas_ocr.py": "9b61a3fcdd82d8da31542a342cd0acf10a4f8f9f68cb716b5e4cc1a85c7c73b0",
-      "agent/native_physical.py": "06492b0d3a8638d5f0eb4de7acdd21a0c019300aff990950c9f2efa1f688a8b3",
-      "Contracts/catalog.py": "8af594a5d0ff0251924da6acb5c8a5329bd160c1ddd2d1af5e93c4c8892f0a7f",
-      "Contracts/catalog.json": "77fe066f94fda8dedf89f2158116b426a2f12cd01c2a45d85194fd9e8f3b0714",
-      "macos/Sources/TapMeshCore/TextInputMethod.swift": "1197fc87c1f18f96de9de5be5ae09115b76bb12073a7e2da5c0e0f8c5aea0382",
-      "macos/Sources/TapMesh/Views/DeviceWorkspaceView.swift": "1b99b404c5d4fb5ebdbd89e32a34e945340e29fae42c286c2a1c9f51b96c5d2f",
-      "macos/Tests/TapMeshCoreTests/TextInputMethodTests.swift": "ade1d9e84a2de86436baba0eb130ce36657ee041bdc0562875c7060a16b0c558",
-      "tests/test_text_frame_guard.py": "3eaa5163e081a32a8f3af7f8238618df0afb5c953ce941ad16498183dead91b4",
-      "tests/test_native_physical.py": "9be51d49e779bd11f876b56106ed86d79271156e62d5637a5f6271a50f5e394c",
-      "tests/test_text_context.py": "9eb24cc58fa051829c3da092f1156cfafdac6c0840db70985f01e5bea4e6ae53",
-      "tests/test_ocr_transport.py": "c3b4e0016e6b3415b25059f639494faf8c0f32811c53f3ce1bf2620c0c2e7298"
-    },
-    "relocated_runtime": {
-      "product": "TapMesh",
-      "checks": [
-        {
-          "name": "bundle code/resources are readable and deny group/other writes",
-          "status": "passed"
-        },
-        {
-          "name": "relocated interpreter and packages with system-only PATH",
-          "status": "passed"
-        },
-        {
-          "name": "fresh private local profile; legacy environment preserved",
-          "status": "passed"
-        },
-        {
-          "name": "local HTTP authentication and owner/OCR credential separation",
-          "status": "passed"
-        },
-        {
-          "name": "bundled authenticated Vision OCR through local HTTP",
-          "status": "passed"
-        },
-        {
-          "name": "duplicate launch attaches without stopping owned services",
-          "status": "passed"
-        },
-        {
-          "name": "relocated MCP stdio bridge ignores inherited HTTP proxy",
-          "status": "passed"
-        },
-        {
-          "name": "graceful shutdown stops both owned listeners",
-          "status": "passed"
-        },
-        {
-          "name": "restart changes instance while preserving local credentials",
-          "status": "passed"
-        },
-        {
-          "name": "bundle signature preserved after runtime and MCP execution",
-          "status": "passed"
-        }
-      ],
-      "status": "passed"
-    },
-    "pre_UI_build6": "Superseded before runtime qualification; private ZIP and receipt retained"
+    "complete_source_archive_sha256": "5a60a84b52b652c6ddec860c150d29e06be9ffa53b75585a72d288886a9fb85a",
+    "source_compliance": "complete corresponding source assembled; unchanged from final build 9",
+    "integrity_report": "PHYSICAL_TEXT_BUILD9_QUALIFICATION.json",
+    "distribution_report": "NOTARIZATION_BUILD9_QUALIFICATION.json",
+    "clean_host_install_update_report": "CLEAN_MAC_BUILD9_QUALIFICATION.json"
   },
   "public_distribution": {
     "build_number": 3,
@@ -270,5 +217,226 @@
         "size_bytes": 110263210
       }
     ]
-  }
+  },
+  "latest_physical_followup": {
+    "date": "2026-11-14",
+    "build_number": 9,
+    "status": "partial",
+    "report": "PHYSICAL_TEXT_BUILD9_QUALIFICATION.json",
+    "physical_repeatability_qualified": false,
+    "complete_source_assembled": true,
+    "notarized": true,
+    "post_authorization_fill_attempts": 20,
+    "independently_confirmed_fill_outcomes": 8,
+    "safe_fill_refusals": 12,
+    "actual_non_exact_clock_status_dispatch_passed": true,
+    "repeated_blue_caret_dispatch_qualified": false
+  },
+  "automated_baseline_checked_at": "2026-11-08T06:29:14.032328+00:00",
+  "latest_source_followup": {
+    "date": "2026-11-10",
+    "build_number": 9,
+    "report": "CARET_COLOR_BUILD9_QUALIFICATION.json",
+    "python_tests_passed": 312,
+    "python_subtests_passed": 28,
+    "live_simulator_optins_skipped": 4,
+    "swift_tests_passed": 37,
+    "native_tools_passed": 10,
+    "native_color_samples_passed": 2560,
+    "physical_status": "deferred by owner while phone locked; no new device query",
+    "new_physical_input_sent": false,
+    "physical_repeatability_qualified": false,
+    "complete_source_assembled": true,
+    "notarized": false,
+    "published": false,
+    "historical_source_change_receipt": true
+  },
+  "source_followup_history": [
+    {
+      "date": "2026-11-10",
+      "build_number": 8,
+      "report": "CARET_GLYPH_BUILD8_QUALIFICATION.json",
+      "python_tests_passed": 276,
+      "swift_tests_passed": 37,
+      "physical_status": "blocked; initial lock followed by CoreDevice 4016",
+      "new_physical_input_sent": false,
+      "physical_repeatability_qualified": false,
+      "complete_source_assembled": true,
+      "notarized": false,
+      "published": false
+    }
+  ],
+  "latest_readiness_recheck": {
+    "date": "2026-11-14",
+    "build_number": 9,
+    "report": "PHYSICAL_TEXT_BUILD9_QUALIFICATION.json",
+    "status": "ready_and_exercised; physical_repeatability_partial",
+    "new_physical_input_sent": true,
+    "app_activated": true,
+    "screen_captured": true,
+    "notarized": true,
+    "published": false,
+    "physical_repeatability_qualified": false,
+    "final_zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33"
+  },
+  "latest_distribution_followup": {
+    "date": "2026-11-14",
+    "build_number": 9,
+    "report": "CLEAN_MAC_BUILD9_QUALIFICATION.json",
+    "status": "exact_final_clean_arm64_mac_install_and_native_production_key_update_passed",
+    "zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+    "source_archive_sha256": "5a60a84b52b652c6ddec860c150d29e06be9ffa53b75585a72d288886a9fb85a",
+    "checks_passed": 26,
+    "CI_run": "https://github.com/khaled1174/TapMesh-qualification-private/actions/runs/43593979301",
+    "CI_private": true,
+    "notarized": true,
+    "physical_repeatability_qualified": false,
+    "final_clean_host_install_update_qualified": true,
+    "finder_first_open_confirmation": "not_exercised",
+    "published": false
+  },
+  "historical_build7_baseline": {
+    "checked_at": "2026-11-09T20:42:49.589281+00:00",
+    "scope": "Opt-in physical text-target frame verification; automated dispatch tests and real UIKit simulator frame comparisons",
+    "build_number": 7,
+    "python_tests_passed": 269,
+    "python_subtests_passed": 28,
+    "live_optins_skipped": 4,
+    "swift_tests_passed": 37,
+    "catalog_tools": 50,
+    "new_python_regression_cases": 31,
+    "new_swift_regression_cases": 1,
+    "physical_iPhone": {
+      "status": "partial; exercised_2026-11-09",
+      "Xcode_read_only_precheck": "2026-11-09: connected over wired transport, paired, Developer Mode enabled, passcodeRequired=false",
+      "new_input_sent": true,
+      "remaining": "Repeatable packaged physical coordinate fill after a non-exact stable_text_target proof; retain 2026-11-09 unsuccessful attempts",
+      "historical_Xcode_read_only_precheck_2026-11-08": "CoreDevice 4016; usage assertion unavailable"
+    },
+    "native_UI": {
+      "option": "Unchecked opt-in on the physical replacement sheet; clears after interrupted ownership",
+      "serialization_tests": "passed",
+      "interactive_new_option": "exercised_2026-11-09; default_unchecked and explicit_selection verified; request rejected stale_observation/not_sent; native focused paste/Backspace independently observed"
+    },
+    "local_package": {
+      "status": "passed",
+      "build_number": 7,
+      "sha256": "d168406ab14d0afb7e432b8a3a0a18b989478143bb299137d3890bff3dea08a2",
+      "signing": "Developer_ID",
+      "notarized": false,
+      "published": false,
+      "source_compliance": "complete_distribution_source_archive_assembled_and_verified_2026-11-09; unpublished",
+      "application_source_matches": {
+        "agent/text_frame_guard.py": "b1bd08b13fe93240ee375a9465392a61a1f7ae62b1df9e8e6a660e3e0b1b2483",
+        "agent/backends.py": "a360f1e8551d14339f8203eccd8f1afbe9664679293755d87713dc7afff6f46a",
+        "agent/core.py": "a8f98a1c38dc8301c3809b59d55246f1968653abdd46d2be6049c186bb15ca41",
+        "agent/nas_ocr.py": "9b61a3fcdd82d8da31542a342cd0acf10a4f8f9f68cb716b5e4cc1a85c7c73b0",
+        "agent/native_physical.py": "06492b0d3a8638d5f0eb4de7acdd21a0c019300aff990950c9f2efa1f688a8b3",
+        "Contracts/catalog.py": "8af594a5d0ff0251924da6acb5c8a5329bd160c1ddd2d1af5e93c4c8892f0a7f",
+        "Contracts/catalog.json": "77fe066f94fda8dedf89f2158116b426a2f12cd01c2a45d85194fd9e8f3b0714",
+        "macos/Sources/TapMeshCore/TextInputMethod.swift": "1197fc87c1f18f96de9de5be5ae09115b76bb12073a7e2da5c0e0f8c5aea0382",
+        "macos/Sources/TapMesh/Views/DeviceWorkspaceView.swift": "1b99b404c5d4fb5ebdbd89e32a34e945340e29fae42c286c2a1c9f51b96c5d2f",
+        "macos/Tests/TapMeshCoreTests/TextInputMethodTests.swift": "ade1d9e84a2de86436baba0eb130ce36657ee041bdc0562875c7060a16b0c558",
+        "tests/test_text_frame_guard.py": "3eaa5163e081a32a8f3af7f8238618df0afb5c953ce941ad16498183dead91b4",
+        "tests/test_native_physical.py": "9be51d49e779bd11f876b56106ed86d79271156e62d5637a5f6271a50f5e394c",
+        "tests/test_text_context.py": "9eb24cc58fa051829c3da092f1156cfafdac6c0840db70985f01e5bea4e6ae53",
+        "tests/test_ocr_transport.py": "c3b4e0016e6b3415b25059f639494faf8c0f32811c53f3ce1bf2620c0c2e7298"
+      },
+      "relocated_runtime": {
+        "product": "TapMesh",
+        "checks": [
+          {
+            "name": "bundle code/resources are readable and deny group/other writes",
+            "status": "passed"
+          },
+          {
+            "name": "relocated interpreter and packages with system-only PATH",
+            "status": "passed"
+          },
+          {
+            "name": "fresh private local profile; legacy environment preserved",
+            "status": "passed"
+          },
+          {
+            "name": "local HTTP authentication and owner/OCR credential separation",
+            "status": "passed"
+          },
+          {
+            "name": "bundled authenticated Vision OCR through local HTTP",
+            "status": "passed"
+          },
+          {
+            "name": "duplicate launch attaches without stopping owned services",
+            "status": "passed"
+          },
+          {
+            "name": "relocated MCP stdio bridge ignores inherited HTTP proxy",
+            "status": "passed"
+          },
+          {
+            "name": "graceful shutdown stops both owned listeners",
+            "status": "passed"
+          },
+          {
+            "name": "restart changes instance while preserving local credentials",
+            "status": "passed"
+          },
+          {
+            "name": "bundle signature preserved after runtime and MCP execution",
+            "status": "passed"
+          }
+        ],
+        "status": "passed"
+      },
+      "pre_UI_build6": "Superseded before runtime qualification; private ZIP and receipt retained",
+      "complete_source_archive_sha256": "943cd3a92346e7abd3d045d5b72532fd7d6b9891c547601b992e7fbcc249efed"
+    },
+    "latest_physical_followup": {
+      "date": "2026-11-09",
+      "status": "partial",
+      "report": "PHYSICAL_TEXT_BUILD7_QUALIFICATION.json",
+      "physical_repeatability_qualified": false,
+      "complete_source_assembled": true
+    }
+  },
+  "new_python_regression_cases_scope": "31 initial build-7 cases; retained historical count, not total build-9 coverage",
+  "physical_followup_history": [
+    {
+      "date": "2026-11-09",
+      "status": "partial",
+      "report": "PHYSICAL_TEXT_BUILD7_QUALIFICATION.json",
+      "physical_repeatability_qualified": false,
+      "complete_source_assembled": true
+    }
+  ],
+  "readiness_recheck_history": [
+    {
+      "date": "2026-11-11",
+      "build_number": 9,
+      "report": "BUILD9_RECHECK_20261111.json",
+      "status": "final_notarized_package_and_automated_checks_passed; physical_unavailable_CoreDevice_4016",
+      "physical_repeatability_qualified": false,
+      "new_physical_input_sent": false,
+      "app_activated": false,
+      "screen_captured": false,
+      "notarized": true,
+      "published": false,
+      "final_zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33"
+    }
+  ],
+  "distribution_followup_history": [
+    {
+      "date": "2026-11-11",
+      "build_number": 9,
+      "report": "NOTARIZATION_BUILD9_QUALIFICATION.json",
+      "status": "accepted_stapled_normalized_and_final_package_verified",
+      "submission_id": "a64b44d8-8076-40ac-bba4-57f537724f49",
+      "zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+      "source_archive_sha256": "5a60a84b52b652c6ddec860c150d29e06be9ffa53b75585a72d288886a9fb85a",
+      "physical_repeatability_qualified": false,
+      "final_clean_host_install_update_qualified": false,
+      "published": false
+    }
+  ],
+  "final_clean_host_install_update_qualified": true
 }

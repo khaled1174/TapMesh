@@ -1,0 +1,86 @@
+{
+  "product": "TapMesh",
+  "build_number": 3,
+  "checked_at": "2026-11-06T15:22:33.752379+00:00",
+  "status": "passed",
+  "environment": "development_mac",
+  "macos": "27.2",
+  "architecture": "arm64",
+  "production_archive_sha256": "dede8c910a2c01ad81893166fcd0cae93b21f70cd7fffd689bade621128ff166",
+  "scope": "Exact notarized production build 3, simulated download quarantine, actual Finder launch and Gatekeeper confirmation, AppTranslocation, isolated fresh profile, no device selection or input",
+  "quarantine_setup": "com.apple.quarantine 0081 applied to disposable extracted app; not cleared and no security exception added",
+  "finder_first_open_confirmation": "observed_and_open_accepted_on_development_mac",
+  "gatekeeper_message": "Apple checked the app for malicious software and none was detected",
+  "clean_host_finder_confirmation": "not_exercised; clean-host native entrypoint and update reports remain separate",
+  "checks": [
+    {
+      "name": "Exact production archive, strict signature, stapled ticket and Gatekeeper assessment",
+      "status": "passed"
+    },
+    {
+      "name": "Finder shows the downloaded-app confirmation for the notarized TapMesh app",
+      "status": "passed"
+    },
+    {
+      "name": "AppTranslocation launches the native workspace connected to a fresh isolated profile",
+      "status": "passed"
+    },
+    {
+      "name": "Local HTTP denies unauthenticated access and exposes 50 authenticated schemas",
+      "status": "passed"
+    },
+    {
+      "name": "Translocated MCP bridge initializes and exposes 50 tools with system-only PATH",
+      "status": "passed"
+    },
+    {
+      "name": "Closing the workspace leaves no visible workspace window while HTTP/MCP, credentials and instance remain available",
+      "status": "passed"
+    },
+    {
+      "name": "Finder reopens the connected workspace without replacing credentials or runtime instance",
+      "status": "passed"
+    },
+    {
+      "name": "Native Quit stops owned listeners, preserves the bundle signature and restores the temporary GUI environment",
+      "status": "passed"
+    }
+  ],
+  "http_mcp_phase_results": [
+    {
+      "phase": "opened",
+      "authenticated_HTTP_tools": 50,
+      "unauthenticated_HTTP_denied": true,
+      "translocated_MCP_tools": 50,
+      "signature_preserved": true,
+      "credential_and_instance_baseline_created": true
+    },
+    {
+      "phase": "closed",
+      "authenticated_HTTP_tools": 50,
+      "unauthenticated_HTTP_denied": true,
+      "translocated_MCP_tools": 50,
+      "signature_preserved": true,
+      "same_credentials_and_instance": true
+    },
+    {
+      "phase": "reopened",
+      "authenticated_HTTP_tools": 50,
+      "unauthenticated_HTTP_denied": true,
+      "translocated_MCP_tools": 50,
+      "signature_preserved": true,
+      "same_credentials_and_instance": true
+    }
+  ],
+  "owned_native_app_stopped": true,
+  "owned_listeners_stopped": true,
+  "temporary_gui_environment_restored": true,
+  "test_finder_window_closed": true,
+  "bundle_signature_preserved": true,
+  "physical_device_input_sent": false,
+  "phone_followup": "deferred_by_owner",
+  "observation_notes": [
+    "Initial CUA app binding timed out while the Finder first-open confirmation was still pending; a not-responding dialog from that binding was dismissed. The underlying downloaded-app confirmation was then observed and accepted. Successful runtime checks began only after that confirmation.",
+    "Reading the closed app through the CUA app binding reopened its window. That first close observation was not counted as a closed-window test. A separate close used Finder observation and a PID/executable-bound read-only window probe, then independently verified HTTP/MCP while the workspace window was absent."
+  ]
+}

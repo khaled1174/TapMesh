@@ -1,0 +1,996 @@
+{
+  "product": "TapMesh",
+  "build_number": 9,
+  "date": "2026-11-14",
+  "timezone": "Asia/Riyadh",
+  "checked_from": "2026-11-14T10:25:31.545682+00:00",
+  "checked_until": "2026-11-14T11:35:56.002246+00:00",
+  "status": "partial",
+  "production_release_ready": false,
+  "scope": "Source-matched final notarized build 9; owned unlocked physical iPhone fixture only; HTTP coordinate/reference fill and interactive native Mac option",
+  "candidate": {
+    "source_commit": "782b79f",
+    "documentation_head_before_round": "b3cba48",
+    "final_app": "<private-tapmesh>/Release/Build9-Notarized-20261111-Final/TapMesh.app",
+    "zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+    "complete_source_archive_sha256": "5a60a84b52b652c6ddec860c150d29e06be9ffa53b75585a72d288886a9fb85a",
+    "notary_submission_id": "a64b44d8-8076-40ac-bba4-57f537724f49",
+    "notarized": true,
+    "stapled": true,
+    "Developer_ID_signed": true,
+    "fresh_signature_ticket_and_Gatekeeper": "passed",
+    "prior_production_update_signature_report": "NOTARIZATION_BUILD9_QUALIFICATION.json",
+    "source_integrity_before_documentation_edits": {
+      "checked_at": "2026-11-14T11:35:32.414401+00:00",
+      "build_number": 9,
+      "zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+      "source_tar_sha256": "5a60a84b52b652c6ddec860c150d29e06be9ffa53b75585a72d288886a9fb85a",
+      "embedded_source_files_checked": 130,
+      "documentation_snapshot_differences": [
+        "docs/RELEASE_STATUS.md"
+      ],
+      "runtime_python_files_checked": 22,
+      "checks": [
+        {
+          "name": "signature",
+          "status": "passed"
+        },
+        {
+          "name": "ticket",
+          "status": "passed"
+        },
+        {
+          "name": "gatekeeper",
+          "status": "passed"
+        }
+      ],
+      "ticket_mode": "0644",
+      "appcast_item_count": 0,
+      "application_source_changed": false,
+      "private_TNAS_setup_changed": false,
+      "status": "passed"
+    },
+    "application_source_changed_this_round": false,
+    "security_limits_changed": false,
+    "complete_source_assembled": true,
+    "independent_bit_for_bit_rebuild_performed": false,
+    "retained_original_and_first_post_notary_artifacts": "unchanged; historical receipts retained"
+  },
+  "device_readiness": {
+    "device": "iPhone 18 Pro Max",
+    "OS": "iOS 27.2.1",
+    "transport": "wired",
+    "paired": true,
+    "Developer_Mode_enabled": true,
+    "developer_services_usable": true,
+    "passcodeRequired": false,
+    "unlockedSinceBoot": true,
+    "fixture_bundle_id": "io.tapmesh.fixture",
+    "fixture_version": "0.1.0 (1)",
+    "fixture_built_by_developer": true,
+    "fixture_foreground_confirmed_before_input": true,
+    "logical_points": [
+      440,
+      956
+    ],
+    "native_pixels": [
+      1320,
+      2868
+    ],
+    "device_unlock_or_authentication_attempted": false,
+    "dynamic_island": {
+      "owner_said_they_would_hide_live_activity": true,
+      "later_fixture_captures_show_counter_hidden": true,
+      "agent_operated_or_ended_personal_activity": false,
+      "counter_as_sole_cause_established": false
+    },
+    "raw_files": [
+      "devices.json",
+      "lock-state.json",
+      "developer-services.json",
+      "fixture-app.json",
+      "fixture-activation.json"
+    ]
+  },
+  "fill_summary": {
+    "counting_rule": "Post-authorization fill executions, including not_sent refusals; distinct setup probes and approval_required responses excluded. Counts are not a general reliability estimate.",
+    "post_authorization_attempts": 20,
+    "transmitted": 8,
+    "independently_confirmed_app_outcomes": 8,
+    "safely_refused_before_HID_or_clipboard_input": 12,
+    "separate_fill_approval_required_responses": 20,
+    "refusal_error_counts": {
+      "stale_observation": 11,
+      "stale_element_reference": 1
+    },
+    "HTTP_full_body_attempts": 17,
+    "HTTP_default_exact_attempts": 2,
+    "HTTP_explicit_text_target_attempts": 15,
+    "native_UI_attempts": 3,
+    "native_UI_confirmed_outcomes": 1,
+    "native_UI_safe_refusals": 2,
+    "successful_full_response_proofs": {
+      "exact_frame": 6,
+      "stable_text_target_clock_status": 1
+    },
+    "native_UI_success_proof_mode": "not retained; do not infer exact_frame or stable_text_target",
+    "HTTP_refusal_reason_counts": {
+      "target_changed": 2,
+      "unexplained_pixels": 5,
+      "expired_observation_before_frame_guard": 1,
+      "large_pixel_change": 1,
+      "unqualified_caret": 1
+    },
+    "two_native_UI_refusal_detailed_guard_reasons": "not retained",
+    "prepared_fresh_fixture_cases": {
+      "passed": 4,
+      "attempted": 4,
+      "scope": "Each fixture-only relaunch and explicit AX inspection completed before a NEW anchor; all production safety checks still ran; all four used exact_frame proof; does not certify active-field repeatability"
+    },
+    "actual_non_exact_dispatch": {
+      "passed": true,
+      "request_id": "0be79c73badc4e338a0fc0b279c1a3f6",
+      "target_kind": "Fresh OCR element snapshot resolved to physical coordinates",
+      "proof_mode": "stable_text_target",
+      "allowed_changes": [
+        "clock_status"
+      ],
+      "changed_native_pixels": 2942,
+      "independent_readback": "Field and Entered mirror both TapMesh Reference One",
+      "repeated_active_caret_dispatch_qualified": false
+    },
+    "all_attempts": [
+      {
+        "request_id": "5fe66f05edbf49ed93c5e2289a997ff5",
+        "at": "2026-11-14T10:25:31.502128+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Alpha",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "target_changed"
+      },
+      {
+        "request_id": "f5d60144bfd14af0b8800aa1bcbccd0d",
+        "at": "2026-11-14T10:26:35.016560+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Bravo",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "unexplained_pixels"
+      },
+      {
+        "request_id": "2932cf3ed5f0478abb667309be97f2c0",
+        "at": "2026-11-14T10:32:01.230541+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Alpha",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "unexplained_pixels"
+      },
+      {
+        "request_id": "5ffde3390b774a5cbc6e6f1a58e20f79",
+        "at": "2026-11-14T10:33:21.662865+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Exact",
+        "requested_frame_validation": "exact",
+        "target_kind": "observed_coordinates",
+        "transport_status": "success",
+        "target_validation": {
+          "mode": "exact_frame"
+        },
+        "transport_verified": false,
+        "independent_app_outcome": "passed",
+        "readback_file": "english-exact-readback.json"
+      },
+      {
+        "request_id": "9eb110ff3d754ddfacaa22f259c5b03d",
+        "at": "2026-11-14T10:35:19.613285+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Bravo",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "unexplained_pixels"
+      },
+      {
+        "request_id": "85ca79024319426c93afe846f2f248f0",
+        "at": "2026-11-14T10:43:59.626565+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Delta",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "unexplained_pixels"
+      },
+      {
+        "request_id": "5e8608569ea04428a8d834c76ad621fc",
+        "at": "2026-11-14T10:50:47.869479+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Alpha Focus",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "target_changed"
+      },
+      {
+        "request_id": "1ae9902bd3404e32abae89a5ca34aae6",
+        "at": "2026-11-14T10:58:48.203715+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh تجربة",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "success",
+        "target_validation": {
+          "mode": "exact_frame"
+        },
+        "transport_verified": false,
+        "independent_app_outcome": "passed",
+        "readback_file": "arabic-coordinate-readback.json"
+      },
+      {
+        "request_id": "423306b7f8d14e80b7efec21d9906074",
+        "at": "2026-11-14T11:01:53.927640+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Nominal One",
+        "requested_frame_validation": "exact",
+        "target_kind": "observed_coordinates",
+        "transport_status": "success",
+        "target_validation": {
+          "mode": "exact_frame"
+        },
+        "transport_verified": false,
+        "independent_app_outcome": "passed",
+        "readback_file": "prepared-fresh-fixture-cases.json"
+      },
+      {
+        "request_id": "903e0368f3f249ba9f542a94e1c650e4",
+        "at": "2026-11-14T11:02:17.689625+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Nominal Two",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "success",
+        "target_validation": {
+          "mode": "exact_frame"
+        },
+        "transport_verified": false,
+        "independent_app_outcome": "passed",
+        "readback_file": "prepared-fresh-fixture-cases.json"
+      },
+      {
+        "request_id": "4c21c055534549f19cc21a1a2bad58a3",
+        "at": "2026-11-14T11:02:42.214874+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh اختبار",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "success",
+        "target_validation": {
+          "mode": "exact_frame"
+        },
+        "transport_verified": false,
+        "independent_app_outcome": "passed",
+        "readback_file": "prepared-fresh-fixture-cases.json"
+      },
+      {
+        "request_id": "e407e651773149a7bfd823f25161be99",
+        "at": "2026-11-14T11:04:04.647747+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Clock Proof",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "success",
+        "target_validation": {
+          "mode": "exact_frame"
+        },
+        "transport_verified": false,
+        "independent_app_outcome": "passed",
+        "readback_file": "prepared-fresh-fixture-cases.json"
+      },
+      {
+        "request_id": "aed3e7eacab44e7a8ecdd5beb134b373",
+        "at": "2026-11-14T11:06:58.765511+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "MUST_NOT_BE_TYPED",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": null
+      },
+      {
+        "request_id": "2654504321c3405f90bcc647e912fb93",
+        "at": "2026-11-14T11:09:05.118969+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Clock Two",
+        "requested_frame_validation": "text_target",
+        "target_kind": "observed_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "large_pixel_change"
+      },
+      {
+        "request_id": "f98e527c138b4e42baaf9d3ce583a373",
+        "at": "2026-11-14T11:11:55.473130+00:00",
+        "entrypoint": "native_Mac_UI",
+        "text": "TapMesh Native Nine",
+        "requested_frame_validation": "text_target option selected in UI; HTTP payload not independently captured",
+        "target_kind": "OCR_element_reference",
+        "transport_status": "error",
+        "full_result_body_retained": false,
+        "error_code": "stale_element_reference",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": null
+      },
+      {
+        "request_id": "7fa1fddb22994652bf7ea3706def481e",
+        "at": "2026-11-14T11:13:57.156108+00:00",
+        "entrypoint": "native_Mac_UI",
+        "text": "TapMesh Native Fresh",
+        "requested_frame_validation": "text_target option selected in UI; HTTP payload not independently captured",
+        "target_kind": "OCR_element_reference",
+        "transport_status": "error",
+        "full_result_body_retained": false,
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": null
+      },
+      {
+        "request_id": "69bf2f131f91487e938e25fb264811e0",
+        "at": "2026-11-14T11:16:45.486810+00:00",
+        "entrypoint": "native_Mac_UI",
+        "text": "TapMesh Native Quick",
+        "requested_frame_validation": "text_target option selected in UI; HTTP payload not independently captured",
+        "target_kind": "OCR_element_reference",
+        "transport_status": "success",
+        "full_result_body_retained": false,
+        "target_validation": null,
+        "independent_app_outcome": "passed",
+        "readback_file": "independent-readbacks.json"
+      },
+      {
+        "request_id": "0be79c73badc4e338a0fc0b279c1a3f6",
+        "at": "2026-11-14T11:21:58.618972+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Reference One",
+        "requested_frame_validation": "text_target",
+        "target_kind": "OCR_snapshot_reference_resolved_to_coordinates",
+        "transport_status": "success",
+        "target_validation": {
+          "mode": "stable_text_target",
+          "changed_pixels": 2942,
+          "allowed_changes": [
+            "clock_status"
+          ]
+        },
+        "transport_verified": false,
+        "independent_app_outcome": "passed",
+        "readback_file": "reference-snapshot-cases.json"
+      },
+      {
+        "request_id": "3e48816c0eaa4eebaeb6e3389d1721e2",
+        "at": "2026-11-14T11:22:06.635971+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Reference Two",
+        "requested_frame_validation": "text_target",
+        "target_kind": "OCR_snapshot_reference_resolved_to_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "unexplained_pixels"
+      },
+      {
+        "request_id": "1bdcb2e16c84419ba693533f6459959c",
+        "at": "2026-11-14T11:22:14.901092+00:00",
+        "entrypoint": "packaged_HTTP",
+        "text": "TapMesh Reference Three",
+        "requested_frame_validation": "text_target",
+        "target_kind": "OCR_snapshot_reference_resolved_to_coordinates",
+        "transport_status": "error",
+        "error_code": "stale_observation",
+        "side_effect_state": "not_sent",
+        "frame_guard_reason": "unqualified_caret"
+      }
+    ]
+  },
+  "focused_input": {
+    "English_append_and_Backspace_visible_readback": "passed; TapMesh Exact Focus then TapMesh Exact Focu in both field and mirror; OCR does not prove invisible whitespace bytes",
+    "English_readback_file": "independent-readbacks.json",
+    "Arabic_focused_paste_and_Backspace": {
+      "status": "passed",
+      "before": "TapMesh تجربة",
+      "after": "TapMesh تجرب",
+      "empty_field_before_paste_confirmed": true,
+      "file": "focused-arabic-deletion.json"
+    },
+    "Arabic_replacement_readback": "Exact identifier-bound AX Value plus Entered mirror; SwiftUI FSI/PDI wrappers explicitly retained and matched, not inserted into field text",
+    "generic_AX_editable_semantics_verified": false,
+    "AX_roles": "unknown; bounds null; readback identifiers do not grant generic actionability",
+    "keyboard_layout_observed": "Arabic",
+    "US_keyboard_method_qualified_this_round": false,
+    "hide_keyboard": {
+      "request_id": "0aaf141a864842bfa467be3f950f72f1",
+      "delivery": "sent",
+      "reported_keyboard_state": "unverifiable",
+      "subsequent_observation_id": "dc1a327f005d41deabb2cf0dc7618b45",
+      "Arabic_keyboard_still_visible": true,
+      "outcome_passed": false
+    },
+    "single_character_paste_literal_concatenation": {
+      "request_id": "d99d69b61a1a43f2b0adb89a98c6ee96",
+      "sent_text": "s",
+      "prior_visible_text": "TapMesh Exact Focu",
+      "observed_field_and_mirror": "TapMesh Exact Focu s",
+      "literal_concatenation_passed": false,
+      "cause_established": false,
+      "source": "Tool-displayed fixture screenshot; temporary preview was later overwritten"
+    }
+  },
+  "native_UI": {
+    "default_option_unchecked_observed": true,
+    "explicit_option_selected_observed": true,
+    "option_label": "Allow clock, status icon and cursor blinking changes",
+    "clipboard_selected": true,
+    "ordinary_app_selected": true,
+    "US_layout_confirmed": false,
+    "actual_request_payload_retained": false,
+    "attempts": [
+      {
+        "request_id": "f98e527c138b4e42baaf9d3ce583a373",
+        "text": "TapMesh Native Nine",
+        "result": "stale_element_reference",
+        "side_effect_state": "not_sent"
+      },
+      {
+        "request_id": "7fa1fddb22994652bf7ea3706def481e",
+        "text": "TapMesh Native Fresh",
+        "result": "stale_observation",
+        "side_effect_state": "not_sent"
+      },
+      {
+        "request_id": "69bf2f131f91487e938e25fb264811e0",
+        "text": "TapMesh Native Quick",
+        "result": "success",
+        "independent_readback": "independent-readbacks.json",
+        "target_validation_proof": "not retained"
+      }
+    ],
+    "harness_setup_errors_before_third_dispatch": [
+      "AX diff parsing failed on a + prefix: Expected visible test control missing",
+      "ordinary is not defined"
+    ],
+    "harness_errors_sent_phone_input": false,
+    "GUI_quit_observed": true
+  },
+  "retained_limits_and_probes": [
+    {
+      "name": "Expired original observation",
+      "request_id": "aed3e7eacab44e7a8ecdd5beb134b373",
+      "result": "stale_observation/not_sent; MUST_NOT_BE_TYPED was not sent"
+    },
+    {
+      "name": "Live/focused fill rejections",
+      "result": "All unexplained pixels, target changes, unqualified caret and over-budget changes remain refusals; no tolerance expanded"
+    },
+    {
+      "name": "Prepared clock-boundary first case",
+      "result": "Input/readback passed with exact_frame; capture had already crossed minute; not non-exact evidence"
+    },
+    {
+      "name": "Controlled later clock boundary",
+      "request_id": "2654504321c3405f90bcc647e912fb93",
+      "result": "large_pixel_change/not_sent; retained separately from later successful clock_status proof",
+      "file": "controlled-clock-proof-two.json"
+    },
+    {
+      "name": "Driver setup stops",
+      "result": "Two ForegroundLost marker failures and one missing expected target AssertionError; no fill sent; not in twenty fills. Marker absence does not establish which app was foreground."
+    },
+    {
+      "name": "Concurrent read-only probe",
+      "result": "internal OCR HTTP 504; later operations serialized; causal explanation and application fix not established",
+      "file": "status-diagnostic-initial-failure.json"
+    },
+    {
+      "name": "430-pixel caret diagnostic",
+      "result": "Read-only rejection; caret left edge about 4.57 logical points inside OCR edge, beyond existing four-point allowance; no fully background frame for pixel fallback",
+      "file": "frame-diagnostic-first.json"
+    },
+    {
+      "name": "Three subsequent caret comparisons",
+      "result": "Read-only sample 1 refused 432 caret plus 46 unexplained keyboard-region pixels; samples 2 and 3 accepted 432 caret-only native pixel changes using OCR edge. Pure comparisons, not HID dispatch. Fading phases remained blue, so no background-only glyph proof was inferred.",
+      "file": "frame-diagnostic-geometry.json"
+    },
+    {
+      "name": "AX reverse-focus experiment",
+      "result": "One sample traversed 73 elements then Previous; frame not restored identically and fields absent. Next sample stopped without fixture marker. No production restoration patch adopted.",
+      "file": "ax-restore-probe.json"
+    },
+    {
+      "name": "Replacement-field optional cases",
+      "result": "Snapshot-bound focus tap refused frame_changed/not_sent; script stopped before either planned fill; these two nonexistent fills are not counted",
+      "file": "replacement-focus.json"
+    },
+    {
+      "name": "Native CUA harness setup errors",
+      "result": "AX diff prefix parsing and undeclared ordinary variable corrected in harness before third dispatch; no phone input from either error; no production code change"
+    }
+  ],
+  "automated_verification": {
+    "Python_passed": 312,
+    "Python_subtests_passed": 28,
+    "live_simulator_optins_skipped": 4,
+    "Swift_passed": 37,
+    "tool_schemas": 50,
+    "native_CoreGraphics_samples": 2560,
+    "log": "automated-suite.log",
+    "fresh_suite_passed": true,
+    "prior_exact_final_package_runtime_native_helper_and_launch_report": "NOTARIZATION_BUILD9_QUALIFICATION.json",
+    "skipped_tests_are_passes": false
+  },
+  "cleanup": {
+    "checked_at": "2026-11-14T11:34:59.636260+00:00",
+    "fixture_only_state_reset": true,
+    "fixture_foreground_verified": true,
+    "fixture_empty_field_and_entered_mirror_visible": true,
+    "readback_observation_id": "76706c9416d44fe08307973dbffaf777",
+    "device_reset": false,
+    "simulators_reset": false,
+    "user_apps_reset": false,
+    "http_input_history_rows_retained": 58,
+    "supervisor_exit_code": 0,
+    "owned_listeners_stopped": true,
+    "owned_process_matches": [],
+    "native_GUI_quit_observed": true
+  },
+  "environment_preservation": {
+    "private_TNAS_changed": false,
+    "installed_Mac_app_replaced_or_operated": false,
+    "devices_or_simulators_reset": false,
+    "personal_apps_or_data_operated": false,
+    "only_fixture_transient_state_reset": true,
+    "fixture_left_empty_and_foreground": true,
+    "owned_test_Mac_GUI_quit": true,
+    "owned_services_stopped": true,
+    "private_profile_credentials_in_committed_evidence": false,
+    "frame_guard_storage_unchanged": "RAM only; investigator explicitly captured disposable fixture screenshots separately in private evidence, not automatic guard logging"
+  },
+  "remaining_gates": [
+    "Repeatable active-field coordinate fills including physical blue-caret changes, with independent outcomes and no security exception expansion",
+    "Physical AX sensitivity traversal can change viewport; reverse-focus probe did not prove restoration",
+    "Exact final build 9 clean supported-Mac install and native update; development-Mac checks and historical build 3 runners do not certify build 9",
+    "Public publication remains blocked until actual release gates pass; no remote is configured and no public upload or production appcast edit occurred"
+  ],
+  "physical_repeatability_qualified": false,
+  "final_clean_host_install_update_qualified": false,
+  "public_distribution": {
+    "published": false,
+    "production_appcast_changed": false,
+    "production_appcast_items": 0,
+    "immutable_draft_build3_preserved": true
+  },
+  "prior_reports_preserved": [
+    "PHYSICAL_TEXT_BUILD7_QUALIFICATION.json",
+    "CARET_GLYPH_BUILD8_QUALIFICATION.json",
+    "CARET_COLOR_BUILD9_QUALIFICATION.json",
+    "BUILD9_RECHECK_20261111.json",
+    "NOTARIZATION_BUILD9_QUALIFICATION.json"
+  ],
+  "private_raw_evidence_directory": "<private-tapmesh>/qualification/Physical-20261114T102053Z",
+  "raw_evidence_policy": "Hashes cover top-level fixture-only receipts/logs/scripts/screenshots; private Local tokens/state and nested profile files are excluded.",
+  "raw_evidence_files": {
+    "approvals-after-native-ui.json": {
+      "sha256": "2607e6584fc9efd7b19f9b161269abfe28b4ecce2de822483677abd67bf2c10f",
+      "bytes": 22
+    },
+    "arabic-coordinate-readback.json": {
+      "sha256": "d8c9fa421f618347a25a7fd1bcd448b7a9081b97d5159913c8890bfe5302037f",
+      "bytes": 961
+    },
+    "artifact-codesign.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "artifact-xcrun.log": {
+      "sha256": "42d4243350c323ab4bf4b180b00df9a58cc7754dff0b0598e43402afe45a634d",
+      "bytes": 145
+    },
+    "audit-1794653824609061000.log": {
+      "sha256": "fcedb94733952d230c01ea65a62a993c9b99e4ed9bf3329691912bb29f23cc90",
+      "bytes": 7151
+    },
+    "audit-1794653986796750000.log": {
+      "sha256": "993ad3b0fe8350ec431080e1c94fb3203adf10966f752a5685c8fd60dd98f213",
+      "bytes": 14513
+    },
+    "automated-suite.log": {
+      "sha256": "09e775e48dfc23a89acf73999d177b332164ea78dbe818c3c2784212a7858b08",
+      "bytes": 12257
+    },
+    "ax-restore-probe.json": {
+      "sha256": "96d48659bff409dd27e2c6be9dfe5fd359c9f16be3b1f2907662537e0753fba2",
+      "bytes": 1926
+    },
+    "ax-restore-probe.log": {
+      "sha256": "be493c7b276de4f9b3bb94f85616af181c4187c3d3f7149884257a6e2fa5f58a",
+      "bytes": 2667
+    },
+    "candidate-receipt.json": {
+      "sha256": "b7f12d27eb4912fb0e1872d47d108981a7093bd7dce67047d4628ddc3ade18ca",
+      "bytes": 282
+    },
+    "caret-after-1.png": {
+      "sha256": "78041208a3fc3cffb2cb76b16e46b1dab2ee10f0725480c1821b7502abeea4b0",
+      "bytes": 346848
+    },
+    "caret-after-2.png": {
+      "sha256": "996bd46892a5c12b1caaa7010cf08cb17ce893538f1d4bfd1194817543d7c727",
+      "bytes": 346883
+    },
+    "caret-after-3.png": {
+      "sha256": "fa627d132f633c545261d4089199da62b4345755cb7097f321fd1580c75156e1",
+      "bytes": 346893
+    },
+    "caret-before-1.png": {
+      "sha256": "d59789e87afcc83801340f42ded84d21d4644b8abaec308ab6a248a326ff4a11",
+      "bytes": 346876
+    },
+    "caret-before-2.png": {
+      "sha256": "fa627d132f633c545261d4089199da62b4345755cb7097f321fd1580c75156e1",
+      "bytes": 346893
+    },
+    "caret-before-3.png": {
+      "sha256": "78041208a3fc3cffb2cb76b16e46b1dab2ee10f0725480c1821b7502abeea4b0",
+      "bytes": 346848
+    },
+    "caret-ocr-1.json": {
+      "sha256": "13296a661cea25397694f923fe6195293d5d35a6e6fe824cdfb75c2039b5ffd8",
+      "bytes": 21842
+    },
+    "caret-ocr-2.json": {
+      "sha256": "f37cc55158b8a5765ca7786da85532ad3f78fd29da94751e5efa33d8ac60036e",
+      "bytes": 22152
+    },
+    "caret-ocr-3.json": {
+      "sha256": "6e8cc55b74298d68c7bafd3aa7884e28987552acbbe32e02ecd1fc6251bc8264",
+      "bytes": 22153
+    },
+    "cleanup-before-shutdown.json": {
+      "sha256": "dd1126a3e86e8b2fc7975d7d367db5e5b4c044e3a82e9859cba8fb838f1dc7f3",
+      "bytes": 377
+    },
+    "cleanup-final.json": {
+      "sha256": "bceaed90374c4b5cfd09dbdc7a92cc3955ee00fe87f1a55abaccd9eced985f55",
+      "bytes": 508
+    },
+    "clock-boundary-text-target-fixture.png": {
+      "sha256": "5b2a597e13a2ef0ac8693c771f7ce04a140910aa63d3271fa9a484259ad01718",
+      "bytes": 202343
+    },
+    "clock-boundary-text-target-launch.json": {
+      "sha256": "a910736483d286d474cc64a5d1d3721f110367364c5938f290b60a0112541a30",
+      "bytes": 1377
+    },
+    "clock-boundary-text-target-launch.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "clock-boundary-text-target-preparation-audit.log": {
+      "sha256": "5fb1cab64ff9d654e292ff771b9a54c0e734bc9076be30eb9e2243cf06f97548",
+      "bytes": 7151
+    },
+    "clock-boundary-text-target-readback-audit.log": {
+      "sha256": "774861d04a4eb8fb257b46899740bb3102c00541096f0b03bed24af741b58b32",
+      "bytes": 14442
+    },
+    "clock-proof-two-launch.json": {
+      "sha256": "6ee90c8b79baebb0babc5f280111ece67752638c3272916eefb5dfba48461e47",
+      "bytes": 1366
+    },
+    "clock-proof-two-launch.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "clock-proof-two-preparation-audit.log": {
+      "sha256": "cbe4dda5f0f731bed7763b0b0d2abd2e7e4c529fec9292a53ded5dc62dff8b34",
+      "bytes": 7151
+    },
+    "controlled-clock-proof-two.json": {
+      "sha256": "a97540b734a0fa08e128b35cc71b3decf2cac35d117615d4defad567c6363d53",
+      "bytes": 1179
+    },
+    "controlled-clock-proof-two.log": {
+      "sha256": "6a520c24d3edcdc6bb06a85a91e337fef7317ea02818803e5f6cdecc910c1e1a",
+      "bytes": 925
+    },
+    "controlled-clock-proof-two.py": {
+      "sha256": "25ef1c9ccbca01c1f53569bad426e8d07117cae9ca5ee88a97ba2d2f81649480",
+      "bytes": 5681
+    },
+    "current-fixture.png": {
+      "sha256": "d9ede9dd7285d950fe04cd0f90817dbafcb9849f91a570e2b037e44e1d59aa82",
+      "bytes": 306643
+    },
+    "developer-services.json": {
+      "sha256": "afcab1e4b1e1192f6817edc91cfd4e9cf986945884a6f9d78ecea827d97fc213",
+      "bytes": 1979
+    },
+    "developer-services.log": {
+      "sha256": "94ff6302e61373bc386dc5e9147eafbfc5d1b2e47f91204707736afd621a7d20",
+      "bytes": 711
+    },
+    "devices.json": {
+      "sha256": "c6e8ca026e49d328b872d0def19123f1ca05db9ab91fc50adc1e469b3ec7f47a",
+      "bytes": 22855
+    },
+    "discovery.log": {
+      "sha256": "6c3f4cbee51975fe38cf4c67953021c349bcffa71d15650f84e89823e5b8c678",
+      "bytes": 552
+    },
+    "english-exact-readback.json": {
+      "sha256": "2daeb5249316545758cfbd84f39e96795c471a71ec2c2ee2b1e4abc3a0be25a4",
+      "bytes": 612
+    },
+    "final-artifact-integrity.json": {
+      "sha256": "cc94917d3b68aa3084b97916d45bffbec0390aeb1e2af2bd9013407081c3d355",
+      "bytes": 768
+    },
+    "final-gatekeeper.log": {
+      "sha256": "0519350732fa0d4e2e489b48d016a359cd60c73fc3aefdade9749b51b209004e",
+      "bytes": 145
+    },
+    "final-signature.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "final-ticket.log": {
+      "sha256": "42d4243350c323ab4bf4b180b00df9a58cc7754dff0b0598e43402afe45a634d",
+      "bytes": 145
+    },
+    "fixture-activation.json": {
+      "sha256": "3ee6abb547b6d8ceed59d84296cf46ba218b64f12ca13fdadf32478107f299e9",
+      "bytes": 1333
+    },
+    "fixture-activation.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "fixture-app.json": {
+      "sha256": "f2dcded3396f3cf9b608966cf4fe9ddf1938dc7af03a9d467ad4db61ac75d4eb",
+      "bytes": 1340
+    },
+    "fixture-app.log": {
+      "sha256": "c63d978d74af3c6bb155f48fe88febc84708be620836f3b64dd69213d56a4fa4",
+      "bytes": 205
+    },
+    "fixture-final-reset.json": {
+      "sha256": "c74c0124a0dbec17b451bed2eb8a3e98a39504fbde7d8fe6da439c9804fe4d29",
+      "bytes": 1363
+    },
+    "fixture-final-reset.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "fixture-reactivate-102919.json": {
+      "sha256": "6bcd74a3ea97f7b45ef8ee0c12a59e1430ee86cb9a7ce40dd701579492dd5971",
+      "bytes": 1340
+    },
+    "fixture-reactivate-102919.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "fixture-readback-1794655137199114000.png": {
+      "sha256": "0d989ff29377a779c6358f17e5c7d0e743fc38130e8f4687b7ab459273de0081",
+      "bytes": 307360
+    },
+    "fixture-reset-for-stable-entry-105645.json": {
+      "sha256": "e10dffc2c20ca0274704c235e4a96367f7d96700389c69f7ff78b587074470bb",
+      "bytes": 1381
+    },
+    "fixture-reset-for-stable-entry-105645.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "focused-arabic-after-delete.log": {
+      "sha256": "f8850b9c93d8ab34bc07a6d2c9a62061aadc0ca55a6344000a1e3ab001603dd6",
+      "bytes": 14495
+    },
+    "focused-arabic-before-delete.log": {
+      "sha256": "2f80a4e6cdae8f10294f19fe823347eec93e0fa1b8688fbfc58dfa9b0fa82943",
+      "bytes": 14513
+    },
+    "focused-arabic-deletion.json": {
+      "sha256": "35562ae625474d2d5c5d4223dc2de336951becb4875eba95974b10551560ba71",
+      "bytes": 5059
+    },
+    "focused-arabic-deletion.log": {
+      "sha256": "d657ac2f5de994cef26fb4c859315ed769f52903d40bece98f3b5dc8cc010a35",
+      "bytes": 4254
+    },
+    "frame-diagnostic-first.json": {
+      "sha256": "7e1c1497b18a1cadd984a8be470e44f69c7c48f7ad9de92d205f4a060eb0bbf6",
+      "bytes": 1979
+    },
+    "frame-diagnostic-focused.log": {
+      "sha256": "86bf0dcb653dcd8007322461a9204c45828a8b566aac77593160d162c52bf75b",
+      "bytes": 1101
+    },
+    "frame-diagnostic-focused.py": {
+      "sha256": "7cfec145df223913c9b1bef8c75a5d3b3b85c4ee24b17597ec2cfa03596b06bc",
+      "bytes": 3682
+    },
+    "frame-diagnostic-geometry.json": {
+      "sha256": "ac7940b599e34143b7d219f7374ddf0515efa73c74e2a1b149343f4001420649",
+      "bytes": 11221
+    },
+    "frame-diagnostic-geometry.log": {
+      "sha256": "13a8cec7264128531ff275dfaa22c74ffc7fe93b0b57ea50c666723421fa5586",
+      "bytes": 4889
+    },
+    "frame-diagnostic-geometry.py": {
+      "sha256": "68bf5404598849e5ff3472062011c23004ec1307be03c06febefd5f1f1c469f7",
+      "bytes": 5201
+    },
+    "frame-diagnostic.py": {
+      "sha256": "b6d84339a8637efdfbad3bd9c0c624bb75c1c2c6bd1696534704ea8ee11bf183",
+      "bytes": 3676
+    },
+    "fresh-exact-fixture.png": {
+      "sha256": "23981629f80dec849bb7cb1308a8a7f06ad7d23ec908792c26e329dbb9907c3b",
+      "bytes": 200901
+    },
+    "fresh-exact-launch.json": {
+      "sha256": "25656b2133cc423f5b0f28c589bdcbb5e835d357766328e44d3a430062df9243",
+      "bytes": 1362
+    },
+    "fresh-exact-launch.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "fresh-exact-preparation-audit.log": {
+      "sha256": "22594b380208bee193e27c4488f029586554fbb64baa1f365dfa052cedeb2ee6",
+      "bytes": 7151
+    },
+    "fresh-exact-readback-audit.log": {
+      "sha256": "a316bd409bcd6d95df405a53ec17eecd4e3e8d4f045cc185a7544631cdfa5c6f",
+      "bytes": 14442
+    },
+    "fresh-text-target-arabic-fixture.png": {
+      "sha256": "2719418761b1322a75894556d3174c784051ca9f643c727a4df93ab3778626be",
+      "bytes": 196704
+    },
+    "fresh-text-target-arabic-launch.json": {
+      "sha256": "b42b5f9ceeb1c211f83fb03d35ab5ce4f961de914e811ee4325a6eab6ab5dc01",
+      "bytes": 1375
+    },
+    "fresh-text-target-arabic-launch.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "fresh-text-target-arabic-preparation-audit.log": {
+      "sha256": "18a8a98bfe340b494ba52daec5fe1f981f67a197928f1fc0d8c8bc76a13c6e0b",
+      "bytes": 7151
+    },
+    "fresh-text-target-arabic-readback-audit.log": {
+      "sha256": "ea21e3157e9723d3ea385d8a17aa8ddff92834a8a9a3580386e004ee0f14b4c3",
+      "bytes": 14519
+    },
+    "fresh-text-target-english-fixture.png": {
+      "sha256": "5910c2d0046a86c425807384a2c74ef8968c99901fdf7d6824ef218f44b1bd73",
+      "bytes": 201397
+    },
+    "fresh-text-target-english-launch.json": {
+      "sha256": "7caf538fbcb5a5ccd4c2c12c83fc605ae71a808330d7f7a9e71359ee325dd989",
+      "bytes": 1376
+    },
+    "fresh-text-target-english-launch.log": {
+      "sha256": "bc34473ea0f81bbce65f503fe14ad449a17d885842c9013089b5b4f4cb0d421d",
+      "bytes": 64
+    },
+    "fresh-text-target-english-preparation-audit.log": {
+      "sha256": "be1fdf4195fc067fca0e40a759f4778129e0d1e5bdb7189b9d9ec52fb3b2be33",
+      "bytes": 7151
+    },
+    "fresh-text-target-english-readback-audit.log": {
+      "sha256": "450856b496dc705c6ec0a31b4fb8addb84df12fe24ed2aad89344abfdfb8202a",
+      "bytes": 14442
+    },
+    "harness.py": {
+      "sha256": "5e56585dfb99cdb214c1f558de120c8d6dd1bada6412648bfc446c657eadaf8f",
+      "bytes": 5831
+    },
+    "history-during-native-ui-later.json": {
+      "sha256": "fa5526d6e266a815093299ed4f2bdaf709d8110f7590d0994990b06cb50405b8",
+      "bytes": 22582
+    },
+    "history-during-native-ui.json": {
+      "sha256": "33a3357ea4eabd6b63c8e528d3df261889959168108abce6a05abeccd069e546",
+      "bytes": 22698
+    },
+    "http-input-history.json": {
+      "sha256": "34960f60f9120017fbca1ab274f466c22e811e5fdb8b85464965f185b1bc0237",
+      "bytes": 14474
+    },
+    "independent-readbacks.json": {
+      "sha256": "b3cfc6be4305c93d9bb0953409d61aac66ca445e1ec0fdd49186ddc1e1de923c",
+      "bytes": 3207
+    },
+    "lock-state.json": {
+      "sha256": "a7889988df2a5fd6ae051a66b1d6c47717d448d711b6e09547db8afdbca7a7f5",
+      "bytes": 680
+    },
+    "lock-state.log": {
+      "sha256": "0ec95a4b5d31ab327b4f3d6130c824f0738d0c68db6062a51a46101e91b72e1c",
+      "bytes": 142
+    },
+    "native-gui-pid": {
+      "sha256": "19f996ca61d14c94086788896c7983cf9aa7ec1b5688b8e4b6c1db3b79e1ae47",
+      "bytes": 5
+    },
+    "native-gui.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "operator-observations.json": {
+      "sha256": "5283f35dd39005eaaa7c27c600b09ced8f3812aabc03b78b294d514e45fd5ea5",
+      "bytes": 2311
+    },
+    "prepared-fresh-fixture-cases.json": {
+      "sha256": "0ca24c1e4d7a2c896d0af78659241cb6bc763ac368e1c98e293d1acc9bf46e12",
+      "bytes": 8594
+    },
+    "prepared-fresh-fixture-cases.log": {
+      "sha256": "954ffa379f0f81e8bb1530c95d7b6bad7a5b6e393930082a5fd870e0129578a2",
+      "bytes": 7498
+    },
+    "readback.py": {
+      "sha256": "6d4c5a4a1d9e8d555743171af7377f0df13195b5da91e8c024fa33b9d5afd6d7",
+      "bytes": 1554
+    },
+    "reference-snapshot-cases.json": {
+      "sha256": "c66578e4da374f503e1c5a8eb1769094def0a5cbb44e97bb766785e90fe7a0ee",
+      "bytes": 3509
+    },
+    "reference-snapshot-cases.log": {
+      "sha256": "807992d673505c1be5bc173d6224b29f13e153d6e0709d4879d4e47fd95440ba",
+      "bytes": 3523
+    },
+    "replacement-field-cases.log": {
+      "sha256": "356991b39b3046635875ea11bad7459f4f0d72072da61a4983a72621f7d4fe1f",
+      "bytes": 946
+    },
+    "replacement-focus.json": {
+      "sha256": "e5121055fdf6c3da3e4e21d2c15312b53b25385572d7f009edf96c044c330346",
+      "bytes": 446
+    },
+    "report.json": {
+      "sha256": "f91f77135e6739d293d58721dbf78983490abbf8fb8c670089cd9f694875b050",
+      "bytes": 73810
+    },
+    "status-diagnostic-initial-failure.json": {
+      "sha256": "8a8c62c99b2f7251ac110672e8754fe42a9d8e6fc31538c9b2ec0a9a30faf3d0",
+      "bytes": 398
+    },
+    "supervisor-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

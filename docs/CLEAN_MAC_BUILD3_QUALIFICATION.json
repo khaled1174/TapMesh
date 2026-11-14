@@ -1,0 +1,185 @@
+{
+  "product": "TapMesh",
+  "status": "passed",
+  "ci_run": "https://github.com/khaled1174/TapMesh/actions/runs/42235936847",
+  "source_commit": "8a109e5448326a9b5e50d572932b6a97a7d5de02",
+  "production_archive_sha256": "dede8c910a2c01ad81893166fcd0cae93b21f70cd7fffd689bade621128ff166",
+  "update_fixture_archive_sha256": "661040a4bfd507df431886fc63f5f6d197bd6d8c2d07c5c18ee09b09579b9464",
+  "scope": "Exact production build 3 native install/runtime and notarized disposable 3-to-4 native update fixtures; clean GitHub-hosted arm64 Mac runners; no physical device operations",
+  "checks_passed": 24,
+  "finder_first_open_confirmation": "not_exercised",
+  "update_key_scope": "Disposable in-memory signing key for staging fixtures; production archive independently verified against production public key",
+  "temporary_draft_fixture_asset_removed": true,
+  "reports": [
+    {
+      "filename": "native-macos-15.json",
+      "sha256": "2a3c7128f5165f22f5f4fb79fc70d5de19b89cfddff1adc85bf7c0829f8caa33",
+      "report": {
+        "product": "TapMesh",
+        "checked_at": "2026-11-06T14:41:30.359672+00:00",
+        "build": "3",
+        "macos": "15.8.2",
+        "architecture": "arm64",
+        "environment": "github_actions_runner",
+        "scope": "notarized native entrypoint, visible workspace, local HTTP/MCP and cooperative quit; no device operations",
+        "finder_first_open_confirmation": "not_exercised",
+        "native_update_installation": "not_exercised",
+        "status": "passed",
+        "checks": [
+          {
+            "name": "Developer ID signature, stapled ticket and Gatekeeper assessment",
+            "status": "passed"
+          },
+          {
+            "name": "Native app starts its private local HTTP services",
+            "status": "passed"
+          },
+          {
+            "name": "Native workspace window is visible",
+            "status": "passed"
+          },
+          {
+            "name": "Native MCP bridge attaches and preserves profile credentials",
+            "status": "passed"
+          },
+          {
+            "name": "Cooperative native quit stops owned local listeners",
+            "status": "passed"
+          },
+          {
+            "name": "Bundle signature remains valid after native execution",
+            "status": "passed"
+          }
+        ],
+        "ui_automation_trusted": true,
+        "owned_listeners_stopped": true
+      }
+    },
+    {
+      "filename": "native-update-macos-15.json",
+      "sha256": "2ae5f818e0a19eea4086d428c46131276b78c1c8869379f4ca3af4b7e60146fb",
+      "report": {
+        "product": "TapMesh",
+        "checked_at": "2026-11-06T14:42:13.418500+00:00",
+        "macos": "15.8.2",
+        "architecture": "arm64",
+        "status": "passed",
+        "scope": "notarized disposable Sparkle fixtures on fresh default user profile; ephemeral update key; no device operations",
+        "installed_build": 3,
+        "candidate_build": 4,
+        "checks": [
+          {
+            "name": "Notarized installed fixture is accepted by Gatekeeper",
+            "status": "passed"
+          },
+          {
+            "name": "Installed fixture starts normal default-profile services",
+            "status": "passed"
+          },
+          {
+            "name": "Native Sparkle UI downloads, verifies and accepts installation",
+            "status": "passed"
+          },
+          {
+            "name": "New build relaunches with unchanged credentials and cleared update fence",
+            "status": "passed"
+          },
+          {
+            "name": "Updated notarized app retains valid signatures, ticket and safe public modes",
+            "status": "passed"
+          },
+          {
+            "name": "Updated native app quits and stops owned listeners",
+            "status": "passed"
+          }
+        ],
+        "owned_listeners_stopped": true
+      }
+    },
+    {
+      "filename": "native-macos-26.json",
+      "sha256": "b837e64c587d51cd935bb6c7229b7205d33e20193c5433406c8abfa9ed055096",
+      "report": {
+        "product": "TapMesh",
+        "checked_at": "2026-11-06T14:42:16.847081+00:00",
+        "build": "3",
+        "macos": "26.7.2",
+        "architecture": "arm64",
+        "environment": "github_actions_runner",
+        "scope": "notarized native entrypoint, visible workspace, local HTTP/MCP and cooperative quit; no device operations",
+        "finder_first_open_confirmation": "not_exercised",
+        "native_update_installation": "not_exercised",
+        "status": "passed",
+        "checks": [
+          {
+            "name": "Developer ID signature, stapled ticket and Gatekeeper assessment",
+            "status": "passed"
+          },
+          {
+            "name": "Native app starts its private local HTTP services",
+            "status": "passed"
+          },
+          {
+            "name": "Native workspace window is visible",
+            "status": "passed"
+          },
+          {
+            "name": "Native MCP bridge attaches and preserves profile credentials",
+            "status": "passed"
+          },
+          {
+            "name": "Cooperative native quit stops owned local listeners",
+            "status": "passed"
+          },
+          {
+            "name": "Bundle signature remains valid after native execution",
+            "status": "passed"
+          }
+        ],
+        "ui_automation_trusted": true,
+        "owned_listeners_stopped": true
+      }
+    },
+    {
+      "filename": "native-update-macos-26.json",
+      "sha256": "d615f77a18636644603c63deafb26e111d050e22d63977f1a7a799b9219dffd8",
+      "report": {
+        "product": "TapMesh",
+        "checked_at": "2026-11-06T14:43:10.410570+00:00",
+        "macos": "26.7.2",
+        "architecture": "arm64",
+        "status": "passed",
+        "scope": "notarized disposable Sparkle fixtures on fresh default user profile; ephemeral update key; no device operations",
+        "installed_build": 3,
+        "candidate_build": 4,
+        "checks": [
+          {
+            "name": "Notarized installed fixture is accepted by Gatekeeper",
+            "status": "passed"
+          },
+          {
+            "name": "Installed fixture starts normal default-profile services",
+            "status": "passed"
+          },
+          {
+            "name": "Native Sparkle UI downloads, verifies and accepts installation",
+            "status": "passed"
+          },
+          {
+            "name": "New build relaunches with unchanged credentials and cleared update fence",
+            "status": "passed"
+          },
+          {
+            "name": "Updated notarized app retains valid signatures, ticket and safe public modes",
+            "status": "passed"
+          },
+          {
+            "name": "Updated native app quits and stops owned listeners",
+            "status": "passed"
+          }
+        ],
+        "owned_listeners_stopped": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,1475 @@
+{
+  "product": "TapMesh",
+  "checked_at": "2026-11-14T12:21:29.976085+00:00",
+  "date": "2026-11-14",
+  "build_number": 9,
+  "status": "passed",
+  "scope": "Exact final notarized build 9 native installation, HTTP/MCP and cooperative quit; production-key Sparkle update from a disposable staged installed fixture to the byte-exact final build on fresh arm64 macOS 15.8.2 and 26.7.2",
+  "source_commit": "782b79f",
+  "documentation_head_before_round": "438d21f",
+  "final_zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+  "complete_source_archive_sha256": "5a60a84b52b652c6ddec860c150d29e06be9ffa53b75585a72d288886a9fb85a",
+  "checks_passed": 26,
+  "input_digest_checks_passed": 2,
+  "fresh_clean_host_installation_qualified": true,
+  "final_clean_host_install_update_qualified": true,
+  "production_release_ready": false,
+  "physical_repeatability_qualified": false,
+  "CI": {
+    "repository": "https://github.com/khaled1174/TapMesh-qualification-private",
+    "private": true,
+    "run": "https://github.com/khaled1174/TapMesh-qualification-private/actions/runs/43593979301",
+    "run_id": 43593979301,
+    "head_sha": "f3ee400103d06984a8aa87b2e2eae79dcbd52c74",
+    "conclusion": "success",
+    "workflow": "clean-build9.yml",
+    "job_execution_permissions": "contents:read; checkout persist-credentials:false; input-only download job contents:write",
+    "bundle_dependencies": "Already-bundled runtime interpreter with -B; no test dependency installation",
+    "fresh_hosts": [
+      "arm64 macOS 15.8.2",
+      "arm64 macOS 26.7.2"
+    ]
+  },
+  "installation_contract": [
+    "ZIP digest bound to final notarized manifest and fixed c3eed4e3 digest",
+    "Extract into isolated Applications directory",
+    "Strict Developer ID signature, stapled ticket and Gatekeeper assessment",
+    "Visible native workspace and authenticated 50-tool HTTP catalog",
+    "Native MCP bridge attaches and keeps profile credentials",
+    "Native cooperative quit stops owned services and signature remains valid"
+  ],
+  "update_contract": {
+    "installed_fixture_build": 8,
+    "installed_fixture_derived_from_final_build": 9,
+    "installed_fixture_scope": "Disposable copy, not the historical production build 8. Version/feed/staging metadata and outer Developer ID seal differ; preparer-created bytecode caches are included in this independently signed fixture. This is an installer/handoff test, not a released-build migration matrix.",
+    "installed_fixture_notary_submission_id": "7bfaaabb-b6b5-4217-8845-36702114374d",
+    "fixture_archive_sha256": "77adc2a77dbf86efd62f3081ad39983c7a7588b75c5465b7b4994ff7a5df3d57",
+    "candidate_build": 9,
+    "candidate_archive_is_exact_final_production": true,
+    "candidate_archive_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+    "signing_key": "Existing production Ed25519 signature independently verified against the installed production public key; no private key export or new production signing",
+    "feed": "Literal-loopback HTTP in the staging installed fixture only; production appcast unchanged",
+    "native_Sparkle_download_install_relaunch": "passed_on_both_hosts",
+    "field_of_preservation": "Three profile credentials plus an owned binary canary file; cleared update fence and new healthy instance",
+    "old_instance_listeners_stopped": true,
+    "updated_instance_listeners_stopped_on_quit": true,
+    "fixture_server_closed": true,
+    "exact_bundle_entries_compared_per_host": 14795,
+    "exact_bundle_comparison": [
+      "regular file SHA-256 and size",
+      "file/directory permission modes",
+      "symlink targets",
+      "full relative path set"
+    ],
+    "bundle_comparison_excludes": [
+      "timestamps",
+      "extended attributes"
+    ],
+    "updated_signature_ticket_Gatekeeper_and_no_group_other_writes": "passed_on_both_hosts"
+  },
+  "reports": [
+    {
+      "filename": "run-43593979301/qualification-macos-15/native-install.json",
+      "sha256": "dbfb78ec11a39028f87332772434ac13e2f0b342be09907862c5e2fde4a91772",
+      "report": {
+        "product": "TapMesh",
+        "checked_at": "2026-11-14T12:17:14.836517+00:00",
+        "build": "9",
+        "macos": "15.8.2",
+        "architecture": "arm64",
+        "environment": "github_actions_runner",
+        "scope": "notarized native entrypoint, visible workspace, local HTTP/MCP and cooperative quit; no device operations",
+        "finder_first_open_confirmation": "not_exercised",
+        "native_update_installation": "not_exercised",
+        "status": "passed",
+        "checks": [
+          {
+            "name": "Developer ID signature, stapled ticket and Gatekeeper assessment",
+            "status": "passed"
+          },
+          {
+            "name": "Native app starts its private local HTTP services",
+            "status": "passed"
+          },
+          {
+            "name": "Native workspace window is visible",
+            "status": "passed"
+          },
+          {
+            "name": "Native MCP bridge attaches and preserves profile credentials",
+            "status": "passed"
+          },
+          {
+            "name": "Cooperative native quit stops owned local listeners",
+            "status": "passed"
+          },
+          {
+            "name": "Bundle signature remains valid after native execution",
+            "status": "passed"
+          }
+        ],
+        "ui_automation_trusted": true,
+        "owned_listeners_stopped": true
+      }
+    },
+    {
+      "filename": "run-43593979301/qualification-macos-15/native-update.json",
+      "sha256": "3f45c37aeac8411591394669c1959050e4e2ac87d64eded9a700bacc3f74f46d",
+      "report": {
+        "product": "TapMesh",
+        "checked_at": "2026-11-14T12:17:33.678010+00:00",
+        "macos": "15.8.2",
+        "architecture": "arm64",
+        "status": "passed",
+        "scope": "Notarized staging installed fixture to byte-exact final production build 9; production update key; fresh default user profile; no device operations",
+        "environment": "github_actions_runner",
+        "archive_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+        "signing_key": "production_existing_signature_no_private_key_export",
+        "installed_fixture_derived_from_build": 9,
+        "finder_first_open_confirmation": "not_exercised",
+        "installed_build": 8,
+        "candidate_build": 9,
+        "checks": [
+          {
+            "name": "Notarized installed fixture and production-key archive are verified",
+            "status": "passed"
+          },
+          {
+            "name": "Installed fixture starts normal default-profile services",
+            "status": "passed"
+          },
+          {
+            "name": "Native Sparkle UI downloads, verifies and accepts installation",
+            "status": "passed"
+          },
+          {
+            "name": "New build relaunches with unchanged credentials, canary and cleared update fence",
+            "status": "passed"
+          },
+          {
+            "name": "Downloaded archive installed as the exact final bundle bytes, modes and symlinks",
+            "status": "passed"
+          },
+          {
+            "name": "Updated notarized app retains valid signatures, ticket and safe public modes",
+            "status": "passed"
+          },
+          {
+            "name": "Updated native app quits and stops owned listeners",
+            "status": "passed"
+          }
+        ],
+        "old_instance_listeners_stopped": true,
+        "profile_canary_preserved": true,
+        "exact_candidate_bundle_verified": true,
+        "bundle_entries_compared": 14795,
+        "fixture_requests": [
+          {
+            "route": "appcast",
+            "mode": "valid",
+            "outcome": "complete"
+          },
+          {
+            "route": "update",
+            "mode": "valid",
+            "outcome": "complete"
+          }
+        ],
+        "owned_fixture_server_closed": true,
+        "owned_listeners_stopped": true
+      }
+    },
+    {
+      "filename": "run-43593979301/qualification-macos-26/native-install.json",
+      "sha256": "bf9be3dc3e6948403e1c1b7376453397f6c41e2f0dd85cc32cd443081f04fc7a",
+      "report": {
+        "product": "TapMesh",
+        "checked_at": "2026-11-14T12:17:13.879209+00:00",
+        "build": "9",
+        "macos": "26.7.2",
+        "architecture": "arm64",
+        "environment": "github_actions_runner",
+        "scope": "notarized native entrypoint, visible workspace, local HTTP/MCP and cooperative quit; no device operations",
+        "finder_first_open_confirmation": "not_exercised",
+        "native_update_installation": "not_exercised",
+        "status": "passed",
+        "checks": [
+          {
+            "name": "Developer ID signature, stapled ticket and Gatekeeper assessment",
+            "status": "passed"
+          },
+          {
+            "name": "Native app starts its private local HTTP services",
+            "status": "passed"
+          },
+          {
+            "name": "Native workspace window is visible",
+            "status": "passed"
+          },
+          {
+            "name": "Native MCP bridge attaches and preserves profile credentials",
+            "status": "passed"
+          },
+          {
+            "name": "Cooperative native quit stops owned local listeners",
+            "status": "passed"
+          },
+          {
+            "name": "Bundle signature remains valid after native execution",
+            "status": "passed"
+          }
+        ],
+        "ui_automation_trusted": true,
+        "owned_listeners_stopped": true
+      }
+    },
+    {
+      "filename": "run-43593979301/qualification-macos-26/native-update.json",
+      "sha256": "637e082f1e20c9a54e07d48d8d698592c043003a7c1f9c847c0d8e4f7a913751",
+      "report": {
+        "product": "TapMesh",
+        "checked_at": "2026-11-14T12:17:36.536672+00:00",
+        "macos": "26.7.2",
+        "architecture": "arm64",
+        "status": "passed",
+        "scope": "Notarized staging installed fixture to byte-exact final production build 9; production update key; fresh default user profile; no device operations",
+        "environment": "github_actions_runner",
+        "archive_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+        "signing_key": "production_existing_signature_no_private_key_export",
+        "installed_fixture_derived_from_build": 9,
+        "finder_first_open_confirmation": "not_exercised",
+        "installed_build": 8,
+        "candidate_build": 9,
+        "checks": [
+          {
+            "name": "Notarized installed fixture and production-key archive are verified",
+            "status": "passed"
+          },
+          {
+            "name": "Installed fixture starts normal default-profile services",
+            "status": "passed"
+          },
+          {
+            "name": "Native Sparkle UI downloads, verifies and accepts installation",
+            "status": "passed"
+          },
+          {
+            "name": "New build relaunches with unchanged credentials, canary and cleared update fence",
+            "status": "passed"
+          },
+          {
+            "name": "Downloaded archive installed as the exact final bundle bytes, modes and symlinks",
+            "status": "passed"
+          },
+          {
+            "name": "Updated notarized app retains valid signatures, ticket and safe public modes",
+            "status": "passed"
+          },
+          {
+            "name": "Updated native app quits and stops owned listeners",
+            "status": "passed"
+          }
+        ],
+        "old_instance_listeners_stopped": true,
+        "profile_canary_preserved": true,
+        "exact_candidate_bundle_verified": true,
+        "bundle_entries_compared": 14795,
+        "fixture_requests": [
+          {
+            "route": "appcast",
+            "mode": "valid",
+            "outcome": "complete"
+          },
+          {
+            "route": "update",
+            "mode": "valid",
+            "outcome": "complete"
+          }
+        ],
+        "owned_fixture_server_closed": true,
+        "owned_listeners_stopped": true
+      }
+    }
+  ],
+  "retained_initial_attempt": {
+    "run": "https://github.com/khaled1174/TapMesh-qualification-private/actions/runs/43593434081",
+    "head_sha": "61dfcebacc554c7a6ce51ac3f5c0af0062713a05",
+    "status": "failed_before_app_launch",
+    "update_execution": "skipped_on_both_hosts",
+    "reports": [
+      {
+        "filename": "run-43593434081/qualification-macos-15/native-install.json",
+        "sha256": "5b5bfb55ad8c0885122f13fdadf30e4e9017f5f007d17aad602b931aa504c97c",
+        "report": {
+          "product": "TapMesh",
+          "checked_at": "2026-11-14T12:10:46.552543+00:00",
+          "build": "9",
+          "macos": "15.8.2",
+          "architecture": "arm64",
+          "environment": "github_actions_runner",
+          "scope": "notarized native entrypoint, visible workspace, local HTTP/MCP and cooperative quit; no device operations",
+          "finder_first_open_confirmation": "not_exercised",
+          "native_update_installation": "not_exercised",
+          "status": "failed",
+          "checks": [],
+          "command_error": {
+            "executable": "codesign",
+            "exit_code": 1,
+            "stderr_excerpt": "/Users/runner/work/_temp/release-Applications/TapMesh.app: a sealed resource is missing or invalid\n"
+          },
+          "error_type": "RuntimeError"
+        }
+      },
+      {
+        "filename": "run-43593434081/qualification-macos-26/native-install.json",
+        "sha256": "a678c26e6f9fb06b60cab1c30e28f3205d5027a07c325dfa0f9eec86b76ef168",
+        "report": {
+          "product": "TapMesh",
+          "checked_at": "2026-11-14T12:10:48.994598+00:00",
+          "build": "9",
+          "macos": "26.7.2",
+          "architecture": "arm64",
+          "environment": "github_actions_runner",
+          "scope": "notarized native entrypoint, visible workspace, local HTTP/MCP and cooperative quit; no device operations",
+          "finder_first_open_confirmation": "not_exercised",
+          "native_update_installation": "not_exercised",
+          "status": "failed",
+          "checks": [],
+          "command_error": {
+            "executable": "codesign",
+            "exit_code": 1,
+            "stderr_excerpt": "/Users/runner/work/_temp/release-Applications/TapMesh.app: a sealed resource is missing or invalid\n"
+          },
+          "error_type": "RuntimeError"
+        }
+      }
+    ],
+    "initial_fixture_sha256": "9c7b751d2b886ba9611f46f53f4be830e6b8eb36ab0e7336b84effcc8ec1446b",
+    "classification": {
+      "created_at": "2026-11-14T12:17:07.107679+00:00",
+      "production_zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+      "fixed_fixture_sha256": "77adc2a77dbf86efd62f3081ad39983c7a7588b75c5465b7b4994ff7a5df3d57",
+      "initial_fixture_sha256": "9c7b751d2b886ba9611f46f53f4be830e6b8eb36ab0e7336b84effcc8ec1446b",
+      "fixed_harness_commit": "f3ee400103d06984a8aa87b2e2eae79dcbd52c74",
+      "initial_failed_run": 43593434081,
+      "initial_failure_classification": "Both initial CI jobs failed sealed-resource verification before app launch. A controlled local reproduction of the same raw bundled-Python imports created 681 __pycache__ entries; -B created zero and preserved signature. Corrected fresh-host CI passes with the same production ZIP.",
+      "candidate_copy_restoration": "Retained altered copy privately; restored final app from byte-identical original ZIP. Archive/source hashes and all trust checks pass.",
+      "expected_manifest_correction": "Initial fixture expectation included preparer cache entries; replaced by fresh ZIP-extracted bundle manifest before any update execution. Installed staging fixture remains independently Developer-ID-signed/notarized; only final target must match immutable production ZIP exactly.",
+      "production_code_changed": false,
+      "public_package_published": false
+    },
+    "controlled_reproduction": {
+      "retained_app_signature_exit_before_reproduction": 1,
+      "retained_app_signature_stderr": "<private-tapmesh>/Release/Build9-Notarized-20261111-Final/TapMesh.app: a sealed resource is missing or invalid\n",
+      "samples": [
+        {
+          "name": "normal",
+          "before_signature_exit": 0,
+          "import_exit": 0,
+          "after_signature_exit": 1,
+          "after_stderr": "<private-tapmesh>/qualification/CleanMac-Build9-20261114T120234Z/python-import-repro-normal/TapMesh.app: a sealed resource is missing or invalid\n",
+          "bundle_paths_changed": [
+            "Contents/Resources/runtime/lib/python3.12/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/__future__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/_compat_pickle.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/_compression.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/_osx_support.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/_sysconfigdata__darwin_darwin.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/_weakrefset.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/ast.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/base64.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/bisect.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/bz2.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/calendar.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/colorsys.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/configparser.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/contextlib.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/contextvars.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/copy.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/copyreg.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/csv.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/dataclasses.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/datetime.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/decimal.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/dis.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/enum.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/fnmatch.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/fractions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/functools.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/gettext.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/hashlib.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/heapq.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/hmac.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/inspect.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/ipaddress.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/keyword.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/linecache.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/locale.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/lzma.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/mimetypes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/numbers.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/opcode.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/operator.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/pathlib.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/pickle.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/platform.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/queue.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/quopri.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/random.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/reprlib.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/secrets.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/selectors.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/shlex.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/shutil.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/signal.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/socket.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/socketserver.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/ssl.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/string.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/struct.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/subprocess.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/sysconfig.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/tempfile.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/textwrap.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/threading.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/token.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/tokenize.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/traceback.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/typing.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/uuid.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/warnings.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/__pycache__/weakref.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/base_events.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/base_futures.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/base_subprocess.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/base_tasks.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/constants.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/coroutines.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/events.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/format_helpers.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/futures.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/locks.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/log.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/mixins.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/protocols.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/queues.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/runners.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/selector_events.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/sslproto.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/staggered.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/streams.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/subprocess.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/taskgroups.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/tasks.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/threads.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/timeouts.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/transports.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/trsock.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/asyncio/__pycache__/unix_events.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/collections/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/collections/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/collections/__pycache__/abc.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/concurrent/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/concurrent/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/concurrent/futures/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/concurrent/futures/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/concurrent/futures/__pycache__/_base.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/_encoded_words.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/_parseaddr.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/_policybase.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/base64mime.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/charset.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/encoders.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/errors.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/feedparser.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/header.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/iterators.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/message.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/parser.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/quoprimime.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/email/__pycache__/utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/encodings/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/encodings/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/encodings/__pycache__/aliases.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/encodings/__pycache__/utf_8.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/html/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/html/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/html/__pycache__/entities.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/http/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/http/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/http/__pycache__/client.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/http/__pycache__/cookiejar.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/http/__pycache__/cookies.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/importlib/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/__pycache__/_abc.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/__pycache__/abc.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/metadata/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/importlib/metadata/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/metadata/__pycache__/_adapters.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/metadata/__pycache__/_collections.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/metadata/__pycache__/_functools.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/metadata/__pycache__/_itertools.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/metadata/__pycache__/_meta.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/metadata/__pycache__/_text.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/resources/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/importlib/resources/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/resources/__pycache__/_adapters.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/resources/__pycache__/_common.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/resources/__pycache__/_legacy.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/importlib/resources/__pycache__/abc.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/json/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/json/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/json/__pycache__/decoder.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/json/__pycache__/encoder.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/json/__pycache__/scanner.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/logging/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/logging/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/logging/__pycache__/config.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/logging/__pycache__/handlers.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/multiprocessing/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/multiprocessing/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/multiprocessing/__pycache__/connection.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/multiprocessing/__pycache__/context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/multiprocessing/__pycache__/process.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/multiprocessing/__pycache__/reduction.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/multiprocessing/__pycache__/util.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/re/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/re/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/re/__pycache__/_casefix.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/re/__pycache__/_compiler.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/re/__pycache__/_constants.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/re/__pycache__/_parser.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/__pycache__/typing_extensions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/annotated_types/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/annotated_types/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/__pycache__/_lazyimport.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/__pycache__/lowlevel.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/__pycache__/to_thread.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__/_eventloop.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__/_exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__/_fileio.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__/_synchronization.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__/_tasks.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__/_testing.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/_core/__pycache__/_typedattr.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/abc/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/abc/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/abc/__pycache__/_resources.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/abc/__pycache__/_streams.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/abc/__pycache__/_subprocesses.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/abc/__pycache__/_tasks.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/streams/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/streams/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/streams/__pycache__/file.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/streams/__pycache__/memory.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/anyio/streams/__pycache__/text.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/backports/zstd/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/backports/zstd/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/backports/zstd/__pycache__/_streams.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/backports/zstd/__pycache__/_zstdfile.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/_compat.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/core.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/decorators.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/formatting.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/globals.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/parser.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/termui.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/click/__pycache__/utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/__pycache__/__about__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/__pycache__/exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/__pycache__/utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/bindings/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/bindings/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/decrepit/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/decrepit/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/decrepit/ciphers/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/decrepit/ciphers/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/decrepit/ciphers/__pycache__/algorithms.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/decrepit/ciphers/__pycache__/modes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/__pycache__/_cipheralgorithm.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/__pycache__/_modes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/__pycache__/hashes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/ciphers/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/ciphers/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/ciphers/__pycache__/aead.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/ciphers/__pycache__/algorithms.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/ciphers/__pycache__/base.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/ciphers/__pycache__/modes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/kdf/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/kdf/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/cryptography/hazmat/primitives/kdf/__pycache__/hkdf.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/__version__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_api.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_auth.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_client.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_config.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_content.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_decoders.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_main.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_models.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_multipart.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_status_codes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_urlparse.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_urls.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/__pycache__/_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/_transports/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/_transports/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/_transports/__pycache__/asgi.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/_transports/__pycache__/base.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/_transports/__pycache__/default.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/_transports/__pycache__/mock.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx/_transports/__pycache__/wsgi.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/__version__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_alias.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_api.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_auth.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_client.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_config.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_content.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_cookies.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_decoders.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_models.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_multipart.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_sse.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_status_codes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_urlparse.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_urls.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/__pycache__/_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/_transports/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/_transports/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/_transports/__pycache__/asgi.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/_transports/__pycache__/base.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/_transports/__pycache__/default.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/_transports/__pycache__/mock.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/httpx2/_transports/__pycache__/wsgi.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/idna/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/idna/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/idna/__pycache__/core.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/idna/__pycache__/idnadata.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/idna/__pycache__/intranges.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/idna/__pycache__/package_data.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/_input_required.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/_memory.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/_probe.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/_transport.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/caching.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/client.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/extension.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/session.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/session_group.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/sse.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/stdio.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/streamable_http.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/client/__pycache__/subscriptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/os/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/os/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/os/posix/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/os/posix/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/os/posix/__pycache__/utilities.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/os/win32/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/os/win32/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/os/win32/__pycache__/utilities.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/_otel.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/_streamable_http_modern.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/caching.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/connection.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/elicitation.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/extension.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/models.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/request_state.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/runner.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/session.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/sse.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/stdio.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/streamable_http.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/streamable_http_manager.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/subscriptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/transport_security.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/__pycache__/validation.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/__pycache__/errors.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/__pycache__/json_response.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/__pycache__/provider.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/__pycache__/routes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/__pycache__/settings.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/handlers/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/handlers/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/handlers/__pycache__/authorize.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/handlers/__pycache__/metadata.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/handlers/__pycache__/register.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/handlers/__pycache__/revoke.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/handlers/__pycache__/token.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/middleware/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/middleware/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/middleware/__pycache__/auth_context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/middleware/__pycache__/bearer_auth.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/auth/middleware/__pycache__/client_auth.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/lowlevel/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/lowlevel/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/lowlevel/__pycache__/helper_types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/lowlevel/__pycache__/server.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/__pycache__/context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/__pycache__/exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/__pycache__/resolve.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/__pycache__/server.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/prompts/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/prompts/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/prompts/__pycache__/base.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/prompts/__pycache__/manager.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/resources/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/resources/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/resources/__pycache__/base.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/resources/__pycache__/resource_manager.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/resources/__pycache__/templates.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/resources/__pycache__/types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/tools/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/tools/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/tools/__pycache__/base.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/tools/__pycache__/tool_manager.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/utilities/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/utilities/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/utilities/__pycache__/context_injection.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/utilities/__pycache__/func_metadata.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/utilities/__pycache__/logging.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/server/mcpserver/utilities/__pycache__/types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/_callable_inspection.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/_compat.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/_context_streams.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/_httpx_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/_otel.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/_request_clock.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/_stream_protocols.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/auth.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/direct_dispatcher.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/dispatcher.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/extension.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/inbound.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/jsonrpc_dispatcher.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/memory.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/message.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/path_security.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/peer.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/subscriptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/tool_name_validation.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/transport_context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/shared/__pycache__/uri_template.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/types/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/types/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/types/__pycache__/jsonrpc.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/types/__pycache__/methods.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp/types/__pycache__/version.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/__pycache__/_types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/__pycache__/_wire_base.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/__pycache__/jsonrpc.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/__pycache__/methods.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/__pycache__/version.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/_v2025_11_25/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/_v2025_11_25/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/_v2026_07_28/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/mcp_types/_v2026_07_28/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/attributes/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/attributes/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/baggage/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/baggage/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/baggage/propagation/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/baggage/propagation/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/context/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/context/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/context/__pycache__/context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/context/__pycache__/contextvars_context.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/environment_variables/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/environment_variables/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/propagate/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/propagate/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/propagators/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/propagators/__pycache__/composite.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/propagators/__pycache__/textmap.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/trace/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/trace/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/trace/__pycache__/span.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/trace/__pycache__/status.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/trace/propagation/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/trace/propagation/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/trace/propagation/__pycache__/tracecontext.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/util/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/util/__pycache__/_decorator.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/util/__pycache__/_once.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/util/__pycache__/_providers.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/util/__pycache__/re.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/opentelemetry/util/__pycache__/types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/_migration.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/alias_generators.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/aliases.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/annotated_handlers.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/config.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/dataclasses.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/errors.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/fields.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/functional_validators.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/json_schema.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/main.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/networks.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/type_adapter.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/validate_call_decorator.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/version.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/__pycache__/warnings.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_config.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_contextlib.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_core_metadata.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_core_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_dataclasses.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_decorators.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_discriminated_union.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_docs_extraction.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_fields.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_forward_ref.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_generate_schema.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_generics.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_import_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_known_annotated_metadata.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_mock_val_ser.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_model_construction.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_namespace_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_repr.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_schema_gather.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_schema_generation_shared.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_signature.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_type_refs.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_typing_extra.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_validate_call.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/_internal/__pycache__/_validators.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/plugin/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/plugin/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/plugin/__pycache__/_loader.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic/plugin/__pycache__/_schema_validator.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic_core/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic_core/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pydantic_core/__pycache__/core_schema.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/filter.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/lexer.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/modeline.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/plugin.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/regexopt.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/style.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/token.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/__pycache__/util.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/filters/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/filters/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/lexers/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/lexers/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/lexers/__pycache__/_mapping.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/styles/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/styles/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/pygments/styles/__pycache__/_mapping.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/python_multipart/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/python_multipart/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/python_multipart/__pycache__/decoders.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/python_multipart/__pycache__/exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/python_multipart/__pycache__/multipart.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_emoji_replace.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_export_format.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_extension.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_fileno.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_log_render.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_loop.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_null_file.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_palettes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_pick.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_ratio.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_spinners.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/_wrap.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/align.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/ansi.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/box.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/cells.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/color.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/color_triplet.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/console.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/constrain.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/containers.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/control.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/default_styles.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/emoji.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/errors.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/file_proxy.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/filesize.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/highlighter.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/jupyter.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/live.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/live_render.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/markup.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/measure.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/padding.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/pager.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/palette.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/progress.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/progress_bar.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/protocol.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/region.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/repr.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/screen.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/segment.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/spinner.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/style.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/styled.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/syntax.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/table.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/terminal_theme.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/text.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/theme.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/__pycache__/themes.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/_unicode_data/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/_unicode_data/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/rich/_unicode_data/__pycache__/_versions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/sse_starlette/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/sse_starlette/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/sse_starlette/__pycache__/_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/sse_starlette/__pycache__/event.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/sse_starlette/__pycache__/sse.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/_exception_handler.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/_utils.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/applications.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/authentication.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/background.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/concurrency.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/convertors.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/datastructures.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/formparsers.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/requests.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/responses.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/routing.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/__pycache__/websockets.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/middleware/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/middleware/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/middleware/__pycache__/authentication.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/middleware/__pycache__/body_limit.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/middleware/__pycache__/cors.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/middleware/__pycache__/errors.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/starlette/middleware/__pycache__/exceptions.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/typing_inspection/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/typing_inspection/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/typing_inspection/__pycache__/introspection.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/typing_inspection/__pycache__/typing_objects.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/_ansi.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/_compat.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/_subprocess.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/_types.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/config.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/importer.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/logging.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/main.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/__pycache__/server.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/middleware/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/middleware/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/middleware/__pycache__/asgi2.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/middleware/__pycache__/message_logger.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/middleware/__pycache__/proxy_headers.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/middleware/__pycache__/wsgi.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/supervisors/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/supervisors/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/supervisors/__pycache__/basereload.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/supervisors/__pycache__/multiprocess.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/supervisors/__pycache__/statreload.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/site-packages/uvicorn/supervisors/__pycache__/watchfilesreload.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/urllib/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/urllib/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/urllib/__pycache__/error.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/urllib/__pycache__/parse.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/urllib/__pycache__/request.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/urllib/__pycache__/response.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/zipfile/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/zipfile/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/zipfile/_path/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/zipfile/_path/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/zipfile/_path/__pycache__/glob.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/zoneinfo/__pycache__",
+            "Contents/Resources/runtime/lib/python3.12/zoneinfo/__pycache__/__init__.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/zoneinfo/__pycache__/_common.cpython-312.pyc",
+            "Contents/Resources/runtime/lib/python3.12/zoneinfo/__pycache__/_tzpath.cpython-312.pyc"
+          ]
+        },
+        {
+          "name": "no-bytecode",
+          "before_signature_exit": 0,
+          "import_exit": 0,
+          "after_signature_exit": 0,
+          "after_stderr": "",
+          "bundle_paths_changed": []
+        }
+      ]
+    },
+    "retained_candidate_restoration": {
+      "restored_from_exact_zip": true,
+      "only_prior_cache_paths_differed": true,
+      "previous_mutated_copy_retained": true,
+      "signature_passed": true,
+      "archive_unchanged": true,
+      "bundle_entries_matched": 14795
+    },
+    "application_source_or_production_ZIP_fix_required": false
+  },
+  "setup_attempts_retained": [
+    "Initial TapMesh-Notary profile lookup found no Keychain item. Existing project profile TapMesh then authenticated; no credentials created, exported or requested.",
+    "Installed fixture notarization accepted; no issues in Apple log.",
+    "Expected bundle manifest was corrected to a fresh frozen-ZIP extraction after preparer bytecode-cache contamination was identified, before any native update execution."
+  ],
+  "final_retained_artifact_integrity": {
+    "checked_at": "2026-11-14T12:15:56.343049+00:00",
+    "checks": [
+      {
+        "name": "signature",
+        "status": "passed"
+      },
+      {
+        "name": "ticket",
+        "status": "passed"
+      },
+      {
+        "name": "gatekeeper",
+        "status": "passed"
+      }
+    ],
+    "zip_sha256": "c3eed4e33528dd253487e1e541ad26033e090a64c6d0938e7542318a57878a33",
+    "source_archive_sha256": "5a60a84b52b652c6ddec860c150d29e06be9ffa53b75585a72d288886a9fb85a",
+    "retained_app_restored_from_immutable_zip": true
+  },
+  "cleanup_and_preservation": {
+    "checked_at": "2026-11-14T12:19:52.706465+00:00",
+    "repository_private": true,
+    "owned_private_input_artifacts_deleted": [
+      {
+        "run_id": "43593434081",
+        "artifact_id": 14113252140,
+        "name": "private-build9-input"
+      },
+      {
+        "run_id": "43593979301",
+        "artifact_id": 14113318908,
+        "name": "private-build9-input"
+      }
+    ],
+    "owned_private_draft_and_assets_deleted": true,
+    "local_input_archives_and_failed_attempts_preserved": true,
+    "CI_reports_and_logs_retained": true,
+    "installed_Mac_app_sentinels_unchanged": true,
+    "public_build3_draft_assets_unchanged": true,
+    "public_production_appcast_unchanged": true,
+    "local_production_appcast_unchanged": true,
+    "private_TNAS_changed": false,
+    "phone_or_simulator_operations": false
+  },
+  "remaining_limits": [
+    "Physical active-field/caret coordinate-fill repeatability and AX viewport behavior remain partial; see PHYSICAL_TEXT_BUILD9_QUALIFICATION.json",
+    "Clean-host Finder first-open confirmation/AppTranslocation UI was not exercised; native entrypoint launch was",
+    "Installed baseline is a staged fixture derived from build 9, not certification of every released-version data migration",
+    "No Intel, every macOS patch or independent bit-for-bit source rebuild claim"
+  ],
+  "published": false,
+  "production_appcast_changed": false,
+  "production_source_changed": false,
+  "complete_source_archive_unchanged": true,
+  "private_raw_evidence_directory": "<private-tapmesh>/qualification/CleanMac-Build9-20261114T120234Z",
+  "raw_evidence_files": {
+    "TapMesh-CI-update-to-final9-initial.zip": {
+      "sha256": "9c7b751d2b886ba9611f46f53f4be830e6b8eb36ab0e7336b84effcc8ec1446b",
+      "bytes": 215978112
+    },
+    "TapMesh-CI-update-to-final9.zip": {
+      "sha256": "77adc2a77dbf86efd62f3081ad39983c7a7588b75c5465b7b4994ff7a5df3d57",
+      "bytes": 215945526
+    },
+    "ci-artifacts-43593434081-before-cleanup.json": {
+      "sha256": "790caabf54c227f29ec43d513b7799251b2c6672fbb1eef5c28f89e8e0e655e5",
+      "bytes": 2721
+    },
+    "ci-artifacts-43593979301-before-cleanup.json": {
+      "sha256": "3bb0badf547f5b96c373924c2623f74440f624762259d5056c4411ac38c940cf",
+      "bytes": 2723
+    },
+    "ci-artifacts-43593979301.json": {
+      "sha256": "3bb0badf547f5b96c373924c2623f74440f624762259d5056c4411ac38c940cf",
+      "bytes": 2723
+    },
+    "ci-jobs-43593434081.json": {
+      "sha256": "dfda39840f35de421378252816aa64382de6d6a92c5e6a34a16cfae95ae01ef6",
+      "bytes": 9519
+    },
+    "ci-jobs-43593979301.json": {
+      "sha256": "b991615e97f3e6cb4d144b379dcd33bc408f602470889c1deee4b45539dd5261",
+      "bytes": 9519
+    },
+    "ci-jobs-initial.json": {
+      "sha256": "555132675ee8fd2447e42efb60f6b0a590cdbd5aaa8bd84ae99b194ad453f32e",
+      "bytes": 8517
+    },
+    "ci-run-43593434081.json": {
+      "sha256": "085de2225cc84f7d2e9444a23b83bb046f19c9e636b77e374eca387739123ced",
+      "bytes": 15527
+    },
+    "ci-run-43593979301.json": {
+      "sha256": "7451c9ecdd6517de7f3f9a40c1de3e508f729c9cb97a5238445dfdf623f54276",
+      "bytes": 15511
+    },
+    "ci-run-initial.json": {
+      "sha256": "f88951287f09c70bedc8d384e62109919446527014c646c391d3e69ce7747925",
+      "bytes": 15524
+    },
+    "cleanup-and-preservation.json": {
+      "sha256": "3b1da3ff2b67562870450d5907fd8154d0a12eae1e638f04fbea1aa0cfc54c20",
+      "bytes": 781
+    },
+    "dispatch-corrected.json": {
+      "sha256": "5c949a9b6144f7d38af3e85853f696a90729bf133d07f9ff4872545436439d5a",
+      "bytes": 237
+    },
+    "dispatch.json": {
+      "sha256": "d9978a6d3f3fdcc47955f44ce2be52ae1811c7454b8534cdd8d863b553217ab1",
+      "bytes": 296
+    },
+    "fixture-apple-notary-log.json": {
+      "sha256": "1718c02b2aa828bc4aacf8236a1dc688c35f52abc74a369d32bced88a39f03fb",
+      "bytes": 57804
+    },
+    "fixture-gatekeeper.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "fixture-gatekeeper.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "fixture-receipt.json": {
+      "sha256": "c25663422a12cce33788a67cf72f21999826d943fafad7f5a05bc885d3e07963",
+      "bytes": 1142
+    },
+    "fixture-signature.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "fixture-signature.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "fixture-staple.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "fixture-staple.stdout": {
+      "sha256": "ec6720bc1331cad9bffdea0107cf6a9045c82286613a8a0c9bbdc80c7265c23f",
+      "bytes": 339
+    },
+    "fixture-ticket.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "fixture-ticket.stdout": {
+      "sha256": "27c517fed91200876b2e4a79027d0f8f417026b9d67ca7d1f455568efa62efdf",
+      "bytes": 178
+    },
+    "harness-correction-receipt.json": {
+      "sha256": "f16ca1fd8aa0eeb6991d9101c3503e351688f94dac38f14c83acad632ca14411",
+      "bytes": 1328
+    },
+    "initial-candidate-bundle-manifest.json": {
+      "sha256": "6dc81d5768818cdd620691fefb9289042674f71a5c0945d35c3bc170e1a61d7c",
+      "bytes": 3644767
+    },
+    "initial-fixture-qualification.json": {
+      "sha256": "3e048a7e724a952d4652b91217ec49990ea6aea5789dca299eb87af1bb98cd84",
+      "bytes": 721
+    },
+    "initial-fixture-receipt.json": {
+      "sha256": "a8596041f8f57112b01e5fd042bc65df2b20dd8d45cdb87d1f46e1c0da9de425",
+      "bytes": 1142
+    },
+    "notary-final-info.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "notary-final-info.stdout": {
+      "sha256": "1eac54ffb6166cc7f8cb80a9651977fe622be859fc22707d54a9ec8a494ba3c8",
+      "bytes": 196
+    },
+    "notary-info-initial.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "notary-info-initial.stdout": {
+      "sha256": "cd8f1977f37037097895ead9eb7562b4f443b5639885b71cdea2800a39340862",
+      "bytes": 199
+    },
+    "notary-log-command.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "notary-log-command.stdout": {
+      "sha256": "b6eef45233efa352bf7dd49df5ef121c53639898236a48c0a76cdc9183cd6c42",
+      "bytes": 224
+    },
+    "notary-submit.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "notary-submit.stdout": {
+      "sha256": "9c8e8d4f92156c99363780d3b9bfdae8b98cb6928d663aaf10ff86cbca732327",
+      "bytes": 232
+    },
+    "notary-wait-1.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "notary-wait-1.stdout": {
+      "sha256": "c8095b5615cebee81713f4c33089528977f05bc2c1e81141ba2f68e7e7e27350",
+      "bytes": 98
+    },
+    "preflight-preservation.json": {
+      "sha256": "8b14e88affacdddecf939fb7a68f1ba028cfe3d9b602169ea2e4e063be98eda7",
+      "bytes": 654
+    },
+    "private-ci-harness-corrected.json": {
+      "sha256": "744a2091ee8b73392d376cbe3ba97dbd23c8d3e4bf80e83d9190b8d1430e3400",
+      "bytes": 231
+    },
+    "private-ci-harness.json": {
+      "sha256": "afee0d13f97bde30b9eaaa7b0b7698284a868d5473f826a5c6a5765209f94fc1",
+      "bytes": 229
+    },
+    "private-draft-assets.json": {
+      "sha256": "98ca4bfeac2459028e512dd87eda0089af780d82961e2fa76e76806769261d62",
+      "bytes": 2237
+    },
+    "private-draft-before-cleanup.json": {
+      "sha256": "af7032b507fe0dbe27dec8cec10ff2f2d045d2f9738c665c1fb08259b9c480e6",
+      "bytes": 2122
+    },
+    "private-draft-notes.md": {
+      "sha256": "7a3e698f6cd859ecf61bc5dc5f40759415f3e24040321f6422b694e1f83414c9",
+      "bytes": 399
+    },
+    "public-appcast-after.xml": {
+      "sha256": "80097fce61395f3bd3d2a74187487af68f3fb0a9b42d9e1f4e2ab6bd236501fe",
+      "bytes": 344
+    },
+    "public-appcast-before.xml": {
+      "sha256": "80097fce61395f3bd3d2a74187487af68f3fb0a9b42d9e1f4e2ab6bd236501fe",
+      "bytes": 344
+    },
+    "public-build3-draft-before.json": {
+      "sha256": "2071526482095c596cef3ef6978c2f189ce5c2ae25422f37cf8453df94b7a5a8",
+      "bytes": 2572
+    },
+    "public-preservation-after.json": {
+      "sha256": "271f3ca223fbfc64a1bc078734d6a89d4dc6dd5161de7942ce4f03f2c22bf489",
+      "bytes": 961
+    },
+    "public-preservation-before.json": {
+      "sha256": "271f3ca223fbfc64a1bc078734d6a89d4dc6dd5161de7942ce4f03f2c22bf489",
+      "bytes": 961
+    },
+    "python-import-signature-reproduction.json": {
+      "sha256": "d3085a2b42fea0d802835121a30ee88050a659f4b92d9a9f1fc74003ba0faa53",
+      "bytes": 75162
+    },
+    "restored-final-gatekeeper.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "restored-final-gatekeeper.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "restored-final-integrity.json": {
+      "sha256": "dd367a9dab333a219a1c70cc2bf7f09749dd72d6d162dbdb6e59ac2bac49a784",
+      "bytes": 497
+    },
+    "restored-final-signature.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "restored-final-signature.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "restored-final-ticket.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "restored-final-ticket.stdout": {
+      "sha256": "42d4243350c323ab4bf4b180b00df9a58cc7754dff0b0598e43402afe45a634d",
+      "bytes": 145
+    },
+    "retained-app-import-cache-differences.json": {
+      "sha256": "d76c4f48a6018fa74152171f39957306808bf4f5ccca6c98a7ecddff5f4755c9",
+      "bytes": 71723
+    },
+    "retained-candidate-restored.json": {
+      "sha256": "821477c27cc3a1e01de54d6bb0a172279b347afbcea424ba74121237b5efe353",
+      "bytes": 215
+    },
+    "run-43593434081-failed.log": {
+      "sha256": "d5d347a4e80619c1f307d1152498f5c4c04cb05ce33eb2196141c3d9bf851cdc",
+      "bytes": 5702
+    },
+    "run-43593979301.log": {
+      "sha256": "b8bc34ee7e6702be7662ce5ebe8b5983dd63c3682d8f5d2078c44d5ef65ae516",
+      "bytes": 78614
+    },
+    "staging-installed8-notary.zip": {
+      "sha256": "640558099cf475afc2804a998efc380e970b82006291c18bb6321bf374353f10",
+      "bytes": 115270733
+    },
+    "submission.json": {
+      "sha256": "135ef4129830fe97e687c86d904f2de3f2d627817e1f6f3e13607d7c02e294ad",
+      "bytes": 350
+    },
+    "tapmesh-create-clean-harness.py": {
+      "sha256": "6ba8e0031c72af89be6c33e8416926067de9508ad2b292c7df79f0ceeba8fe47",
+      "bytes": 6216
+    },
+    "tapmesh-finalize-exact-update.py": {
+      "sha256": "d59762b753eb731514a3ac22e84ec129c56d11f2c3d3aa449a52f5287f20011f",
+      "bytes": 3421
+    },
+    "tapmesh-prepare-exact-update.py": {
+      "sha256": "2cf64672a8f6536f9b2dd0ce153c3e6fe56c039a4c33f496bba1dfd5c889d52f",
+      "bytes": 2229
+    },
+    "run-43593979301/qualification-macos-15/input-integrity.json": {
+      "sha256": "12176e362cbe082e8c89fb2470b948f3b83f97a29877b6f9657ceea7c69a462d",
+      "bytes": 195
+    },
+    "run-43593979301/qualification-macos-15/native-install.json": {
+      "sha256": "dbfb78ec11a39028f87332772434ac13e2f0b342be09907862c5e2fde4a91772",
+      "bytes": 1162
+    },
+    "run-43593979301/qualification-macos-15/native-update.json": {
+      "sha256": "3f45c37aeac8411591394669c1959050e4e2ac87d64eded9a700bacc3f74f46d",
+      "bytes": 1978
+    },
+    "run-43593979301/qualification-macos-26/input-integrity.json": {
+      "sha256": "12176e362cbe082e8c89fb2470b948f3b83f97a29877b6f9657ceea7c69a462d",
+      "bytes": 195
+    },
+    "run-43593979301/qualification-macos-26/native-install.json": {
+      "sha256": "bf9be3dc3e6948403e1c1b7376453397f6c41e2f0dd85cc32cd443081f04fc7a",
+      "bytes": 1162
+    },
+    "run-43593979301/qualification-macos-26/native-update.json": {
+      "sha256": "637e082f1e20c9a54e07d48d8d698592c043003a7c1f9c847c0d8e4f7a913751",
+      "bytes": 1978
+    },
+    "run-43593434081/qualification-macos-15/input-integrity.json": {
+      "sha256": "1fc758ea060e45a86b58cbdddd2e6fbaa7930c32e699d601d46f7eb20c4662c3",
+      "bytes": 195
+    },
+    "run-43593434081/qualification-macos-15/native-install.json": {
+      "sha256": "5b5bfb55ad8c0885122f13fdadf30e4e9017f5f007d17aad602b931aa504c97c",
+      "bytes": 678
+    },
+    "run-43593434081/qualification-macos-26/input-integrity.json": {
+      "sha256": "1fc758ea060e45a86b58cbdddd2e6fbaa7930c32e699d601d46f7eb20c4662c3",
+      "bytes": 195
+    },
+    "run-43593434081/qualification-macos-26/native-install.json": {
+      "sha256": "a678c26e6f9fb06b60cab1c30e28f3205d5027a07c325dfa0f9eec86b76ef168",
+      "bytes": 678
+    },
+    "harness/scripts/bundle_manifest.py": {
+      "sha256": "d4791b14fc294337be76795dbd6205a0cbe46ef7f7531f716ebfcdcf768a2b15",
+      "bytes": 740
+    },
+    "harness/scripts/prepare_update_qualification.py": {
+      "sha256": "298938975e47f3b2fba4d2872e603199f62fcddacc97965a5b805a39d35c9f7a",
+      "bytes": 18629
+    },
+    "harness/scripts/qualify_local_runtime.py": {
+      "sha256": "ee20717219f0fcaa7cf287e7ae27b7dfbe2af51c1cdd70c00f64140c4f474392",
+      "bytes": 8858
+    },
+    "harness/scripts/qualify_native_install.py": {
+      "sha256": "7921e6d25e57fb3fa1e1d48c49b34eb5658e3151497b9cc77573197c94feaeea",
+      "bytes": 6773
+    },
+    "harness/scripts/qualify_native_update.py": {
+      "sha256": "43e902baf67e43e8ed6ea43c141fb608b911032fcf6682d3fc3d8d2df23d1859",
+      "bytes": 10129
+    },
+    "harness/scripts/qualify_native_window.swift": {
+      "sha256": "510799f60ed9c7184c9317423579a487498f06529f189346f3ba62615215efdc",
+      "bytes": 1370
+    },
+    "harness/scripts/qualify_sparkle_ui.swift": {
+      "sha256": "062613b0a05cd40937584457e85c8dc558d245245f24e12b63795635ed30214e",
+      "bytes": 3376
+    },
+    "harness/.github/workflows/clean-build9.yml": {
+      "sha256": "a0140259d2636a6468bb4cd678f64a8f00ecbe961fd883e2f0281ad7567f14bf",
+      "bytes": 3950
+    }
+  },
+  "evidence_policy": "Private Local tokens/state, .git, and whole diagnostic app copies excluded from this file map. Top-level logs/receipts/archives and standalone reports/harness sources are hash-bound. Input archives and failed app copies remain local; private temporary remote binary inputs were deleted. Private workflow/reports remain for traceability."
+}

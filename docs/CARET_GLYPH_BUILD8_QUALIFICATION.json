@@ -1,0 +1,141 @@
+{
+  "product": "TapMesh",
+  "checked_at": "2026-11-10T03:23:03.887647+00:00",
+  "build_number": 8,
+  "status": "automated_and_packaged_verified; physical_blocked",
+  "production_release_ready": false,
+  "fix": {
+    "reproduction": "Standard blue caret beside unchanged visible glyphs is rejected when OCR includes extra blank space",
+    "source_file": "agent/text_frame_guard.py",
+    "pixel_edge_precondition": "Both bounded target crops have the same dominant background; every changed caret pixel is exactly background in one image",
+    "caret_edge_source": "unchanged_glyph_pixels",
+    "default_exact_unchanged": true,
+    "numeric_caret_and_pixel_budgets_unchanged": true,
+    "target_confidence_and_context_checks_unchanged": true,
+    "protected_unknown_checks_and_approvals_unchanged": true,
+    "automatic_retargeting_or_input_retry": false,
+    "resolves_all_build7_rejections": false,
+    "AX_scroll_issue_resolved": false
+  },
+  "regression_evidence": {
+    "initial_red_before_fix": true,
+    "original_guard_baseline": {
+      "positive_cases_failed": 4,
+      "selected_negative_and_existing_cases_passed": 4,
+      "variants": [
+        "appearing_1x",
+        "appearing_3x",
+        "disappearing_1x",
+        "disappearing_3x"
+      ]
+    },
+    "new_cases": 7,
+    "new_negative_cases": [
+      "blue_change_over_glyph",
+      "blue_erasure_at_glyph_edge",
+      "unprovable_background"
+    ],
+    "focused_suite_passed": 52,
+    "full_python_passed": 276,
+    "python_subtests_passed": 28,
+    "physical_optins_skipped": 4,
+    "swift_passed": 37,
+    "catalog_schemas": 50,
+    "baseline_commit": "e324851d2a2b81327d111bb1553f5f8e429f5aae"
+  },
+  "application": {
+    "build_number": 8,
+    "signing": "Developer_ID",
+    "zip_sha256": "ad303e8f48c523723ae82a47d00152de40d0e7e16a29943bd104f8afaf2998a8",
+    "source_hashes": {
+      "agent/text_frame_guard.py": "31953134b51e210e404418f64f403db61dcab84aa3ccb8a3454c2acb34197e29",
+      "tests/test_text_frame_guard.py": "66ff4b19d01ae1e11bf9f178bfc055d3e47455d55bdb563e29d7f66f8e4ffd7b"
+    },
+    "embedded_source_matches": true,
+    "runtime_guard_matches": true,
+    "notarized": false,
+    "published": false
+  },
+  "relocated_runtime": {
+    "product": "TapMesh",
+    "checks": [
+      {
+        "name": "bundle code/resources are readable and deny group/other writes",
+        "status": "passed"
+      },
+      {
+        "name": "relocated interpreter and packages with system-only PATH",
+        "status": "passed"
+      },
+      {
+        "name": "fresh private local profile; legacy environment preserved",
+        "status": "passed"
+      },
+      {
+        "name": "local HTTP authentication and owner/OCR credential separation",
+        "status": "passed"
+      },
+      {
+        "name": "bundled authenticated Vision OCR through local HTTP",
+        "status": "passed"
+      },
+      {
+        "name": "duplicate launch attaches without stopping owned services",
+        "status": "passed"
+      },
+      {
+        "name": "relocated MCP stdio bridge ignores inherited HTTP proxy",
+        "status": "passed"
+      },
+      {
+        "name": "graceful shutdown stops both owned listeners",
+        "status": "passed"
+      },
+      {
+        "name": "restart changes instance while preserving local credentials",
+        "status": "passed"
+      },
+      {
+        "name": "bundle signature preserved after runtime and MCP execution",
+        "status": "passed"
+      }
+    ],
+    "status": "passed"
+  },
+  "complete_corresponding_source": {
+    "checked_at": "2026-11-10T03:18:34.411183+00:00",
+    "build_number": 8,
+    "status": "complete_corresponding_source_assembled_and_verified",
+    "source_archive": "TapMesh-0.1.0-build8-complete-source.tar",
+    "source_archive_sha256": "7cbe022b5b359c052cdc182740c4508c7f6620a3ec9fa8e1d8cd2da0e6933ffb",
+    "source_archive_bytes": 742031360,
+    "embedded_source_sha256": "de48289823fdb4e41e3b6b77d315a1de564357af0036186d0d0e2135e61c8cb2",
+    "runtime_manifest_sha256": "39ce6dff0ed255ba586f6c434a883e71c1f553e4d1381d867ae3a62b4556bf81",
+    "package_count": 112,
+    "source_gaps": [],
+    "independent_bit_for_bit_rebuild": false,
+    "public_release_ready": false,
+    "published": false
+  },
+  "physical_followup": {
+    "status": "blocked_pending_unlock_or_reconnect",
+    "initial_list_state": "connected",
+    "initial_passcode_required": true,
+    "subsequent_lock_read": "15-second timeout",
+    "latest_lock_read": {
+      "error_domain": "com.apple.dt.CoreDeviceError",
+      "error_code": 4016,
+      "reason": "trusted remote service connectivity and power assertion unavailable"
+    },
+    "new_input_sent": false,
+    "fixture_activated": false,
+    "repeatability_qualified": false,
+    "remaining": "Repeated exact packaged build8 coordinate fills and independent app readback on the unlocked foreground owned fixture; observe a non-exact stable_text_target proof"
+  },
+  "notarized": false,
+  "published": false,
+  "private_TNAS_changed": false,
+  "production_appcast_changed": false,
+  "build3_distribution_assets_changed": false,
+  "qualification_docs_in_bundle": "Packaging snapshot; later build8 qualification documents remain separate receipts"
+}
