@@ -49,3 +49,7 @@ all redistributed dependencies. This gate stays false until the dependency
 source archive, native dependency provenance and notices have been audited.
 Publish matching complete source next to any public binary; a link to upstream
 alone is not a substitute for making the required corresponding source available.
+
+See [build 9 release qualification](BUILD9_RELEASE_QUALIFICATION.md) for
+the frozen source, signing and installation checks and remaining physical
+and Finder qualification.

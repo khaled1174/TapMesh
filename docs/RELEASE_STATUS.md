@@ -1,5 +1,9 @@
 # TapMesh release qualification
 
+See [build 9 release qualification](BUILD9_RELEASE_QUALIFICATION.md) for
+the frozen source, signing and installation checks and remaining physical
+and Finder qualification.
+
 Updated 2026-11-14 (Asia/Riyadh). The public repository contains the standalone local product
 source. Public draft build 3 is notarized and remains unpublished. The final local
 build 9 variant is Developer ID signed, Apple notarized and stapled, with matching
