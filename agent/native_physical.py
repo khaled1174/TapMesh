@@ -28,6 +28,7 @@ def frame_unavailable(content):
 
 
 def classify_sensitivity(locked, labels):
+    labels=[label for label in labels if label.strip()]
     observed={'locked':locked,'ax_observed':bool(labels),'source':'native_accessibility_audit','observed_at':utcnow()}
     if locked is True:return {**observed,'state':'protected','reason':'Device requires passcode or unlock handoff'}
     if locked is not False or not labels:return {**observed,'state':'unknown','reason':'Lock or foreground accessibility state is unavailable'}
@@ -233,8 +234,8 @@ class NativePhysical:
         result=await self.audit(serial,maximum=200,attributes=False)
         if result['backend_truncated']:return {'state':'unknown','reason':'Sensitive-state inspection was truncated'}
         elements=result['elements']+result['unlocated_elements']
-        labels=[str(e.get('label','')) for e in elements]
-        labels.extend(str(e.get('spoken_description','')) for e in elements)
+        labels=[str(e.get('label') or '') for e in elements]
+        labels.extend(str(e.get('spoken_description') or '') for e in elements)
         return classify_sensitivity(locked,labels)
     async def input(self,tool,serial,geometry,targets,args,*,guard=None,on_send=None,text_context=None):
         size=geometry['logical_size']

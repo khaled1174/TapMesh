@@ -127,6 +127,48 @@ def test_sensitive_state_fails_closed_for_lock_protection_or_unknown(lock,labels
     assert classify_sensitivity(lock,labels)['state']==expected
 
 
+def test_blank_accessibility_labels_do_not_establish_observed_state():
+    from agent.native_physical import classify_sensitivity
+    advisory=classify_sensitivity(False,['',' ','\t\n','\u2003'])
+    assert advisory['state']=='unknown'
+    assert advisory['ax_observed'] is False
+
+
+@pytest.mark.parametrize('caption,spoken',[(None,None),('',None),(' \t','\n')])
+async def test_captionless_native_audit_cannot_be_confirmed_as_ordinary(caption,spoken):
+    from agent.native_physical import NativePhysical,normalize_audit,validate_text_context
+    from agent.safety import BridgeError
+    adapter=NativePhysical()
+    async def audit(serial,*,maximum,attributes):
+        item=normalize_audit(caption,None,None)
+        item['spoken_description']=spoken
+        return {'elements':[],'unlocated_elements':[item],'backend_truncated':False}
+    adapter.audit=audit
+    advisory=await adapter.sensitive_state('no-device-transport',locked=False)
+    assert advisory['state']=='unknown'
+    assert advisory['ax_observed'] is False
+    with pytest.raises(BridgeError) as error:
+        validate_text_context(advisory,{'field_context':'ordinary_app'})
+    assert error.value.code=='prerequisite_required'
+    assert error.value.side_effect_state=='not_sent'
+
+
+@pytest.mark.parametrize('spoken,expected',[('Password, secure text field','protected'),
+                                         ('TapMesh test device','clear'),
+                                         ('Ordinary text field','unqualified')])
+async def test_unlocated_spoken_evidence_survives_missing_captions(spoken,expected):
+    from agent.native_physical import NativePhysical,normalize_audit
+    adapter=NativePhysical()
+    async def audit(serial,*,maximum,attributes):
+        item=normalize_audit(None,None,None)
+        item['spoken_description']=spoken
+        return {'elements':[],'unlocated_elements':[item],'backend_truncated':False}
+    adapter.audit=audit
+    advisory=await adapter.sensitive_state('no-device-transport',locked=False)
+    assert advisory['state']==expected
+    assert advisory['ax_observed'] is True
+
+
 async def test_changed_content_rejects_native_target_before_transport(tmp_path):
     from agent.backends import MacBackend
     from agent.native_physical import frame_hash

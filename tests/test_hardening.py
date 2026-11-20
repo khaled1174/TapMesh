@@ -232,17 +232,40 @@ async def test_device_queue_is_bounded_and_overload_never_sends(hardened):
         backend.release.set(); await active
 
 
-async def test_runner_cleans_exited_leader_descendant_and_pipe_tasks(tmp_path):
+async def test_runner_cleans_exited_leader_descendant_and_pipe_tasks(tmp_path, monkeypatch):
     from agent.process import Runner
     runner = Runner()
     pidfile = tmp_path / 'child.pid'
     program = "import subprocess,sys; p=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)']); open(sys.argv[1],'w').write(str(p.pid))"
+    argv = [sys.executable, '-c', program, str(pidfile)]
+    create_subprocess = asyncio.create_subprocess_exec
+    proc = None
     child = None
+    before = set(asyncio.all_tasks())
+
+    async def create_ready_subprocess(*args, **kwargs):
+        nonlocal proc, child
+        spawned = await create_subprocess(*args, **kwargs)
+        if args != tuple(argv): return spawned
+        proc = spawned
+        # Runner's deadline starts after creation returns. Establish the exited
+        # leader and live, pipe-holding descendant before that deadline begins.
+        # proc.wait() can wait for inherited pipes, so poll returncode instead.
+        async with asyncio.timeout(5):
+            while not pidfile.exists() or proc.returncode is None:
+                await asyncio.sleep(.01)
+        assert proc.returncode == 0
+        child = int(pidfile.read_text())
+        os.kill(child, 0)
+        assert os.getpgid(child) == proc.pid
+        assert not proc.stdout.at_eof() and not proc.stderr.at_eof()
+        return proc
+
+    monkeypatch.setattr(asyncio, 'create_subprocess_exec', create_ready_subprocess)
     try:
         with pytest.raises(BridgeError) as failed:
-            await runner.run([sys.executable, '-c', program, str(pidfile)], timeout=.2)
+            await runner.run(argv, timeout=.2)
         assert failed.value.code == 'deadline_exceeded'
-        child = int(pidfile.read_text())
         async with asyncio.timeout(2):
             while True:
                 try:
@@ -252,11 +275,18 @@ async def test_runner_cleans_exited_leader_descendant_and_pipe_tasks(tmp_path):
                     if stat.exists() and stat.read_text().split()[2] == 'Z': break
                 except ProcessLookupError: break
                 await asyncio.sleep(.01)
+        assert proc.stdout.at_eof() and proc.stderr.at_eof()
         assert not runner.processes
+        assert not runner._groups
+        assert not runner._terminations
+        assert not [owned for owned in asyncio.all_tasks() - before if not owned.done()]
     finally:
-        if child:
-            try: os.kill(child, signal.SIGKILL)
-            except ProcessLookupError: pass
+        if proc is not None:
+            # Also cover startup/assertion failures before Runner registers it.
+            if await runner._group_exists(proc.pid):
+                try: os.killpg(proc.pid, signal.SIGKILL)
+                except ProcessLookupError: pass
+            await asyncio.wait_for(proc.wait(), 2)
         await runner.close()
 
 
