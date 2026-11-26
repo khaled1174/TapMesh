@@ -15,7 +15,7 @@ The current development source also includes SDK/actor compatibility fixes added
 after that staged candidate; it is not a claim that build 23 contains those fixes.
 
 The release gates remain open: the owner-attended physical-control matrix,
-latency and landscape/lock interruption checks, Apple notarization, and clean-Mac
+latency and landscape/lock interruption checks, and clean-Mac
 installation/update for the exact final ZIP. Earlier attended trials retained
 failed latency and landscape outcomes. Source tests and read-only observations
 do not substitute for those gates. No new live device qualification is claimed
@@ -27,20 +27,22 @@ See [0.2.0 behavior and limits](RELEASE_NOTES_0.2.0.md),
 
 ## Build 25 packaging follow-up
 
-A new build 25 candidate is being prepared from this publication branch. Its
-English documentation includes the MCP connection architecture, project workflow
-and a conceptual cover illustration. The candidate includes verified review corrections for post-input discovery,
-live-view admission during update preparation, and recording finalization during Stop.
+Build 25 is prepared from application source `b66f8b4`. The app and DMG are
+Developer ID signed, Apple-notarized and stapled, with Gatekeeper acceptance.
+The final DMG matches the candidate app after a read-only mount. Ten relocated
+runtime checks and six native development-Mac installation smoke checks pass.
+Complete application/dependency source and exact final packaging-tool source
+accompany the draft release. [Artifact-bound packaging report](BUILD25_PACKAGING_20261126.md).
 
-Build 24 was signed and accepted by Apple, then superseded before upload when
-review regressions demonstrated those three defects. Its source and receipts
-are retained separately. Six regression cases failed before the corrections.
+The English front page includes the MCP architecture, project workflow and a
+conceptual cover illustration. Six verified runtime regressions and three DMG
+publication-failure cases are corrected and retained as evidence. Build 24 was
+superseded before upload; its Apple acceptance does not qualify build 25.
 
-Signed app, ZIP, DMG, notarization, source and checksum receipts are tracked with
-the exact draft release artifacts. A build number or Apple acceptance alone is
-not a public-release qualification. Attended physical-control and exact-artifact
-clean-Mac installation/update remain required. No production appcast update is
-authorized while these gates are open.
+Attended physical-control, latency/orientation/lock interruption, clean-Mac
+installation/update and Finder first-open remain unqualified for these exact
+final artifacts. Binary assets remain draft-only. No production appcast change
+or public binary publication has occurred.
 
 ## Historical 0.1.0 evidence
 

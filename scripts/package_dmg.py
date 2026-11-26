@@ -14,6 +14,28 @@ import tempfile
 from bundle_integrity import require_same_bundle
 
 
+def publish_image(staged, output):
+    """Expose the final name only after its copied bytes pass verification."""
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(prefix='.tapmesh-image-', suffix='.dmg',
+                                         dir=output.parent, delete=False) as destination:
+            temporary = Path(destination.name)
+            with staged.open('rb') as source:
+                shutil.copyfileobj(source, destination)
+            destination.flush()
+            os.fsync(destination.fileno())
+        temporary.chmod(0o644)
+        subprocess.run(['/usr/bin/codesign', '--verify', '--strict', str(temporary)], check=True)
+        subprocess.run(['/usr/bin/hdiutil', 'verify', str(temporary)], check=True)
+        # Both names are on the output volume. Linking is atomic, never
+        # overwrites an existing file, and safely refuses unsupported volumes.
+        output.hardlink_to(temporary)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--app', type=Path, required=True)
@@ -58,14 +80,7 @@ def main():
         subprocess.run(['/usr/bin/codesign', '--verify', '--strict', str(staged)], check=True)
         subprocess.run(['/usr/bin/hdiutil', 'verify', str(staged)], check=True)
         require_same_bundle(app, copied)
-        # Copy only finished image bytes across volumes, without Finder xattrs.
-        # Exclusive creation also refuses an output created concurrently.
-        with staged.open('rb') as source, output.open('xb') as destination:
-            shutil.copyfileobj(source, destination)
-            destination.flush()
-            os.fsync(destination.fileno())
-        subprocess.run(['/usr/bin/codesign', '--verify', '--strict', str(output)], check=True)
-        subprocess.run(['/usr/bin/hdiutil', 'verify', str(output)], check=True)
+        publish_image(staged, output)
     print(output)
 
 

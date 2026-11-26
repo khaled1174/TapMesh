@@ -54,3 +54,8 @@ the requested output before revalidating. This packaging-only correction
 does not alter build 25 app/runtime bytes. Its exact tooling source is supplied
 alongside the app's embedded corresponding source. Network-volume behavior
 requires its own host qualification and is not claimed by the local DMG test.
+
+The final publication helper uses a temporary image on the output volume,
+verifies it and atomically exposes the final name without overwriting existing
+artifacts. Three injected copy/signature/image failures demonstrate cleanup and
+successful retry. [Build 25 packaging report](BUILD25_PACKAGING_20261126.md).
