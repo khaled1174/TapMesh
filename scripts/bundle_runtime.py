@@ -21,13 +21,16 @@ PYTHON_URL = 'https://github.com/astral-sh/python-build-standalone/releases/down
 
 
 def source_files():
-    roots=['agent','server','Contracts','tapmesh_runtime','macos','scripts','tests','Fixtures','.github']
-    files=[ROOT/name for name in ('.gitignore','LICENSE','NOTICE','README.md','appcast.xml','pyproject.toml','uv.lock','requirements-product.lock','requirements-mac.lock','requirements-test.lock','requirements-server.lock')]
-    files += [ROOT/('docs/'+name) for name in ('PRODUCT_SCOPE.md','SOURCE_BUILD.md','DEPENDENCY_SOURCES.md','NATIVE_DEPENDENCY_SOURCE_AUDIT.md','RELEASE_STATUS.md')]
+    roots=['agent','server','Contracts','tapmesh_runtime','macos','scripts','tests','Fixtures','.github','examples']
+    files=[ROOT/name for name in ('.gitignore','LICENSE','NOTICE','README.md','README.ar.md','CHANGELOG.md','appcast.xml','pyproject.toml','uv.lock','requirements-product.lock','requirements-mac.lock','requirements-test.lock','requirements-server.lock')]
+    files += [ROOT/('docs/'+name) for name in ('PRODUCT_SCOPE.md','SOURCE_BUILD.md','DEPENDENCY_SOURCES.md','NATIVE_DEPENDENCY_SOURCE_AUDIT.md','RELEASE_STATUS.md','RELEASE_NOTES_0.2.0.md','TOOL_CONTRACTS.md','CONNECTING_AGENTS.md','CONNECTING_AGENTS.ar.md','PUBLIC_SOURCE_UPDATE_20261126.md')]
     for name in roots:
         directory=ROOT/name
         if directory.exists():
             files += [p for p in directory.rglob('*') if p.is_file() and not p.is_symlink() and not any(part in {'__pycache__','.build','.pytest_cache','.DS_Store','.git','.venv','dist','.runtime'} for part in p.relative_to(ROOT).parts) and p.suffix not in {'.pyc','.token','.p8','.p12','.mobileprovision'} and p.name not in {'.env','connection.json','credentials.json'}]
+    localization=ROOT/'macos/Localization'
+    files=[path for path in files if not path.is_relative_to(localization)
+           or path.parent.suffix=='.lproj' and path.suffix=='.strings']
     return sorted(set(files))
 
 
@@ -145,6 +148,7 @@ def embed(resources, python_source):
     notices.mkdir(exist_ok=True)
     shutil.copyfile(ROOT / 'LICENSE', notices / 'TapMesh-GPL-3.0.txt')
     shutil.copyfile(ROOT / 'NOTICE', notices / 'NOTICE.txt')
+    shutil.copyfile(ROOT / 'scripts/licenses' / f'idb-companion-{VERSION}.txt', notices / 'idb_companion.txt')
     source_folder = resources / 'Source'
     source_folder.mkdir()
     write_source_archive(source_folder/'TapMesh-source.tar.gz')

@@ -1,9 +1,9 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "tools": [
     {
       "name": "list_devices",
-      "description": "list devices. Results distinguish delivery from verified application success.",
+      "description": "Discover iPhones, iPads, and iOS simulators with readiness and tool availability. Use the returned device ID with select_device to set this client's target.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -27,7 +27,7 @@
     },
     {
       "name": "start_simulator",
-      "description": "start simulator. Results distinguish delivery from verified application success.",
+      "description": "Boot an existing iOS simulator by ID, or create one from a device type and installed iOS runtime. Returns the booted device ID and whether it was created.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -108,7 +108,7 @@
     },
     {
       "name": "shut_down_simulator",
-      "description": "shut down simulator. Results distinguish delivery from verified application success.",
+      "description": "Shut down a selected simulator while keeping its installed apps and files. A successful result confirms the simulator stopped.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -134,7 +134,7 @@
     },
     {
       "name": "select_device",
-      "description": "select device. Results distinguish delivery from verified application success.",
+      "description": "Set this client's target to a device ID from list_devices. Selection returns readiness and leaves the device in its current power state.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -162,7 +162,7 @@
     },
     {
       "name": "get_device_info",
-      "description": "get device info. Results distinguish delivery from verified application success.",
+      "description": "Read the selected device's OS, readiness, and supported operations. Use its capability details to choose an input or capture method.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -191,7 +191,7 @@
     },
     {
       "name": "take_screenshot",
-      "description": "take screenshot. Results distinguish delivery from verified application success.",
+      "description": "Capture the selected device screen without saving an artifact. The returned image and observation ID give you the current coordinates for input.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -237,7 +237,7 @@
     },
     {
       "name": "save_screenshot",
-      "description": "save screenshot. Results distinguish delivery from verified application success.",
+      "description": "Save an image of the selected device to TapMesh or an approved folder. Returns the finalized artifact reference after owner approval.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -286,7 +286,7 @@
     },
     {
       "name": "start_recording",
-      "description": "start recording. Results distinguish delivery from verified application success.",
+      "description": "Start a bounded video recording on a device that supports screen recording. Get owner approval and keep the returned recording ID for stop_recording.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -333,7 +333,7 @@
     },
     {
       "name": "stop_recording",
-      "description": "stop recording. Results distinguish delivery from verified application success.",
+      "description": "Finalize a recording from this session using its recording ID. The result includes saved segments and reports any gaps or partial files.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -366,7 +366,7 @@
     },
     {
       "name": "get_foreground_app",
-      "description": "get foreground app. Results distinguish delivery from verified application success.",
+      "description": "Identify the app currently in front on the selected device. The result reports unknown if the backend cannot observe it.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -392,7 +392,7 @@
     },
     {
       "name": "list_elements",
-      "description": "list elements. Results distinguish delivery from verified application success.",
+      "description": "Inspect the selected device using accessibility or screen text recognition. The response provides a snapshot ID and element references for later input.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -434,7 +434,7 @@
     },
     {
       "name": "tap",
-      "description": "tap. Results distinguish delivery from verified application success.",
+      "description": "Tap one point or element on the selected device. Use a current take_screenshot observation for coordinates or a list_elements snapshot for a reference.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -519,7 +519,7 @@
     },
     {
       "name": "tap_text",
-      "description": "tap text. Results distinguish delivery from verified application success.",
+      "description": "Find unique visible text from a fresh inspection and tap it. Choose a more specific match or an occurrence if the text appears more than once.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -585,7 +585,7 @@
     },
     {
       "name": "double_tap",
-      "description": "double tap. Results distinguish delivery from verified application success.",
+      "description": "Send two taps to one target with a configurable interval. Obtain coordinates from take_screenshot or an element reference from list_elements.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -675,7 +675,7 @@
     },
     {
       "name": "long_press",
-      "description": "long press. Results distinguish delivery from verified application success.",
+      "description": "Hold and release a touch at one target for the requested duration. Anchor the target to take_screenshot or list_elements before sending it.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -765,7 +765,7 @@
     },
     {
       "name": "swipe",
-      "description": "swipe. Results distinguish delivery from verified application success.",
+      "description": "Move one touch from start to end over a specified duration. Both endpoints must come from the same take_screenshot or list_elements observation.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -913,7 +913,7 @@
     },
     {
       "name": "scroll",
-      "description": "scroll. Results distinguish delivery from verified application success.",
+      "description": "Scroll in one direction by a bounded distance. For a specific container, call list_elements first and pass its reference and snapshot ID.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -974,7 +974,7 @@
     },
     {
       "name": "scroll_to",
-      "description": "scroll to. Results distinguish delivery from verified application success.",
+      "description": "Inspect and scroll in bounded steps until matching text or an element comes into view. Supply one text match or element selector and a direction.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1091,7 +1091,7 @@
     },
     {
       "name": "drag",
-      "description": "drag. Results distinguish delivery from verified application success.",
+      "description": "Press, hold, then move and release a touch between two points. Obtain both endpoints from the same take_screenshot or list_elements observation.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1244,7 +1244,7 @@
     },
     {
       "name": "pinch",
-      "description": "pinch. Results distinguish delivery from verified application success.",
+      "description": "Send a two-finger scale gesture around a target on a supported device. Use take_screenshot for the center coordinates or list_elements for a reference.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1340,7 +1340,7 @@
     },
     {
       "name": "type_text",
-      "description": "type text. Results distinguish delivery from verified application success.",
+      "description": "Insert text at the focused field or at a target from take_screenshot or list_elements. Physical keyboard input needs the US layout. Clipboard paste requires approval.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1470,7 +1470,7 @@
     },
     {
       "name": "fill",
-      "description": "fill. Results distinguish delivery from verified application success.",
+      "description": "Replace text at a target from take_screenshot or list_elements, with optional submit. Check the actual field value after sending. Clipboard paste requires approval.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1565,7 +1565,7 @@
               "text_target"
             ],
             "default": "exact",
-            "description": "Physical portrait text_target mode explicitly permits bounded standard clock/status and blue-caret changes after verifying the same visible text at the same point. Requires ordinary_app and no submit; app field roles are not inferred. Simulator supports exact only."
+            "description": "Compatibility declaration. Physical input never compares screen frames before sending, so both values behave the same on a physical device. text_target requires ordinary_app and no submit. Simulator supports exact only."
           },
           "device_id": {
             "type": "string",
@@ -1638,7 +1638,7 @@
     },
     {
       "name": "press_key",
-      "description": "press key. Results distinguish delivery from verified application success.",
+      "description": "Send a supported key or modifier chord to the focused app on the selected device. Observe the screen afterward to check how the app handled it.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1695,7 +1695,7 @@
     },
     {
       "name": "hide_keyboard",
-      "description": "hide keyboard. Results distinguish delivery from verified application success.",
+      "description": "Ask the selected device to dismiss its on-screen keyboard using a supported input method. Check the next image to confirm the keyboard closed.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1721,7 +1721,7 @@
     },
     {
       "name": "press_button",
-      "description": "press button. Results distinguish delivery from verified application success.",
+      "description": "Send a named hardware or system button action supported by the selected device. The device may require a person to handle a protected button.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1761,7 +1761,7 @@
     },
     {
       "name": "system_gesture",
-      "description": "system gesture. Results distinguish delivery from verified application success.",
+      "description": "Invoke a supported system gesture, such as Home, Control Center, or the app switcher. Inspect the device afterward to confirm it opened.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1798,7 +1798,7 @@
     },
     {
       "name": "go_back",
-      "description": "go back. Results distinguish delivery from verified application success.",
+      "description": "Go back using a supported navigation element or edge gesture. The result identifies the strategy used or reports that no supported target exists.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1832,7 +1832,7 @@
     },
     {
       "name": "rotate",
-      "description": "rotate. Results distinguish delivery from verified application success.",
+      "description": "Request a supported device orientation and read the effective orientation when available. Refresh the screen before using coordinates after rotation.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1869,7 +1869,7 @@
     },
     {
       "name": "set_appearance",
-      "description": "set appearance. Results distinguish delivery from verified application success.",
+      "description": "Set light, dark, or system appearance on a supported device. Inspect its screen if you need to confirm how the active app applied the change.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1905,7 +1905,7 @@
     },
     {
       "name": "set_accessibility",
-      "description": "set accessibility. Results distinguish delivery from verified application success.",
+      "description": "Update supported accessibility settings on the selected device. Supply at least one option, such as Reduce Motion or a text-size category.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1971,7 +1971,7 @@
     },
     {
       "name": "list_apps",
-      "description": "list apps. Results distinguish delivery from verified application success.",
+      "description": "List apps on the selected device, with an optional query or inclusion of system apps. Use the returned bundle IDs to target later app operations.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2005,7 +2005,7 @@
     },
     {
       "name": "launch_app",
-      "description": "launch app. Results distinguish delivery from verified application success.",
+      "description": "Open an installed app by its bundle ID from list_apps. Providing launch arguments or environment requires approval. Check the foreground app afterward.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2070,7 +2070,7 @@
     },
     {
       "name": "terminate_app",
-      "description": "terminate app. Results distinguish delivery from verified application success.",
+      "description": "Stop the installed app with the given bundle ID. Use list_apps to identify the app and read the result to see whether stopping was confirmed.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2104,7 +2104,7 @@
     },
     {
       "name": "install_app",
-      "description": "install app. Results distinguish delivery from verified application success.",
+      "description": "Install an app from an approved local file path. Obtain approval for installation or destructive confirmation if you request replacement.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2140,7 +2140,7 @@
     },
     {
       "name": "uninstall_app",
-      "description": "uninstall app. Results distinguish delivery from verified application success.",
+      "description": "Remove the app identified by bundle ID and its device data. Confirm the correct app with list_apps and obtain destructive approval first.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2174,7 +2174,7 @@
     },
     {
       "name": "open_settings",
-      "description": "open settings. Results distinguish delivery from verified application success.",
+      "description": "Open the Settings app on a supported device. Request the root screen and observe the device afterward to verify what opened.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2206,7 +2206,7 @@
     },
     {
       "name": "open_url",
-      "description": "open url. Results distinguish delivery from verified application success.",
+      "description": "Send a URL to the selected device for its default app or registered handler. Non-HTTP links need approval. Observe the device to confirm the destination.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2239,7 +2239,7 @@
     },
     {
       "name": "build_and_run",
-      "description": "build and run. Results distinguish delivery from verified application success.",
+      "description": "Build an Xcode project or workspace from an approved folder and install the resulting app on the selected device. Review the stage results and build log.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2288,7 +2288,7 @@
     },
     {
       "name": "set_location",
-      "description": "set location. Results distinguish delivery from verified application success.",
+      "description": "Set the selected device's simulated location on a supported backend. Obtain sensitive-action approval before applying the device-wide override.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2325,14 +2325,14 @@
         "additionalProperties": false
       },
       "capability": "location.simulate",
-      "policy": "C",
+      "policy": "S",
       "mutation": true,
       "device_bound": true,
       "maximum_timeout_ms": 30000
     },
     {
       "name": "clear_location",
-      "description": "clear location. Results distinguish delivery from verified application success.",
+      "description": "Remove an existing simulated location override on a supported device. Use this when the location test ends to restore normal location behavior.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2358,7 +2358,7 @@
     },
     {
       "name": "get_clipboard",
-      "description": "get clipboard. Results distinguish delivery from verified application success.",
+      "description": "Read text from the selected device's clipboard with owner approval. The clipboard may contain content synchronized through Universal Clipboard.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2390,7 +2390,7 @@
     },
     {
       "name": "set_clipboard",
-      "description": "set clipboard. Results distinguish delivery from verified application success.",
+      "description": "Replace text in the selected device's clipboard with owner approval. The new text may sync to other nearby Apple devices.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2422,7 +2422,7 @@
     },
     {
       "name": "list_crashes",
-      "description": "list crashes. Results distinguish delivery from verified application success.",
+      "description": "List crash report metadata with owner approval. Filter by app or date and use a returned report ID with get_crash to retrieve it.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2470,7 +2470,7 @@
     },
     {
       "name": "get_crash",
-      "description": "get crash. Results distinguish delivery from verified application success.",
+      "description": "Retrieve a crash report by its ID from list_crashes. Owner approval is required. Optional symbolication needs matching symbols in an approved location.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2516,7 +2516,7 @@
     },
     {
       "name": "download_app_container",
-      "description": "download app container. Results distinguish delivery from verified application success.",
+      "description": "Archive the accessible data container for a development app. Supply its bundle ID and obtain owner approval before writing the export.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2560,7 +2560,7 @@
     },
     {
       "name": "request_human_action",
-      "description": "request human action. Results distinguish delivery from verified application success.",
+      "description": "Ask the owner to complete a step on the device, such as handling a protected prompt. Provide instructions without credentials or other secrets.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2779,7 +2779,7 @@
     },
     {
       "name": "handle_alert",
-      "description": "handle alert. Results distinguish delivery from verified application success.",
+      "description": "Choose a specific button on an ordinary alert using a current list_elements snapshot. Ask the owner to handle protected prompts.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2844,7 +2844,7 @@
     },
     {
       "name": "wait_for",
-      "description": "wait for. Results distinguish delivery from verified application success.",
+      "description": "Observe a selected device until a supported condition is met or the timeout expires. Conditions can check visible text, an element, foreground app, or readiness.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3057,7 +3057,7 @@
     },
     {
       "name": "wait",
-      "description": "wait. Results distinguish delivery from verified application success.",
+      "description": "Pause this call for a bounded duration. Returns the elapsed time and leaves device selection and device state alone.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3085,7 +3085,7 @@
     },
     {
       "name": "batch_commands",
-      "description": "batch commands. Results distinguish delivery from verified application success.",
+      "description": "Run up to 25 allowed commands in order on one device. The batch uses the highest approval policy among its steps and returns each outcome without rollback.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3524,7 +3524,7 @@
                             "text_target"
                           ],
                           "default": "exact",
-                          "description": "Physical portrait text_target mode explicitly permits bounded standard clock/status and blue-caret changes after verifying the same visible text at the same point. Requires ordinary_app and no submit; app field roles are not inferred. Simulator supports exact only."
+                          "description": "Compatibility declaration. Physical input never compares screen frames before sending, so both values behave the same on a physical device. text_target requires ordinary_app and no submit. Simulator supports exact only."
                         },
                         "device_id": {
                           "type": "string",

@@ -7,9 +7,10 @@ struct TapMeshApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var store = WorkspaceStore()
     @StateObject private var updater = AppUpdater.shared
+    @State private var settingsTab = SettingsTab.general
     var body: some Scene {
         WindowGroup("TapMesh", id: "workspace") {
-            ContentView(store: store)
+            ContentView(store: store, selectAIAgentsSettings: { settingsTab = .aiAgents })
                 .frame(minWidth: 1060, minHeight: 680)
                 .disabled(updater.isPreparingInstallation)
                 .task {
@@ -31,13 +32,37 @@ struct TapMeshApp: App {
             }
             CommandMenu("Device") {
                 Button("Refresh Devices") { Task { await store.refreshDevices() } }.keyboardShortcut("r", modifiers: [.command, .shift])
-                Button("Capture Screen") { Task { await store.capture() } }.keyboardShortcut("r").disabled(!store.canControl)
+                Button("Refresh Screen") { Task { await store.capture() } }.keyboardShortcut("r").disabled(!store.canControl)
                 Button("Inspect Elements") { Task { await store.inspect() } }.keyboardShortcut("i", modifiers: [.command, .shift]).disabled(!store.canControl)
                 Divider()
                 Button("Home") { Task { await store.run("press_button", arguments: ["button": .string("home")]) } }.keyboardShortcut("h", modifiers: [.command, .shift]).disabled(!store.canControl)
             }
+            TapMeshHelpCommands(store: store, settingsTab: $settingsTab)
         }
-        Settings { SettingsView(store: store).disabled(updater.isPreparingInstallation) }
+        Settings { SettingsView(store: store, selection: $settingsTab).disabled(updater.isPreparingInstallation) }
+    }
+}
+
+private struct TapMeshHelpCommands: Commands {
+    @Environment(\.openSettings) private var openSettings
+    let store: WorkspaceStore
+    @Binding var settingsTab: SettingsTab
+
+    var body: some Commands {
+        CommandGroup(replacing: .help) {
+            Button("TapMesh Help") {
+                if let help = URL(string: "https://github.com/khaled1174/TapMesh#get-started") {
+                    NSWorkspace.shared.open(help)
+                }
+            }
+            Button("Connect an AI Agent…") {
+                settingsTab = .aiAgents
+                openSettings()
+            }
+            Button("Export Diagnostic Report…") {
+                Task { await SupportExporter.export(store: store) }
+            }
+        }
     }
 }
 

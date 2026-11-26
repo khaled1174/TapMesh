@@ -7,13 +7,13 @@ public enum ProfileUpdateFenceError: LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .invalidInput: "The update preparation identifier or build number is invalid."
-        case .unsafeProfile: "The local update profile must be a private directory owned by this user."
-        case .unsafeFence: "The local update preparation file is invalid or has unsafe permissions."
-        case .activeFence: "Another TapMesh update is preparing this profile. Wait for it to finish."
-        case .leaseMismatch: "This TapMesh instance does not own the profile's update preparation."
-        case .busy: "Another TapMesh instance is changing the update preparation. Try again."
-        case .ioFailure: "TapMesh could not save the local update preparation. Check available storage and permissions."
+        case .invalidInput: String(localized: "The update preparation identifier or build number is invalid.")
+        case .unsafeProfile: String(localized: "The local update profile must be a private directory owned by this user.")
+        case .unsafeFence: String(localized: "The local update preparation file is invalid or has unsafe permissions.")
+        case .activeFence: String(localized: "Another TapMesh update is preparing this profile. Wait for it to finish.")
+        case .leaseMismatch: String(localized: "This TapMesh instance does not own the profile's update preparation.")
+        case .busy: String(localized: "Another TapMesh instance is changing the update preparation. Try again.")
+        case .ioFailure: String(localized: "TapMesh could not save the local update preparation. Check available storage and permissions.")
         }
     }
 }

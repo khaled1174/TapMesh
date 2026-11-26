@@ -1,6 +1,23 @@
 import pytest
 
 
+def test_every_tool_has_its_own_real_description():
+    from Contracts.catalog import CATALOG
+
+    descriptions = [tool['description'] for tool in CATALOG.values()]
+    assert all(40 <= len(description) <= 240 for description in descriptions)
+    assert len(set(descriptions)) == len(descriptions)
+    assert not any('Results distinguish delivery from verified application success' in text for text in descriptions)
+
+
+def test_instructions_mention_device_scope_and_hold():
+    from server.app import INSTRUCTIONS
+
+    assert 'scope device' in INSTRUCTIONS
+    assert 'device_held' in INSTRUCTIONS
+    assert '120 seconds' in INSTRUCTIONS
+
+
 def test_catalog_is_closed_and_has_all_public_routes():
     from Contracts.catalog import CATALOG, validate
     assert len(CATALOG) == 50

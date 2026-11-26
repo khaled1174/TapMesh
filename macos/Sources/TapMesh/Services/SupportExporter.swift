@@ -7,8 +7,8 @@ import UniformTypeIdentifiers
 enum SupportExporter {
     static func export(store: WorkspaceStore) async {
         let panel = NSSavePanel()
-        panel.title = "Export TapMesh Diagnostics"
-        panel.message = "Save app versions, service status, counts, and recent diagnostic references as a local JSON file."
+        panel.title = String(localized: "Export TapMesh Diagnostics")
+        panel.message = String(localized: "Save app versions, service status, counts, and recent diagnostic references as a local JSON file.")
         panel.nameFieldStringValue = "TapMesh-Diagnostics.json"
         panel.allowedContentTypes = [.json]
         panel.allowsOtherFileTypes = false
@@ -42,9 +42,9 @@ enum SupportExporter {
                                            counts: counts, diagnosticEvents: events ?? [], diagnosticsAvailable: events != nil)
                 try report.write(to: destination)
             }.value
-            store.lastAction = "Diagnostic report saved."
+            store.lastAction = String(localized: "Diagnostic report saved.")
         } catch {
-            store.issue = "TapMesh could not save the diagnostic report. Choose a local JSON file and try again."
+            store.issue = String(localized: "TapMesh could not save the diagnostic report. Choose a local JSON file and try again.")
         }
     }
 }

@@ -12,6 +12,8 @@ PARTICULAR PURPOSE. See LICENSE for the full GNU General Public License.
 Third-party components retain their own copyrights and licenses. Packaged
 Python distribution metadata and license files are retained under
 Contents/Resources/Licenses and in the runtime's *.dist-info directories.
+The bundled Sparkle framework and idb_companion licenses are in
+Contents/Resources/Licenses/Sparkle.txt and idb_companion.txt, respectively.
 Apple system frameworks and the user's Xcode installation are not redistributed.
 
 Only the clean implementation under my-version/devicebridge is licensed here.

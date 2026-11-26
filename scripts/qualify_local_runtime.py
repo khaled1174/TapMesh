@@ -95,7 +95,7 @@ def main():
 
         def start():
             return subprocess.Popen([str(python), '-I', '-B', '-m', 'tapmesh_runtime', 'supervise', '--state-dir', str(profile),
-                '--resources', str(resources), '--parent-pid', str(os.getpid())], cwd=root, env=env,
+                '--resources', str(resources), '--parent-pid', str(os.getpid()), '--approval-secret-file'], cwd=root, env=env,
                 stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         process = start()

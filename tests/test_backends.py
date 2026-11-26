@@ -1,6 +1,193 @@
 import pytest
 
 
+@pytest.mark.parametrize(('native_state','cli_reply','expected_error','lock_sources'), [
+    (False, {'passcodeRequired': True}, None, ['native']),
+    (True, {'passcodeRequired': False}, 'protected_action_requires_human', ['native']),
+    (None, {'passcodeRequired': False}, None, ['native', 'cli']),
+    (0, {'passcodeRequired': False}, None, ['native', 'cli']),
+    (None, {'passcodeRequired': 'false'}, 'prerequisite_required', ['native', 'cli']),
+    (None, {'passcodeRequired': 0}, 'prerequisite_required', ['native', 'cli']),
+    (None, [], 'prerequisite_required', ['native', 'cli']),
+])
+async def test_swipe_checks_lock_once_immediately_before_input(tmp_path, native_state, cli_reply, expected_error, lock_sources):
+    from agent.backends import MacBackend
+    from agent.safety import BridgeError
+
+    backend = MacBackend(tmp_path)
+    device = {'device_id': 'ios:fixture', 'native_id': 'fixture', 'backend': 'physical', 'connection_epoch': 1}
+    backend.native_serials[device['device_id']] = 'paired-usb'
+    calls = []
+
+    async def native_lock_state(serial):
+        assert serial == 'paired-usb'
+        calls.append('native')
+        return native_state
+
+    async def cli(args, confirmed_device, **kwargs):
+        assert args == ['device', 'info', 'lockState'] and confirmed_device == device
+        calls.append('cli')
+        return cli_reply
+
+    async def geometry(confirmed_device):
+        calls.append('geometry')
+        return {'orientation': 'portrait', 'logical_size': {'width': 100, 'height': 200}}
+
+    async def input(tool, serial, geometry, targets, arguments, *, guard, on_send, still_unlocked):
+        assert tool == 'swipe' and serial == 'paired-usb' and guard is None
+        calls.append('hid_ready')
+        if not await still_unlocked():
+            raise BridgeError('protected_action_requires_human', 'Device locked')
+        on_send()
+        calls.append('first_hid_report')
+        return {'delivery': 'sent'}
+
+    backend.native_physical.lock_state = native_lock_state
+    backend.native_physical.input = input
+    backend.geometry = geometry
+    backend._dev = cli
+    context = {'sent': True}
+    try:
+        if expected_error:
+            with pytest.raises(BridgeError) as error:
+                await backend._native_input('swipe', device, {}, context)
+            assert (error.value.code, error.value.side_effect_state) == (expected_error, 'not_sent')
+            assert calls == ['geometry', 'hid_ready', *lock_sources]
+            assert context['sent'] is False and not backend.lock_states
+        else:
+            assert await backend._native_input('swipe', device, {}, context) == {'delivery': 'sent'}
+            assert calls == ['geometry', 'hid_ready', *lock_sources, 'first_hid_report']
+            assert context['sent'] is True
+    finally:
+        await backend.close()
+
+
+@pytest.mark.parametrize(('next_epoch','next_serial'), [(2, 'paired-usb'), (1, 'replacement-usb')])
+async def test_old_lock_reply_cannot_authorize_or_replace_a_rebound_device_state(tmp_path, next_epoch, next_serial):
+    import asyncio
+    from agent.backends import MacBackend
+    from agent.safety import BridgeError
+
+    backend = MacBackend(tmp_path)
+    device = {'device_id': 'ios:fixture', 'native_id': 'fixture', 'backend': 'physical', 'connection_epoch': 1}
+    did = device['device_id']
+    backend.native_serials[did] = 'paired-usb'
+    backend.native_epochs[did] = 1
+    started, finish = asyncio.Event(), asyncio.Event()
+
+    async def lock_state(serial):
+        started.set()
+        await finish.wait()
+        return False
+
+    async def unexpected_fallback(*args, **kwargs):
+        raise AssertionError('A superseded read must terminate before trying a different transport')
+
+    backend.native_physical.lock_state = lock_state
+    backend._dev = unexpected_fallback
+    read = asyncio.create_task(backend._read_lock_state(device, 'paired-usb'))
+    try:
+        await asyncio.wait_for(started.wait(), 1)
+        backend.native_epochs[did] = next_epoch
+        backend.native_serials[did] = next_serial
+        replacement = (next_epoch, 123, next_serial)
+        backend.lock_states[did] = replacement
+        finish.set()
+        with pytest.raises(BridgeError) as error:
+            await read
+        assert error.value.code == 'connection_changed'
+        assert backend.lock_states[did] == replacement
+    finally:
+        finish.set()
+        await asyncio.gather(read, return_exceptions=True)
+        await backend.close()
+
+
+@pytest.mark.parametrize('disconnected', [False, True])
+async def test_native_swipe_rejects_changes_after_router_validation(tmp_path, disconnected):
+    from agent.backends import MacBackend
+    from agent.safety import BridgeError
+
+    backend = MacBackend(tmp_path)
+    device = {'device_id': 'ios:fixture', 'native_id': 'fixture', 'backend': 'physical', 'connection_epoch': 1}
+    backend.native_serials[device['device_id']] = 'paired-usb'
+    if disconnected:
+        backend.identities[device['device_id']] = ('absent', 2)
+    calls = []
+
+    async def geometry(_):
+        calls.append('geometry')
+        return {'orientation': 'landscapeLeft', 'logical_size': {'width': 200, 'height': 100}}
+
+    async def unexpected(*args, **kwargs):
+        raise AssertionError('Rotation must be detected before dispatch')
+
+    backend.geometry = geometry
+    backend.native_physical.input = unexpected
+    backend.native_physical.lock_state = unexpected
+    backend._dev = unexpected
+    record = {'public': {'orientation': 'portrait', 'logical_size': {'width': 100, 'height': 200}}}
+    context = {'targets': {'start': (10, 20, record), 'end': (80, 20, record)}, 'sent': True}
+    try:
+        with pytest.raises(BridgeError) as error:
+            await backend._native_input('swipe', device, {}, context)
+        expected = 'connection_changed' if disconnected else 'stale_observation'
+        assert (error.value.code, error.value.side_effect_state) == (expected, 'not_sent')
+        assert calls == ([] if disconnected else ['geometry']) and context['sent'] is False
+    finally:
+        await backend.close()
+
+
+@pytest.mark.parametrize('runtime,expected', [
+    ('com.apple.CoreSimulator.SimRuntime.iOS-18-2', '18.2'),
+    ('com.apple.CoreSimulator.SimRuntime.iOS-26-0', '26.0'),
+    ('com.apple.CoreSimulator.SimRuntime.iOS-18-2-1', '18.2.1'),
+    ('com.apple.CoreSimulator.SimRuntime.iOS-unavailable', None),
+    ('com.apple.CoreSimulator.SimRuntime.tvOS-18-2', None),
+    ('weird', None),
+])
+def test_simulator_os_version(runtime, expected):
+    from agent.backends import simulator_os_version
+    assert simulator_os_version(runtime) == expected
+
+
+async def test_discovery_lists_only_ios_simulators(tmp_path):
+    import json
+    from agent.backends import MacBackend
+    from agent.process import Output
+
+    class DeviceRunner:
+        async def run(self, argv, **kwargs):
+            if argv[:4] == ['xcrun', 'simctl', 'list', 'devices']:
+                runtimes = {
+                    'iOS-18-2': [{'udid': 'phone', 'name': 'iPhone', 'state': 'Booted'}],
+                    'iOS-17-5': [{'udid': 'tablet', 'name': 'iPad', 'state': 'Shutdown'}],
+                    'iOS-16-0': [{'udid': 'missing', 'name': 'iPhone', 'state': 'Shutdown', 'isAvailable': False}],
+                    'watchOS-11-1': [{'udid': 'watch', 'name': 'Watch', 'state': 'Booted'}],
+                    'tvOS-18-2': [{'udid': 'tv', 'name': 'TV', 'state': 'Booted'}],
+                    'xrOS-2-0': [{'udid': 'vision', 'name': 'Vision Pro', 'state': 'Shutdown'}],
+                }
+                devices = {'com.apple.CoreSimulator.SimRuntime.' + family: entries for family, entries in runtimes.items()}
+                return Output(json.dumps({'devices': devices}).encode(), b'', 0)
+            if argv[:4] == ['xcrun', 'devicectl', 'list', 'devices']:
+                return Output(b'{"result":{"devices":[]}}', b'', 0)
+            raise AssertionError(f'Unexpected CLI operation: {argv[:5]}')
+
+        async def close(self):
+            pass
+
+    backend = MacBackend(tmp_path, runner=DeviceRunner())
+    try:
+        for include_all, expected in (
+            (False, {'sim:phone': ('18.2', None)}),
+            (True, {'sim:phone': ('18.2', None), 'sim:tablet': ('17.5', 'simulator_shutdown'), 'sim:missing': ('16.0', 'runtime_missing')}),
+        ):
+            devices = await backend.discover(include_all)
+            assert {device['device_id']: (device['os_version'], device['readiness_code']) for device in devices} == expected
+    finally:
+        await backend.close()
+
+
 class PhysicalCapabilityRunner:
     """Public CLI fixture: list metadata is deliberately less complete than details."""
     def __init__(self, capabilities):
@@ -167,6 +354,7 @@ async def test_physical_epoch_ignores_lazy_transport_dates_but_tracks_availabili
         }}]}
     backend._sim = sim
     backend._dev = dev
+    backend.discovery_ttl = 0
     try:
         epochs = [(await backend.discover(True))[0]['connection_epoch'] for _ in range(5)]
         assert epochs == [1, 1, 2, 3, 4]
@@ -180,6 +368,27 @@ def test_device_normalization_does_not_leak_pairing_identifiers(tmp_path):
     assert device['device_id']=='ios:UUID'
     assert 'SECRET' not in str(device)
     assert device['backend']=='physical'
+
+
+@pytest.mark.parametrize('pairing,developer_mode,boot,connection,code,reason', [
+    ('unpaired', 'disabled', 'booting', 'unavailable', 'unpaired', "This device isn't paired with this Mac."),
+    ('paired', 'disabled', 'booting', 'unavailable', 'developer_mode_off', 'Developer Mode is off on this device.'),
+    ('paired', 'enabled', 'booting', 'unavailable', 'not_booted', "This device hasn't finished starting."),
+    ('paired', 'enabled', 'booted', 'unavailable', 'unavailable', "This device isn't reachable right now."),
+    ('paired', 'enabled', 'booted', 'disconnected', None, None),
+])
+def test_physical_device_readiness_follows_first_applicable_issue(pairing, developer_mode, boot, connection, code, reason):
+    from agent.backends import normalize_physical
+
+    result = normalize_physical({
+        'identifier': 'fixture',
+        'deviceProperties': {'developerModeStatus': developer_mode, 'bootState': boot},
+        'connectionProperties': {'pairingState': pairing, 'tunnelState': connection},
+    }, 1)
+
+    assert result['ready'] is (code is None)
+    assert result['readiness_code'] == code
+    assert result['readiness_reasons'] == ([reason] if reason else [])
 
 
 def test_ax_elements_preserve_source_roles_and_no_ocr_fabrication():
@@ -247,3 +456,26 @@ def test_complete_idb_schema_preserves_canonical_element_identity_and_value():
     assert result[0]['label']=='Name'
     assert result[0]['identifier']=='name-field'
     assert result[0]['value']=='Hello'
+
+
+async def test_discovery_is_shared_briefly_and_refreshed_after_lifecycle_mutations(tmp_path):
+    from agent.backends import MacBackend
+    from agent.process import Output
+    backend = MacBackend(tmp_path)
+    calls = []
+    async def sim(*args, **kwargs):
+        calls.append(args[:2])
+        return Output(b'{"devices":{}}', b'', 0)
+    async def dev(*args, **kwargs):
+        calls.append(tuple(args[0][:2]))
+        return {'devices': []}
+    backend._sim = sim
+    backend._dev = dev
+    try:
+        for _ in range(3): await backend.discover(True)
+        assert len(calls) == 2
+        backend.discovery_cache.clear()
+        await backend.discover(True)
+        assert len(calls) == 4
+    finally:
+        await backend.close()

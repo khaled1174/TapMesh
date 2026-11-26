@@ -7,6 +7,90 @@ import uvicorn
 from test_router import DeviceFixture
 
 
+class ConnectedRequest:
+    async def is_disconnected(self):
+        return False
+
+
+@pytest.mark.parametrize('fails', [False, True])
+async def test_completed_operation_returns_without_a_disconnect_poll(monkeypatch, fails):
+    from agent import app
+
+    monkeypatch.setattr(app, 'DISCONNECT_POLL_SECONDS', 3600)
+    result, error = object(), ValueError('Operation failed')
+
+    async def immediate():
+        if fails:
+            raise error
+        return result
+
+    async with asyncio.timeout(2):
+        if fails:
+            with pytest.raises(ValueError) as raised:
+                await app.run_connected(ConnectedRequest(), immediate())
+            assert raised.value is error
+        else:
+            assert await app.run_connected(ConnectedRequest(), immediate()) is result
+
+
+async def test_disconnect_waits_for_operation_cleanup_and_preserves_its_result(monkeypatch):
+    from agent import app
+
+    monkeypatch.setattr(app, 'DISCONNECT_POLL_SECONDS', 0)
+    cleaning, release = asyncio.Event(), asyncio.Event()
+    cancelled_result = object()
+
+    class DisconnectedRequest:
+        async def is_disconnected(self):
+            return True
+
+    async def operation():
+        try:
+            await asyncio.Future()
+        except asyncio.CancelledError:
+            cleaning.set()
+            await release.wait()
+            return cancelled_result
+
+    async with asyncio.timeout(2), asyncio.TaskGroup() as tasks:
+        call = tasks.create_task(app.run_connected(DisconnectedRequest(), operation()))
+        await cleaning.wait()
+        assert not call.done()
+        release.set()
+    assert call.result() is cancelled_result
+
+
+async def test_repeated_request_cancellation_does_not_interrupt_operation_cleanup(monkeypatch):
+    from agent import app
+
+    monkeypatch.setattr(app, 'DISCONNECT_POLL_SECONDS', 3600)
+    entered, cleaning, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
+    cleaned = False
+
+    async def operation():
+        nonlocal cleaned
+        try:
+            entered.set()
+            await asyncio.Future()
+        finally:
+            cleaning.set()
+            await release.wait()
+            cleaned = True
+
+    async with asyncio.timeout(2), asyncio.TaskGroup() as tasks:
+        call = tasks.create_task(app.run_connected(ConnectedRequest(), operation()))
+        await entered.wait()
+        call.cancel()
+        await cleaning.wait()
+        call.cancel()
+        await asyncio.sleep(0)
+        assert not call.done()
+        release.set()
+        with pytest.raises(asyncio.CancelledError):
+            await call
+        assert cleaned
+
+
 async def test_real_http_disconnect_cascades_through_nas_agent_and_child(tmp_path):
     from agent.app import create_app as agent_app
     from server.app import create_app as server_app
