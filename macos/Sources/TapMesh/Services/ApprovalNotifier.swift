@@ -67,14 +67,21 @@ final class ApprovalNotifier: NSObject, ObservableObject, UNUserNotificationCent
         }
     }
 
+    private func authorizationStatus(from center: UNUserNotificationCenter) async -> Int {
+        await withCheckedContinuation { continuation in
+            center.getNotificationSettings { @Sendable settings in
+                continuation.resume(returning: settings.authorizationStatus.rawValue)
+            }
+        }
+    }
+
     private func authorize(_ center: UNUserNotificationCenter) async -> Bool {
-        let status = await center.notificationSettings().authorizationStatus
-        switch status {
-        case .notDetermined:
+        switch await authorizationStatus(from: center) {
+        case UNAuthorizationStatus.notDetermined.rawValue:
             let granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
             permission = granted ? .allowed : .denied
             return granted
-        case .denied:
+        case UNAuthorizationStatus.denied.rawValue:
             permission = .denied
             return false
         default:
@@ -86,9 +93,9 @@ final class ApprovalNotifier: NSObject, ObservableObject, UNUserNotificationCent
     /// Reads the current permission for Settings without asking for it.
     func refreshPermission() async {
         guard Self.notificationsAvailable else { permission = .unavailable; return }
-        switch await UNUserNotificationCenter.current().notificationSettings().authorizationStatus {
-        case .notDetermined: permission = .notAsked
-        case .denied: permission = .denied
+        switch await authorizationStatus(from: UNUserNotificationCenter.current()) {
+        case UNAuthorizationStatus.notDetermined.rawValue: permission = .notAsked
+        case UNAuthorizationStatus.denied.rawValue: permission = .denied
         default: permission = .allowed
         }
     }
