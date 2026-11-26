@@ -45,7 +45,7 @@ signed drag-to-Applications image from the exact bundle:
   --identity '<Developer ID Application identity>'
 ```
 
-The DMG packager checks the app's Developer ID signature, preserves the input
+The DMG packager verifies the source and copied app signatures in a local cache, preserves the input
 bundle, adds an Applications shortcut and installation instructions, signs the
 image and verifies its integrity. It refuses to overwrite an existing output.
 Submit the DMG itself for notarization and staple the accepted ticket before

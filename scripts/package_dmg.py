@@ -4,8 +4,10 @@
 Does not install, launch, notarize, publish, or modify the input application.
 """
 import argparse
+import os
 from pathlib import Path
 import plistlib
+import shutil
 import subprocess
 import tempfile
 
@@ -29,12 +31,17 @@ def main():
     requirement = ('anchor apple generic and certificate leaf[field.1.2.840.113635.100.6.1.13] exists '
                    'and identifier "io.tapmesh.mac"')
     subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', '-R=' + requirement, str(app)], check=True)
-    with tempfile.TemporaryDirectory(prefix='tapmesh-dmg-', dir=output.parent) as work:
+    # App copies and signing stay in the same local cache as app packaging.
+    # Network output folders can attach metadata that invalidates app seals.
+    cache = Path.home() / 'Library/Caches/TapMesh/dmg-build'
+    cache.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='tapmesh-dmg-', dir=cache) as work:
         payload = Path(work) / 'payload'
         payload.mkdir()
         copied = payload / app.name
         subprocess.run(['/usr/bin/ditto', str(app), str(copied)], check=True)
         require_same_bundle(app, copied)
+        subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', '-R=' + requirement, str(copied)], check=True)
         (payload / 'Applications').symlink_to('/Applications', target_is_directory=True)
         (payload / 'Install TapMesh.txt').write_text(
             'TapMesh ' + info['CFBundleShortVersionString'] + ' Developer Preview\n\n'
@@ -51,8 +58,14 @@ def main():
         subprocess.run(['/usr/bin/codesign', '--verify', '--strict', str(staged)], check=True)
         subprocess.run(['/usr/bin/hdiutil', 'verify', str(staged)], check=True)
         require_same_bundle(app, copied)
-        # Hard-link publication is atomic and refuses a concurrently created output.
-        output.hardlink_to(staged)
+        # Copy only finished image bytes across volumes, without Finder xattrs.
+        # Exclusive creation also refuses an output created concurrently.
+        with staged.open('rb') as source, output.open('xb') as destination:
+            shutil.copyfileobj(source, destination)
+            destination.flush()
+            os.fsync(destination.fileno())
+        subprocess.run(['/usr/bin/codesign', '--verify', '--strict', str(output)], check=True)
+        subprocess.run(['/usr/bin/hdiutil', 'verify', str(output)], check=True)
     print(output)
 
 

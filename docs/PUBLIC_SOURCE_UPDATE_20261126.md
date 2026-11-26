@@ -47,3 +47,10 @@ Validation of the corrected source: 417 Python tests and 28 subtests pass; four
 explicit live opt-ins are skipped. The 139 directly affected tests pass.
 A geometry fixture now replaces the discovery source rather than bypassing
 the real cache/refresh interface. No live device qualification is inferred.
+
+The DMG tooling follow-up keeps app copies and signing in the local build
+cache, validates the copied app seal, and copies only finished image bytes to
+the requested output before revalidating. This packaging-only correction
+does not alter build 25 app/runtime bytes. Its exact tooling source is supplied
+alongside the app's embedded corresponding source. Network-volume behavior
+requires its own host qualification and is not claimed by the local DMG test.
