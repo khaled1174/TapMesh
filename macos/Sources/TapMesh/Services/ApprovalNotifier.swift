@@ -63,7 +63,7 @@ final class ApprovalNotifier: NSObject, ObservableObject, UNUserNotificationCent
         Task {
             // Permission is asked for here, the first time a request actually needs a notification.
             guard await self.authorize(center) else { return }
-            try? await center.add(request)
+            center.add(request, withCompletionHandler: nil)
         }
     }
 
@@ -78,7 +78,11 @@ final class ApprovalNotifier: NSObject, ObservableObject, UNUserNotificationCent
     private func authorize(_ center: UNUserNotificationCenter) async -> Bool {
         switch await authorizationStatus(from: center) {
         case UNAuthorizationStatus.notDetermined.rawValue:
-            let granted = (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+            let granted = await withCheckedContinuation { continuation in
+                center.requestAuthorization(options: [.alert, .sound]) { @Sendable granted, error in
+                    continuation.resume(returning: granted && error == nil)
+                }
+            }
             permission = granted ? .allowed : .denied
             return granted
         case UNAuthorizationStatus.denied.rawValue:

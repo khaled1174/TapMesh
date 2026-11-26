@@ -133,20 +133,24 @@ final class LocalRuntimeController {
     }
 
     private func readEvents(from handle: FileHandle, launchID id: UUID, profile: URL) {
-        DispatchQueue.global(qos: .utility).async { [weak self] in
+        let receive: @MainActor @Sendable (Data) -> Bool = { [weak self] line in
+            self?.receivedLine(line, launchID: id, expectedProfile: profile) ?? false
+        }
+        let finish: @MainActor @Sendable (any Error) -> Void = { [weak self] error in
+            self?.endedReading(error, launchID: id)
+        }
+        DispatchQueue.global(qos: .utility).async {
             defer { try? handle.close() }
             var reader = RuntimeReadinessLine()
             do {
                 while true {
                     let line = try reader.next(from: handle)
                     // Process one event before reading the next so coalesced records keep their order.
-                    let keepReading = DispatchQueue.main.sync {
-                        self?.receivedLine(line, launchID: id, expectedProfile: profile) ?? false
-                    }
+                    let keepReading = DispatchQueue.main.sync { receive(line) }
                     guard keepReading else { return }
                 }
             } catch {
-                DispatchQueue.main.async { [weak self] in self?.endedReading(error, launchID: id) }
+                DispatchQueue.main.async { finish(error) }
             }
         }
     }
