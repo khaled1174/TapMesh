@@ -3,8 +3,10 @@ import asyncio
 import base64
 from copy import deepcopy
 from datetime import datetime, timezone
+import errno
 import io
 import json
+import logging
 import math
 import os
 from pathlib import Path
@@ -12,6 +14,7 @@ import plistlib
 import re
 import shutil
 import signal
+import stat
 import sys
 import tempfile
 import time
@@ -20,14 +23,70 @@ import zipfile
 from urllib.parse import urlsplit
 from PIL import Image
 from Contracts.catalog import CATALOG
+from .native_physical import NativePhysical, locked_input_error
 from .process import Runner, minimal_environment
 from .safety import BridgeError, utcnow
+
+DISCOVERY_TTL_SECONDS=1.0
+LOCK_STATE_TTL_SECONDS=1.0
+FRESH_GESTURE_TOOLS={'swipe','drag','pinch'}
+IOS_SIMULATOR_RUNTIME_PREFIX='com.apple.CoreSimulator.SimRuntime.iOS-'
+LANDSCAPE_ORIENTATIONS={'landscapeLeft','landscapeRight','landscape_left','landscape_right'}
+PORTRAIT_ORIENTATIONS={'portrait','portraitUpsideDown','portrait_upside_down'}
+logger=logging.getLogger(__name__)
+
+
+def simulator_os_version(runtime_id: str) -> str | None:
+    if not runtime_id.startswith(IOS_SIMULATOR_RUNTIME_PREFIX): return None
+    version=runtime_id.removeprefix(IOS_SIMULATOR_RUNTIME_PREFIX)
+    return version.replace('-','.') if re.fullmatch(r'[0-9]+(?:-[0-9]+){1,2}',version) else None
+
+
+def prune_derived_build_data(root):
+    cutoff=time.time()-7*86400
+    try:
+        directory=os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    except OSError as exc:
+        if exc.errno not in {errno.ENOENT,errno.ENOTDIR,errno.ELOOP}:
+            logger.warning('Could not open the build cache for cleanup: %s',type(exc).__name__)
+        return
+    try:
+        for name in os.listdir(directory):
+            if not re.fullmatch('[0-9a-f]{32}',name): continue
+            try:
+                entry=os.stat(name,dir_fd=directory,follow_symlinks=False)
+                if stat.S_ISDIR(entry.st_mode) and entry.st_mtime<cutoff:
+                    shutil.rmtree(name,dir_fd=directory)
+            except FileNotFoundError:
+                continue
+            except OSError as exc:
+                logger.warning('Could not remove an old derived build folder: %s',type(exc).__name__)
+    except OSError as exc:
+        logger.warning('Could not list the build cache for cleanup: %s',type(exc).__name__)
+    finally:
+        os.close(directory)
 
 
 def normalize_physical(raw, epoch):
     p=raw.get('properties',{}); hw=p.get('hardware',raw.get('hardwareProperties',{})); state=p.get('state',raw.get('deviceProperties',{})); connection=p.get('connection',raw.get('connectionProperties',{}))
-    ready=connection.get('pairingState')=='paired' and connection.get('state',connection.get('tunnelState')) not in {'unavailable','unpaired'} and state.get('bootState','booted')=='booted'
-    return {'device_id':'ios:'+raw['identifier'],'native_id':raw['identifier'],'name':state.get('name','iOS device'),'backend':'physical','model':hw.get('marketingName',hw.get('productType','unknown')),'os_version':p.get('software',{}).get('osVersionNumber',{}).get('stringValue',state.get('osVersionNumber','unknown')),'ready':ready,'readiness_reasons':[] if ready else ['Device unavailable, unpaired or not booted; trust and Developer Mode may be required'],'connection_epoch':epoch,'connection_state':connection.get('state',connection.get('tunnelState','unknown'))}
+    connection_state=connection.get('state',connection.get('tunnelState','unknown'))
+    if connection.get('pairingState')!='paired':
+        code,reason='unpaired',"This device isn't paired with this Mac."
+    elif state.get('developerModeStatus')=='disabled':
+        code,reason='developer_mode_off','Developer Mode is off on this device.'
+    elif state.get('bootState','booted')!='booted':
+        code,reason='not_booted',"This device hasn't finished starting."
+    elif connection_state in {'unavailable','unpaired'}:
+        code,reason='unavailable',"This device isn't reachable right now."
+    else:
+        code,reason=None,None
+    return {
+        'device_id':'ios:'+raw['identifier'],'native_id':raw['identifier'],'name':state.get('name','iOS device'),
+        'backend':'physical','model':hw.get('marketingName',hw.get('productType','unknown')),
+        'os_version':p.get('software',{}).get('osVersionNumber',{}).get('stringValue',state.get('osVersionNumber','unknown')),
+        'ready':code is None,'readiness_code':code,'readiness_reasons':[reason] if reason else [],
+        'connection_epoch':epoch,'connection_state':connection_state,
+    }
 
 
 def normalize_ax(raw, include_invisible=False, logical_size=None):
@@ -53,8 +112,8 @@ def display_geometry(raw):
         orientation=display.get('orientation') or state.get('currentDeviceOrientation','unknown')
         if orientation in {'faceUp','faceDown','face_up','face_down','unknown'}:
             orientation=state.get('currentDeviceNonFlatOrientation',orientation)
-        landscape=orientation in {'landscapeLeft','landscapeRight','landscape_left','landscape_right'}
-        portrait=orientation in {'portrait','portraitUpsideDown','portrait_upside_down'}
+        landscape=orientation in LANDSCAPE_ORIENTATIONS
+        portrait=orientation in PORTRAIT_ORIENTATIONS
         def result(width,height,**metadata):
             # Apple display bounds can retain framebuffer axes after rotation.
             # Align them using explicit orientation, including the non-flat
@@ -74,8 +133,8 @@ def display_geometry(raw):
 class MacBackend:
     def __init__(self, state_dir, *, runner=None):
         self.state=Path(state_dir).expanduser().resolve(); self.state.mkdir(parents=True,exist_ok=True,mode=0o700)
+        prune_derived_build_data(self.state/'builds')
         self.runner=runner or Runner(); self.native_lock=asyncio.Lock(); self.native_serials={}
-        from .native_physical import NativePhysical
         self.native_physical=NativePhysical()
         self.companion_path=os.environ.get('TAPMESH_IDB_COMPANION')
         idb=Path(sys.executable).with_name('idb'); self.idb_path=str(idb) if idb.exists() else shutil.which('idb')
@@ -85,9 +144,13 @@ class MacBackend:
         self.socket_root=Path(tempfile.mkdtemp(prefix='tapmesh-')); os.chmod(self.socket_root,0o700)
         self.companions={}; self.companion_locks={}; self.identities={}; self.recordings={}; self.crashes={}; self.health={}; self.discovery_lock=asyncio.Lock()
         self.physical_recording_capabilities={}
-        self.physical_text_preflights={}
-        from .text_frame_guard import FrameAnchors
-        self.frame_anchors=FrameAnchors()
+        # Physical input safety keeps exactly one check: the device lock. A
+        # confirmed-unlocked read is reused briefly and refreshed in the
+        # background; locked or unknown results are never cached.
+        self.lock_states={}; self.lock_refreshes={}; self.native_epochs={}
+        # Router calls discover several times per request; one short-lived
+        # result serves them. Any non-input mutation invalidates it.
+        self.discovery_cache={}; self.discovery_ttl=DISCOVERY_TTL_SECONDS
     async def close(self):
         async def finalize(recording):
             try: await self._stop_recording(recording)
@@ -98,9 +161,12 @@ class MacBackend:
         except TimeoutError: pass
         finally:
             self.companions.clear()
-            self.physical_text_preflights.clear();self.frame_anchors.clear()
-            try: await self.runner.close()
-            finally: shutil.rmtree(self.socket_root,ignore_errors=True)
+            for task in self.lock_refreshes.values(): task.cancel()
+            self.lock_refreshes.clear(); self.lock_states.clear(); self.discovery_cache.clear()
+            try: await self.native_physical.aclose()
+            finally:
+                try: await self.runner.close()
+                finally: shutil.rmtree(self.socket_root,ignore_errors=True)
     def _epoch(self, did, fingerprint):
         old=self.identities.get(did)
         epoch=1 if old is None else old[1]+(old[0]!=fingerprint)
@@ -158,6 +224,9 @@ class MacBackend:
     async def _sim(self, *args, mutation=False, timeout=30, input=None, env=None, check=True):
         return await self.runner.run(['xcrun','simctl',*args],timeout=timeout,input=input,env=env,mutation=mutation,check=check)
     async def _dev(self, args, device=None, *, mutation=False, timeout=30, input=None):
+        # Read-only queries (discovery, lock state, displays, screenshots) never
+        # queue behind each other or behind a long mutation such as an install.
+        if not mutation: return await self._dev_serialized(args,device,timeout=timeout,input=input)
         async with self.native_lock:
             return await self._dev_serialized(args,device,mutation=mutation,timeout=timeout,input=input)
     async def _dev_serialized(self, args, device=None, *, mutation=False, timeout=30, input=None):
@@ -171,44 +240,68 @@ class MacBackend:
         output=await self.runner.run(argv,timeout=timeout+2,input=input,mutation=mutation)
         try: return json.loads(output.stdout).get('result',{})
         except (ValueError,AttributeError) as exc: raise BridgeError('backend_failure','Apple backend returned invalid structured output',side_effect_state='unknown' if mutation else 'not_sent') from exc
-    async def discover(self, include_all=False):
+    async def refresh_discovery(self, include_all=False):
+        # Post-send validation must bypass even a cache populated by a discovery
+        # that was already in flight when the input completed.
+        return await self.discover(include_all, fresh=True)
+    async def discover(self, include_all=False, *, fresh=False):
+        cached=self.discovery_cache.get(include_all)
+        if not fresh and cached and time.monotonic()<cached[0]: return deepcopy(cached[1])
         async with self.discovery_lock:
-            results=[]; seen=set()
-            try:
-                raw=json.loads((await self._sim('list','devices','--json')).stdout)
-                self.health['simctl']='available'
-                for runtime,devices in raw.get('devices',{}).items():
-                    for item in devices:
-                        did='sim:'+item['udid']; seen.add(did); ready=item.get('state')=='Booted'
-                        epoch=self._epoch(did,(item.get('state'),item.get('lastBootedAt'),item.get('isAvailable')))
-                        if not include_all and not ready: continue
-                        device={'device_id':did,'native_id':item['udid'],'name':item['name'],'backend':'simulator','runtime_id':runtime,'ready':ready,'readiness_reasons':[] if ready else ['Simulator is not booted'] if item.get('isAvailable',True) else ['Required simulator runtime is unavailable'],'connection_epoch':epoch,'state':item.get('state'),'os_version':runtime.rsplit('SimRuntime.',1)[-1].replace('-',' ')}
-                        device['capabilities']=self.capabilities('simulator',ready); results.append(device)
-            except (BridgeError,ValueError): self.health['simctl']='unavailable'
-            try:
-                raw=await self._dev(['list','devices'],timeout=10)
-                self.health['devicectl']='available'
-                for item in raw.get('devices',[]):
-                    hw=item.get('properties',{}).get('hardware',item.get('hardwareProperties',{}))
-                    if hw.get('reality')=='simulated' or hw.get('platform') not in {'iOS','iPadOS'}: continue
-                    did='ios:'+item['identifier']; seen.add(did)
-                    if hw.get('udid'): self.native_serials[did]=hw['udid']
-                    connection=item.get('properties',{}).get('connection',item.get('connectionProperties',{}))
-                    state=connection.get('state',connection.get('tunnelState'))
-                    # A paired network device's transport is connected lazily for
-                    # each public command. Ordinary tunnel teardown is not a device
-                    # reconnection; unavailable/paired identity transitions are.
-                    boot=item.get('properties',{}).get('state',item.get('deviceProperties',{})).get('bootState')
-                    epoch=self._epoch(did,(hw.get('udid'),connection.get('pairingState'),state=='unavailable',boot))
-                    device=normalize_physical(item,epoch); device['capabilities']=self.capabilities('physical',device['ready'])
-                    device['capabilities']['screen.record']=await self._physical_recording_capability(device)
-                    results.append(device)
-            except (BridgeError,ValueError): self.health['devicectl']='unavailable'
-            for did,(fingerprint,epoch) in list(self.identities.items()):
-                if did not in seen and fingerprint!='absent': self.identities[did]=('absent',epoch+1)
-            for did in self.physical_recording_capabilities.keys()-seen:
-                self.physical_recording_capabilities.pop(did)
+            cached=self.discovery_cache.get(include_all)
+            if not fresh and cached and time.monotonic()<cached[0]: return deepcopy(cached[1])
+            results=await self._discover(include_all)
+            if self.discovery_ttl>0: self.discovery_cache[include_all]=(time.monotonic()+self.discovery_ttl,deepcopy(results))
             return results
+    async def _discover(self, include_all):
+        results=[]; seen=set()
+        try:
+            raw=json.loads((await self._sim('list','devices','--json')).stdout)
+            self.health['simctl']='available'
+            for runtime,devices in raw.get('devices',{}).items():
+                if not runtime.startswith(IOS_SIMULATOR_RUNTIME_PREFIX): continue
+                version=simulator_os_version(runtime)
+                for item in devices:
+                    did='sim:'+item['udid']; seen.add(did)
+                    available=item.get('isAvailable',True)
+                    ready=item.get('state')=='Booted' and available
+                    epoch=self._epoch(did,(item.get('state'),item.get('lastBootedAt'),available))
+                    if not include_all and not ready: continue
+                    code=None if ready else 'simulator_shutdown' if available else 'runtime_missing'
+                    reasons=[] if ready else ['Simulator is not booted' if available else 'Required simulator runtime is unavailable']
+                    device={'device_id':did,'native_id':item['udid'],'name':item['name'],'backend':'simulator','runtime_id':runtime,'ready':ready,'readiness_code':code,'readiness_reasons':reasons,'connection_epoch':epoch,'state':item.get('state'),'os_version':version}
+                    device['capabilities']=self.capabilities('simulator',ready); results.append(device)
+        except (BridgeError,ValueError): self.health['simctl']='unavailable'
+        try:
+            raw=await self._dev(['list','devices'],timeout=10)
+            self.health['devicectl']='available'
+            for item in raw.get('devices',[]):
+                properties=item.get('properties',{})
+                hw=properties.get('hardware',item.get('hardwareProperties',{}))
+                if hw.get('reality')=='simulated' or hw.get('platform') not in {'iOS','iPadOS'}: continue
+                did='ios:'+item['identifier']; seen.add(did)
+                if hw.get('udid'): self.native_serials[did]=hw['udid']
+                connection=properties.get('connection',item.get('connectionProperties',{}))
+                state=connection.get('state',connection.get('tunnelState'))
+                # A paired network device's transport is connected lazily for
+                # each public command. Ordinary tunnel teardown is not a device
+                # reconnection; unavailable/paired identity transitions are.
+                device_state=properties.get('state',item.get('deviceProperties',{}))
+                dev_mode_off=device_state.get('developerModeStatus')=='disabled'
+                epoch=self._epoch(did,(hw.get('udid'),connection.get('pairingState'),state in {'unavailable','unpaired'},device_state.get('bootState'),dev_mode_off))
+                device=normalize_physical(item,epoch); device['capabilities']=self.capabilities('physical',device['ready'])
+                device['capabilities']['screen.record']=await self._physical_recording_capability(device)
+                results.append(device)
+        except (BridgeError,ValueError): self.health['devicectl']='unavailable'
+        for did,(fingerprint,epoch) in list(self.identities.items()):
+            if did not in seen and fingerprint!='absent': self.identities[did]=('absent',epoch+1)
+        for did in self.physical_recording_capabilities.keys()-seen:
+            self.physical_recording_capabilities.pop(did)
+        # A disconnected device or a new connection epoch ends its input session.
+        for did,epoch in list(self.native_epochs.items()):
+            if did not in seen or self.identities.get(did,(None,None))[1]!=epoch:
+                await self._close_native(did)
+        return results
     async def _companion(self, device):
         if not self.companion_path or not self.idb_path: raise BridgeError('prerequisite_required','Configure the qualified idb client and companion')
         udid=device['native_id']
@@ -260,6 +353,13 @@ class MacBackend:
             except BridgeError: pass
             if orientation.startswith('landscape') and width<height: width,height=height,width
             return {'logical_size':{'width':width,'height':height},'orientation':orientation,'density':dimensions.get('density',1)}
+        serial=self.native_serials.get(device['device_id'])
+        if serial:
+            await self._bind_native_epoch(device,serial)
+            raw=await self.native_physical.display_info(serial)
+            if raw is not None:
+                try: return display_geometry(raw)
+                except BridgeError: pass
         raw=await self._dev(['device','info','displays'],device)
         return display_geometry(raw)
     async def modal(self, device):
@@ -283,135 +383,178 @@ class MacBackend:
         serial=self.native_serials.get(device['device_id'])
         if not serial: raise BridgeError('prerequisite_required','Public device discovery did not expose an explicit native serial binding')
         return serial
-    async def sensitive_state(self, device):
-        if device['backend']!='physical': return {'state':'unknown','reason':'Use simulator accessibility secure-field inspection'}
-        serial=self._native_serial(device)
-        lock=await self._dev(['device','info','lockState'],device)
-        required=lock.get('passcodeRequired')
-        did=device['device_id']
-        if required is not False:
-            self.physical_text_preflights.pop(did,None)
-            from .native_physical import classify_sensitivity
-            return classify_sensitivity(required if isinstance(required,bool) else None,[])
-        from .native_physical import frame_hash,frame_unavailable
-        capture=await self._raw_screenshot(device)
-        cached=self.physical_text_preflights.pop(did,None)
-        if frame_unavailable(capture):return {'state':'unknown','reason':'Device display is unavailable'}
-        binding=(device['connection_epoch'],serial,frame_hash(capture))
-        if cached and cached['binding']==binding and time.monotonic()<cached['expires']:
-            self.physical_text_preflights[did]=cached
-            return deepcopy(cached['advisory'])
-        # AX traversal may scroll the viewport. Preserve its completed advisory
-        # only for that exact resulting frame, briefly, so a caller can obtain
-        # new coordinates without repeating the same disruptive inspection.
-        async with self.native_lock:
-            advisory=await self.native_physical.sensitive_state(serial,locked=False)
-        if advisory.get('state') in {'clear','unqualified'}:
-            inspected=await self._raw_screenshot(device)
-            advisory={**advisory,'_inspection_expires':time.monotonic()+10}
-            # A changed viewport is not proof that the preceding labels belong
-            # to the resulting image. Only an unchanged before/after pair may
-            # supply a reusable advisory; changed inspections remain uncached.
-            if not frame_unavailable(inspected) and frame_hash(inspected)==binding[2]:
-                advisory={**advisory,'_frame_pixel_sha256':binding[2]}
-                self.physical_text_preflights[did]={'binding':(device['connection_epoch'],serial,advisory['_frame_pixel_sha256']),
-                                                   'expires':advisory['_inspection_expires'],'advisory':deepcopy(advisory)}
-                self.frame_anchors.put('preflight',did,device['connection_epoch'],binding[2],inspected)
-        return advisory
+    async def _close_native(self, did):
+        self.native_epochs.pop(did,None); self.lock_states.pop(did,None)
+        serial=self.native_serials.get(did)
+        if serial: await self.native_physical.close_device(serial)
+    async def _bind_native_epoch(self, device, serial):
+        # Epochs only grow; a request bound to an older epoch never tears down
+        # the newer connection's session (the router rejects it separately).
+        did=device['device_id']; epoch=device['connection_epoch']; bound=self.native_epochs.get(did)
+        if bound is not None and epoch<bound: return
+        if bound is not None and epoch>bound: await self._close_native(did)
+        self.native_epochs[did]=epoch
+    def _check_native_binding(self, device, serial):
+        did=device['device_id']; epoch=device['connection_epoch']
+        discovered=self.identities.get(did)
+        if (self.native_epochs.get(did)!=epoch or self.native_serials.get(did)!=serial
+                or discovered is not None and (discovered[0]=='absent' or discovered[1]!=epoch)):
+            raise BridgeError('connection_changed','The physical device connection changed before input')
+    async def _read_lock_state(self, device, serial):
+        did=device['device_id']; epoch=device['connection_epoch']; started=time.monotonic()
+        self._check_native_binding(device,serial)
+        try:
+            required=await self.native_physical.lock_state(serial)
+            self._check_native_binding(device,serial)
+            if type(required) is not bool:
+                lock=await self._dev(['device','info','lockState'],device,timeout=10)
+                self._check_native_binding(device,serial)
+                required=lock.get('passcodeRequired') if isinstance(lock,dict) else None
+        except BaseException:
+            if self.native_epochs.get(did)==epoch and self.native_serials.get(did)==serial:
+                self.lock_states.pop(did,None)
+            raise
+        if required is False:
+            self.lock_states[did]=(epoch,started,serial); return True
+        self.lock_states.pop(did,None)
+        # Touches or keys on a locked device can enter passcode digits, and
+        # repeated wrong passcodes can disable or erase it.
+        if required is True: return False
+        raise BridgeError('prerequisite_required','TapMesh could not verify the device lock state')
+    async def _require_unlocked(self, device, serial, *, refresh=True):
+        self._check_native_binding(device,serial)
+        did=device['device_id']; now=time.monotonic(); cached=self.lock_states.get(did)
+        if cached and cached[0]==device['connection_epoch'] and cached[2]==serial and now-cached[1]<LOCK_STATE_TTL_SECONDS:
+            if refresh and now-cached[1]>=LOCK_STATE_TTL_SECONDS/2:
+                running=self.lock_refreshes.get(did)
+                if not running or running.done():
+                    async def refresh_lock(snapshot=dict(device)):
+                        try: await self._read_lock_state(snapshot,serial)
+                        except Exception: pass
+                    self.lock_refreshes[did]=asyncio.create_task(refresh_lock())
+            return
+        if not await self._read_lock_state(device,serial): raise locked_input_error()
     async def _native_input(self, tool, device, args, context):
         # The router dispatch flag is refined here to the first actual native
-        # input or explicit clipboard write, not tunnel/media setup.
+        # input or explicit clipboard write, not transport/media setup.
         context['sent']=False
-        lock=await self._dev(['device','info','lockState'],device)
-        if lock.get('passcodeRequired') is True:raise BridgeError('protected_action_requires_human','Confirm the unlocked app on the device before control')
-        if lock.get('passcodeRequired') is not False:raise BridgeError('prerequisite_required','Native lock state is unavailable; no input was sent')
-        geometry=await self.geometry(device)
         serial=self._native_serial(device)
-        from .native_physical import frame_unavailable
-        from .text_frame_guard import TextFrameCheck
-        current_capture=await self._raw_screenshot(device)
-        if frame_unavailable(current_capture):raise BridgeError('prerequisite_required','Device display is black or unavailable; confirm the unlocked app manually')
+        await self._bind_native_epoch(device,serial)
+        fresh_checks=context.get('in_batch',False) or tool in FRESH_GESTURE_TOOLS or tool in {'type_text','fill','double_tap','long_press'}
+        self._check_native_binding(device,serial)
+        # Motion gestures already check immediately before the first HID report
+        # and during a long gesture. A check before geometry adds no protection.
+        if tool not in FRESH_GESTURE_TOOLS:
+            await self._require_unlocked(device,serial,refresh=not fresh_checks)
+        geometry=await self.geometry(device)
+        self._check_native_binding(device,serial)
         targets=context.get('targets',{})
-        check=TextFrameCheck(self.frame_anchors,tool,device,geometry,args,context)
-        proof=await check.verify(current_capture)
-        def fresh():
-            expires=(context.get('sensitive_state') or {}).get('_inspection_expires')
-            if expires is not None and time.monotonic()>=expires:
-                self.physical_text_preflights.pop(device['device_id'],None)
-                raise BridgeError('prerequisite_required','Text inspection expired during input setup; inspect again')
-            if any(t[2].get('at') is not None and time.monotonic()-t[2]['at']>30 for t in targets.values()):
-                self.physical_text_preflights.pop(device['device_id'],None)
-                raise BridgeError('stale_observation','Target observation expired during input setup')
-        fresh()
-        async def guard(rsd):
-            nonlocal proof
-            # native_lock is already held. Use the serialized CLI directly;
-            # reacquiring its lock here would deadlock before any input.
-            latest_lock=await self._dev_serialized(['device','info','lockState'],device)
-            if latest_lock.get('passcodeRequired') is True:
-                self.physical_text_preflights.pop(device['device_id'],None)
-                raise BridgeError('protected_action_requires_human','Device locked during input setup')
-            if latest_lock.get('passcodeRequired') is not False:
-                raise BridgeError('prerequisite_required','Native lock state is unavailable; no input was sent')
-            fresh()
-            latest_geometry=display_geometry(await self._dev_serialized(['device','info','displays'],device))
-            if any(latest_geometry.get(key)!=geometry.get(key) for key in ('logical_size','orientation')):
-                raise BridgeError('stale_observation','Display geometry changed during input setup')
-            latest=await self._raw_screenshot(device,serialized=True)
-            if frame_unavailable(latest):raise BridgeError('prerequisite_required','Device display became unavailable')
-            proof=await check.verify(latest)
-            fresh()
-        def on_send():
-            self.physical_text_preflights.pop(device['device_id'],None)
-            self.frame_anchors.clear_device(device['device_id'])
-            context['sent']=True
+        for _,_,record in targets.values():
+            if record is None: continue
+            public=record['public']
+            size=public.get('logical_size'); orientation=public.get('orientation','unknown')
+            if ((size is not None and size!=geometry['logical_size'])
+                    or (orientation!='unknown' and orientation!=geometry.get('orientation'))):
+                raise BridgeError('stale_observation','The display changed before native input. Capture the screen again.')
+        async def guard():
+            # Runs after transport/media are ready, immediately before the first
+            # report. Normally a cached read; it never captures the screen.
+            await self._require_unlocked(device,serial)
+        async def still_unlocked():
+            pending=self.lock_refreshes.get(device['device_id'])
+            if pending and not pending.done():
+                # Let an earlier background read settle before the fresh read
+                # so it cannot restore an outdated unlocked cache entry.
+                await asyncio.shield(pending)
+            return await self._read_lock_state(device,serial)
+        def on_send(): context['sent']=True
         try:
-            async with self.native_lock:
-                result=await self.native_physical.input(tool,serial,geometry,targets,args,guard=guard,on_send=on_send,text_context=context.get('sensitive_state'))
-                if tool=='fill':result['target_validation']=proof
-                return result
-        except BaseException:
-            self.physical_text_preflights.pop(device['device_id'],None)
+            return await self.native_physical.input(tool,serial,geometry,targets,args,guard=None if fresh_checks else guard,on_send=on_send,still_unlocked=still_unlocked if fresh_checks else None)
+        except BridgeError as exc:
+            did=device['device_id']
+            if (exc.code not in {'protected_action_requires_human','invalid_arguments','unsupported_capability','stale_observation'}
+                    and self.native_epochs.get(did)==device['connection_epoch'] and self.native_serials.get(did)==serial):
+                self.lock_states.pop(did,None)
             raise
-    async def _raw_screenshot(self, device, *, serialized=False):
+    async def live(self, device):
+        """A read-only viewer of a wired physical device's live video stream
+        (the stream screenshots and touch already use). Simulators and network
+        devices have no persistent stream."""
+        serial=self.native_serials.get(device['device_id']) if device['backend']=='physical' else None
+        if not serial: raise BridgeError('live_unavailable','Live video needs a USB-connected physical device; use screenshots')
+        await self._bind_native_epoch(device,serial)
+        subscriber=await self.native_physical.subscribe(serial)
+        if subscriber is None: raise BridgeError('live_unavailable','The device video stream is unavailable; use screenshots',retryable=True)
+        return subscriber
+    async def _capture(self, device):
+        if device['backend']=='physical':
+            serial=self.native_serials.get(device['device_id'])
+            if serial:
+                await self._bind_native_epoch(device,serial)
+                content=await self.native_physical.screenshot(serial)
+                # A live-stream frame arrives decoded; a capture-service frame as PNG.
+                if isinstance(content,Image.Image): return content,'coredevice_stream'
+                if content is not None and len(content)<=32*1024*1024: return content,'coredevice'
         with tempfile.TemporaryDirectory(prefix='tapmesh-capture-',dir=self.state) as directory:
             path=Path(directory)/'capture.png'
             if device['backend']=='simulator': await self._sim('io',device['native_id'],'screenshot','--type=png',str(path))
-            else: await (self._dev_serialized if serialized else self._dev)(['device','capture','screenshot','--destination',str(path)],device)
+            else: await self._dev(['device','capture','screenshot','--destination',str(path)],device)
             if not path.is_file() or path.stat().st_size>32*1024*1024: raise BridgeError('backend_failure','Invalid screenshot artifact')
-            return path.read_bytes()
+            return path.read_bytes(),'simctl' if device['backend']=='simulator' else 'devicectl'
     async def _screenshot(self, tool, device, args, context):
-        raw=await self._raw_screenshot(device)
-        from .native_physical import frame_hash
-        content_hash=frame_hash(raw) if device['backend']=='physical' else None
-        image=Image.open(io.BytesIO(raw)); image.load()
-        try: geometry=await self.geometry(device)
-        except BridgeError:
-            if tool=='take_screenshot' and device['backend']=='physical':
-                # View-only frames expose pixel geometry, explicitly unsuitable
-                # for input; physical input capability is unsupported in this profile.
-                geometry={'logical_size':{'width':image.width,'height':image.height},'orientation':'unknown','geometry_source':'image_pixels_only','input_geometry_qualified':False}
-            else: raise
-        if geometry.get('density'):
+        async def current_geometry():
+            try: return await self.geometry(device)
+            except BridgeError as exc: return exc
+        # The frame and its display geometry are read concurrently.
+        (raw,source),geometry=await asyncio.gather(self._capture(device),current_geometry())
+        physical=device['backend']=='physical'
+        if isinstance(geometry,BridgeError) and (tool!='take_screenshot' or not physical):
+            raise geometry
+        orientation=geometry['orientation'] if not isinstance(geometry,BridgeError) else 'unknown'
+        image_format=args.get('format','jpeg' if tool=='take_screenshot' else 'png')
+        def encode():
+            if isinstance(raw,Image.Image): image=raw.copy()
+            else: image=Image.open(io.BytesIO(raw)); image.load()
+            source_size=image.size
+            # The frame and native metadata can straddle a rotation. A rotated
+            # image cannot establish device coordinates until the reads agree.
+            orientation_mismatch=physical and (
+                orientation in LANDSCAPE_ORIENTATIONS and image.width<image.height
+                or orientation in PORTRAIT_ORIENTATIONS and image.width>image.height
+            )
+            if orientation_mismatch and tool=='take_screenshot':
+                raise BridgeError('stale_observation','The screenshot and display orientation do not match. Capture again after rotation settles.',retryable=True)
+            if tool=='take_screenshot':
+                maximum=args.get('max_width',1280)
+                if image.width>maximum: image.thumbnail((maximum,16384))
+            elif not args.get('full_resolution',True): image.thumbnail((1280,16384))
+            if image_format=='jpeg': image=image.convert('RGB')
+            output=io.BytesIO()
+            options={'quality':round(args.get('quality',.8)*100)} if image_format=='jpeg' else {}
+            image.save(output,format='JPEG' if image_format=='jpeg' else 'PNG',**options)
+            encoded=output.getvalue()
+            if len(encoded)>8*1024*1024: raise BridgeError('backend_failure','Encoded screenshot exceeds 8 MiB; request a smaller image')
+            if tool=='take_screenshot': encoded=base64.b64encode(encoded).decode()
+            return source_size,image.size,encoded,orientation_mismatch
+        source_size,image_size,encoded,orientation_mismatch=await asyncio.to_thread(encode)
+        if isinstance(geometry,BridgeError):
+            # A physical screenshot without known display geometry is view-only.
+            geometry={'logical_size':{'width':source_size[0],'height':source_size[1]},'orientation':'unknown','geometry_source':'image_pixels_only','input_geometry_qualified':False}
+        if not orientation_mismatch and geometry.get('density'):
             expected=(round(geometry['logical_size']['width']*geometry['density']),round(geometry['logical_size']['height']*geometry['density']))
-            if image.size!=expected and image.size==tuple(reversed(expected)):
+            if source_size!=expected and source_size==tuple(reversed(expected)):
                 logical=geometry['logical_size']; logical['width'],logical['height']=logical['height'],logical['width']
-        if tool=='take_screenshot':
-            maximum=args.get('max_width',1280)
-            if image.width>maximum: image.thumbnail((maximum,16384))
-        elif not args.get('full_resolution',True): image.thumbnail((1280,16384))
-        format=args.get('format','jpeg' if tool=='take_screenshot' else 'png')
-        if format=='jpeg': image=image.convert('RGB')
-        output=io.BytesIO(); image.save(output,format='JPEG' if format=='jpeg' else 'PNG',**({'quality':round(args.get('quality',.8)*100)} if format=='jpeg' else {}))
-        encoded=output.getvalue()
-        if len(encoded)>8*1024*1024: raise BridgeError('backend_failure','Encoded screenshot exceeds 8 MiB; request a smaller image')
         router=context['router']
-        observation=router.observations.issue(context['session_id'],device['device_id'],device['connection_epoch'],geometry['logical_size'],image.size,'simctl' if device['backend']=='simulator' else 'devicectl',orientation=geometry['orientation'])
-        if content_hash: observation['frame_pixel_sha256']=content_hash
-        if content_hash:self.frame_anchors.put('session:'+context['session_id'],device['device_id'],device['connection_epoch'],content_hash,raw)
-        if geometry.get('input_geometry_qualified') is False: observation.update(input_geometry_qualified=False,geometry_source='image_pixels_only')
-        if tool=='take_screenshot': return {**observation,'image':{'mime_type':'image/jpeg' if format=='jpeg' else 'image/png','data':base64.b64encode(encoded).decode()},'requested_max_width':args.get('max_width',1280),'effective_width':image.width}
-        artifact=router.artifacts.write(encoded,'screenshot','.'+format,device['device_id'],device['connection_epoch'],destination=args.get('destination'),filename=args.get('filename'))
+        if orientation_mismatch:
+            # Saving only needs the pixels. Return their dimensions without
+            # registering an observation that an input could target.
+            observation={'source':source,'image_size':dict(zip(('width','height'),image_size)),
+                         'input_geometry_qualified':False}
+        else:
+            observation=router.observations.issue(context['session_id'],device['device_id'],device['connection_epoch'],geometry['logical_size'],image_size,source,orientation=geometry['orientation'])
+            if geometry.get('input_geometry_qualified') is False: observation.update(input_geometry_qualified=False,geometry_source='image_pixels_only')
+        if tool=='take_screenshot': return {**observation,'image':{'mime_type':'image/jpeg' if image_format=='jpeg' else 'image/png','data':encoded},'requested_max_width':args.get('max_width',1280),'effective_width':image_size[0]}
+        artifact=router.artifacts.write(encoded,'screenshot','.'+image_format,device['device_id'],device['connection_epoch'],destination=args.get('destination'),filename=args.get('filename'))
         return {**observation,'artifact':artifact}
     async def _apps(self, device, args):
         if device['backend']=='simulator':
@@ -429,9 +572,9 @@ class MacBackend:
         if args.get('query'): apps=[app for app in apps if args['query'].casefold() in (app['bundle_id']+' '+app['name']).casefold()]
         return apps
     async def invoke(self, tool, device, args, context):
-        if device and CATALOG[tool]['mutation'] and tool not in {'fill','type_text'}:
-            self.physical_text_preflights.pop(device['device_id'],None)
-            self.frame_anchors.clear_device(device['device_id'])
+        if CATALOG[tool]['mutation'] and not CATALOG[tool]['capability'].startswith('input.'):
+            # Lifecycle/settings mutations must observe fresh discovery state.
+            self.discovery_cache.clear()
         if tool=='start_simulator':
             created=False
             if 'simulator_id' in args: native=args['simulator_id'].removeprefix('sim:')

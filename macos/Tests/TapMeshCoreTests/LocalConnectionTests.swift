@@ -18,10 +18,10 @@ final class LocalConnectionTests: XCTestCase {
         try Data("fixture-owner-credential".utf8).write(to: owner)
         return (folder, ["api_url": .string("http://127.0.0.1:48793"), "agent_url": .string("http://127.0.0.1:48792"), "server_token_file": .string(server.path), "agent_token_file": .string(server.path), "approval_token_file": .string(owner.path)])
     }
-    private func load(_ object: [String: JSONValue], in folder: URL) throws -> ConnectionConfiguration {
+    private func load(_ object: [String: JSONValue], in folder: URL, approvalSecret: String? = nil) throws -> ConnectionConfiguration {
         let file = folder.appendingPathComponent("connection.json")
         try JSONEncoder().encode(JSONValue.object(object)).write(to: file)
-        return try ConnectionConfiguration.load(from: file)
+        return try ConnectionConfiguration.load(from: file, approvalSecret: approvalSecret)
     }
     func testTakeoverRequiresSeparateOwnerCredentialBeforeNetworkDispatch() throws {
         let (folder, object) = try fixture(); defer { try? FileManager.default.removeItem(at: folder) }
@@ -34,13 +34,34 @@ final class LocalConnectionTests: XCTestCase {
         XCTAssertEqual(request.value(forHTTPHeaderField: "X-DeviceBridge-Local-Authorization"), "Bearer fixture-owner-credential")
         let body = try JSONDecoder().decode(JSONValue.self, from: XCTUnwrap(request.httpBody))
         XCTAssertEqual(body, .object(["session_id": .string("local-session"), "device_id": .string("sim:A")]))
-        try FileManager.default.removeItem(atPath: configuration.approvalTokenFile)
+        try FileManager.default.removeItem(atPath: XCTUnwrap(configuration.approvalTokenFile))
         XCTAssertThrowsError(try configuration.takeoverRequest(sessionID: "local-session", deviceID: "sim:A"))
     }
-    func testRejectsMissingOwnerConfigurationAndNonlocalEndpoints() throws {
+    func testPipeConfigurationIsReadOnlyUntilAnInMemorySecretIsProvided() throws {
         let (folder, object) = try fixture(); defer { try? FileManager.default.removeItem(at: folder) }
         var missingOwner = object; missingOwner.removeValue(forKey: "approval_token_file")
-        XCTAssertThrowsError(try load(missingOwner, in: folder))
+        let attached = try load(missingOwner, in: folder)
+        XCTAssertNil(attached.approvalTokenFile)
+        let standard = try attached.request("api/call", method: "POST")
+        XCTAssertEqual(standard.value(forHTTPHeaderField: "Authorization"), "Bearer fixture-server-credential")
+        XCTAssertNil(standard.value(forHTTPHeaderField: "X-DeviceBridge-Local-Authorization"))
+        XCTAssertThrowsError(try attached.request("api/settings", ownerAuthorized: true)) {
+            guard case LocalConnectionError.ownerAuthorizationRequired = $0 else { return XCTFail("Expected owner authority error") }
+        }
+
+        let approvalSecret = String(repeating: "a", count: 64)
+        let owning = try load(missingOwner, in: folder, approvalSecret: approvalSecret)
+        let approval = try owning.request("api/settings", ownerAuthorized: true)
+        XCTAssertEqual(approval.value(forHTTPHeaderField: "X-DeviceBridge-Local-Authorization"), "Bearer \(approvalSecret)")
+        XCTAssertNil(try owning.request("api/tools").value(forHTTPHeaderField: "X-DeviceBridge-Local-Authorization"))
+
+        missingOwner["approvalSecret"] = .string(approvalSecret)
+        let diskOnly = try load(missingOwner, in: folder)
+        XCTAssertThrowsError(try diskOnly.request("api/settings", ownerAuthorized: true))
+    }
+
+    func testRejectsNonlocalEndpointsAndRelativeCredentials() throws {
+        let (folder, object) = try fixture(); defer { try? FileManager.default.removeItem(at: folder) }
         var remote = object; remote["api_url"] = .string("http://example.com:48793")
         XCTAssertThrowsError(try load(remote, in: folder))
         var relative = object; relative["approval_token_file"] = .string("relative.token")

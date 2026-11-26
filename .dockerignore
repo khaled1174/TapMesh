@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+.pytest_cache
+macos
+dist
+artifacts
+tests
+docs
+Fixtures
+*.egg-info

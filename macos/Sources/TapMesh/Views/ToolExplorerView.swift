@@ -15,11 +15,11 @@ struct ToolExplorerView: View {
                 VStack(spacing: 0) {
                     TextField("Find a tool", text: $search).textFieldStyle(.roundedBorder).padding(12)
                     List(filtered, selection: $selected) { tool in
-                        VStack(alignment: .leading, spacing: 5) { Text(tool.name).font(.callout.monospaced()); Text(tool.description).font(.caption).foregroundStyle(.secondary).lineLimit(2) }.padding(.vertical, 5).tag(tool.name)
+                        VStack(alignment: .leading, spacing: 5) { Text(verbatim: tool.name).font(.callout.monospaced()).environment(\.layoutDirection, .leftToRight); Text(verbatim: tool.description).font(.caption).foregroundStyle(.secondary).lineLimit(2) }.padding(.vertical, 5).tag(tool.name)
                     }.listStyle(.inset)
                 }.frame(minWidth: 240, idealWidth: 280, maxWidth: 370)
                 if let tool = store.tools.first(where: { $0.name == selected }) { ToolDetailView(store: store, tool: tool).id(tool.name).frame(minWidth: 400) }
-                else { ContentUnavailableView("Explore the service tools", systemImage: "curlybraces", description: Text(store.tools.isEmpty ? "Connect to the server to load the canonical tool catalog." : "Choose a tool to see its schema and execute a validated request.")).frame(maxWidth: .infinity) }
+                else { ContentUnavailableView("Explore the service tools", systemImage: "curlybraces", description: Text(store.tools.isEmpty ? String(localized: "Connect to the server to load the canonical tool catalog.") : String(localized: "Choose a tool to see its schema and execute a validated request."))).frame(maxWidth: .infinity) }
             }
         }
     }
@@ -40,16 +40,16 @@ struct ToolDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                Text(tool.name).font(.title2.monospaced().weight(.semibold))
-                Text(tool.description).foregroundStyle(.secondary)
+                Text(verbatim: tool.name).font(.title2.monospaced().weight(.semibold)).environment(\.layoutDirection, .leftToRight)
+                Text(verbatim: tool.description).foregroundStyle(.secondary)
                 HStack {
-                    Label(tool.mutation ? "Changes device state" : "Observation", systemImage: tool.mutation ? "hand.tap" : "eye")
+                    Label(tool.mutation ? String(localized: "Changes device state") : String(localized: "Observation"), systemImage: tool.mutation ? "hand.tap" : "eye")
                     Spacer()
                     Text("Policy \(tool.policy)")
                 }.font(.caption).foregroundStyle(.secondary)
-                if tool.deviceBound { Text("Target: \(store.selectedDevice?.name ?? "No device selected")").font(.callout).foregroundStyle(store.selectedID == nil ? .orange : .secondary) }
-                if let capability = store.selectedDevice?.capabilities[tool.capability] { Text("\(capability.status.replacingOccurrences(of: "_", with: " ")) · \(capability.reason)").font(.caption).foregroundStyle(.secondary) }
-                Picker("Argument editor", selection: $mode) { Text("Form").tag("Form"); Text("JSON").tag("JSON") }.pickerStyle(.segmented)
+                if tool.deviceBound { Text(store.selectedDevice.map { String(localized: "Target: \($0.name)") } ?? String(localized: "Target: No device selected")).font(.callout).foregroundStyle(store.selectedID == nil ? .orange : .secondary) }
+                if let capability = store.selectedDevice?.capabilities[tool.capability] { Text(verbatim: "\(capability.status.replacingOccurrences(of: "_", with: " ")) · \(capability.reason)").font(.caption).foregroundStyle(.secondary) }
+                Picker("Argument editor", selection: $mode) { Text("Form").tag("Form"); Text(verbatim: "JSON").tag("JSON") }.pickerStyle(.segmented)
                 if mode == "Form" {
                     if properties.isEmpty { Text("This tool has no additional arguments.").foregroundStyle(.secondary) }
                     ForEach(properties.keys.sorted(), id: \.self) { key in
@@ -59,12 +59,12 @@ struct ToolDetailView: View {
                     }
                     if tool.schema["oneOf"] != nil || tool.schema["anyOf"] != nil { Text("This tool has alternative argument shapes. Use JSON to supply the exact shape shown in the schema.").font(.caption).foregroundStyle(.secondary) }
                 } else {
-                    TextEditor(text: $json).font(.system(.body, design: .monospaced)).frame(minHeight: 180).padding(6).overlay(RoundedRectangle(cornerRadius: 6).stroke(.quaternary)).accessibilityLabel("Tool arguments as JSON")
+                    TextEditor(text: $json).font(.system(.body, design: .monospaced)).environment(\.layoutDirection, .leftToRight).frame(minHeight: 180).padding(6).overlay(RoundedRectangle(cornerRadius: 6).stroke(.quaternary)).accessibilityLabel("Tool arguments as JSON")
                     Button("Use Form Values") { do { json = try formArguments().prettyPrinted; validation = [] } catch { validation = [error.localizedDescription] } }
                 }
                 if !validation.isEmpty { VStack(alignment: .leading, spacing: 5) { ForEach(validation, id: \.self) { Text($0).font(.callout).foregroundStyle(.orange) } } }
                 HStack {
-                    Button(showSchema ? "Hide Schema" : "Show Schema") { showSchema.toggle() }
+                    Button(showSchema ? String(localized: "Hide Schema") : String(localized: "Show Schema")) { showSchema.toggle() }
                     Spacer()
                     Button("Execute \(tool.name)") { prepareExecution() }.buttonStyle(.borderedProminent).disabled(!store.online || store.busy || (tool.deviceBound && store.selectedID == nil))
                 }
@@ -96,16 +96,16 @@ struct ToolDetailView: View {
             if schema["type"]?.stringValue == "string" || schema["enum"]?.arrayValue?.first?.stringValue != nil { arguments[key] = .string(raw) }
             else {
                 do { arguments[key] = try JSONValue.parse(raw) }
-                catch { throw ClientError.protocolError("\(key): enter valid \(schema["type"]?.stringValue ?? "JSON").") }
+                catch { throw ClientError.protocolError(String(localized: "\(key): enter valid \(schema["type"]?.stringValue ?? "JSON").")) }
             }
         }
         return .object(arguments)
     }
     private func arguments() throws -> JSONValue {
         var value = mode == "Form" ? try formArguments() : try JSONValue.parse(json)
-        guard var object = value.objectValue else { throw ClientError.protocolError("Arguments must be a JSON object.") }
+        guard var object = value.objectValue else { throw ClientError.protocolError(String(localized: "Arguments must be a JSON object.")) }
         if tool.deviceBound, let selectedID = store.selectedID {
-            if let explicit = object["device_id"]?.stringValue, explicit != selectedID { throw ClientError.protocolError("The JSON device_id differs from the active target. Select that device in the sidebar first.") }
+            if let explicit = object["device_id"]?.stringValue, explicit != selectedID { throw ClientError.protocolError(String(localized: "The JSON device_id differs from the active target. Select that device in the sidebar first.")) }
             object["device_id"] = .string(selectedID); value = .object(object)
         }
         return value
@@ -139,10 +139,10 @@ struct SchemaField: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                if required { Text(name).font(.callout.weight(.medium)); Text("Required").font(.caption).foregroundStyle(.secondary) }
+                if required { Text(verbatim: name).font(.callout.weight(.medium)); Text("Required").font(.caption).foregroundStyle(.secondary) }
                 else { Toggle(name, isOn: $included).toggleStyle(.checkbox).font(.callout.weight(.medium)) }
                 Spacer()
-                Text(schema["type"]?.stringValue ?? "JSON").font(.caption.monospaced()).foregroundStyle(.tertiary)
+                Text(verbatim: schema["type"]?.stringValue ?? "JSON").font(.caption.monospaced()).foregroundStyle(.tertiary)
             }
             Group {
                 if let values = schema["enum"]?.arrayValue {
@@ -153,7 +153,7 @@ struct SchemaField: View {
                     TextEditor(text: $value).font(.system(.callout, design: .monospaced)).frame(height: 85).padding(4).overlay(RoundedRectangle(cornerRadius: 5).stroke(.quaternary))
                 } else { TextField(name, text: $value).textFieldStyle(.roundedBorder) }
             }.disabled(!included && !required).accessibilityLabel(name)
-            if let description = schema["description"]?.stringValue { Text(description).font(.caption).foregroundStyle(.secondary) }
+            if let description = schema["description"]?.stringValue { Text(verbatim: description).font(.caption).foregroundStyle(.secondary) }
         }
     }
 }

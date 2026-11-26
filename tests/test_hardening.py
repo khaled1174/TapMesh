@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import signal
+import stat
 import sys
 import time
 
@@ -14,6 +15,83 @@ from starlette.testclient import TestClient
 from agent.core import Router
 from agent.safety import Approvals, BridgeError
 from test_router import DeviceFixture
+
+
+@pytest.mark.parametrize('value', [b'a' * 64 + b'\n', b'invalid\n'])
+def test_read_secret_fd_consumes_and_closes_the_pipe(value):
+    from agent.safety import read_secret_fd
+
+    read_fd, write_fd = os.pipe()
+    with os.fdopen(write_fd, 'wb') as output:
+        output.write(value)
+    if value.startswith(b'a'):
+        assert read_secret_fd(read_fd) == 'a' * 64
+    else:
+        with pytest.raises(RuntimeError, match='Invalid inherited approval credential'):
+            read_secret_fd(read_fd)
+    with pytest.raises(OSError):
+        os.fstat(read_fd)
+
+
+async def test_pipe_approval_requires_its_own_secret_on_both_services(tmp_path, monkeypatch):
+    from agent.app import create_app as agent_app
+    from server.app import create_app as server_app
+
+    def seed_pipe():
+        read_fd, write_fd = os.pipe()
+        with os.fdopen(write_fd, 'wb') as output:
+            output.write(b'a' * 64 + b'\n')
+        monkeypatch.setenv('TAPMESH_APPROVAL_TOKEN_FD', str(read_fd))
+        return read_fd
+
+    agent_token, server_token = 'b' * 64, 'c' * 64
+    first_fd = seed_pipe()
+    router = Router(DeviceFixture(), state_dir=tmp_path / 'agent')
+    agent = agent_app(router, token=agent_token)
+    assert 'TAPMESH_APPROVAL_TOKEN_FD' not in os.environ
+    with pytest.raises(OSError): os.fstat(first_fd)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=agent), base_url='http://testserver',
+                                 headers={'Authorization': 'Bearer ' + agent_token}) as agent_client:
+        second_fd = seed_pipe()
+        server = server_app(state_dir=tmp_path / 'server', token=server_token, agent_client=agent_client)
+        assert 'TAPMESH_APPROVAL_TOKEN_FD' not in os.environ
+        try:
+            remaining = os.fstat(second_fd)
+        except OSError:
+            pass
+        else:
+            # SQLite may already have reused the closed descriptor.
+            assert not stat.S_ISFIFO(remaining.st_mode)
+        assert (await agent_client.get('/health')).json()['approval_secret'] == 'pipe'
+        assert (await agent_client.get('/v1/settings', headers={'X-DeviceBridge-Local-Authorization': 'Bearer ' + agent_token})).status_code == 403
+
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=server), base_url='http://testserver',
+                                     headers={'Authorization': 'Bearer ' + server_token}) as client:
+            owner_header = 'X-DeviceBridge-Local-Authorization'
+            for path in ('/api/approvals', '/api/settings'):
+                assert (await client.get(path)).status_code == 403
+                assert (await client.get(path, headers={owner_header: 'Bearer ' + server_token})).status_code == 403
+                assert (await client.get(path, headers={owner_header.encode(): b'Bearer \xff'})).status_code == 403
+                assert (await client.get(path, headers={owner_header: 'Bearer ' + 'a' * 64})).status_code == 200
+            lease = {'lease_id': 'test-lease'}
+            for action, status in [('prepare', 'prepared'), ('resume', 'resumed')]:
+                result = await client.post('/api/update', headers={owner_header: 'Bearer ' + 'a' * 64},
+                                           json={**lease, 'action': action})
+                assert result.status_code == 200 and result.json()['status'] == status
+    await router.close()
+
+
+def test_legacy_approval_file_mode_still_authorizes(tmp_path, monkeypatch):
+    from agent.app import create_app as agent_app
+
+    token_file = tmp_path / 'approvals.token'
+    token_file.write_text('a' * 64 + '\n')
+    token_file.chmod(0o600)
+    monkeypatch.setenv('TAPMESH_APPROVAL_TOKEN_FILE', str(token_file))
+    with TestClient(agent_app(Router(DeviceFixture(), state_dir=tmp_path / 'agent'), token='b' * 64)) as client:
+        assert client.get('/health').json()['approval_secret'] == 'file'
+        headers = {'Authorization': 'Bearer ' + 'b' * 64, 'X-DeviceBridge-Local-Authorization': 'Bearer ' + 'a' * 64}
+        assert client.get('/v1/settings', headers=headers).status_code == 200
 
 
 async def approve(router, session, tool, arguments):

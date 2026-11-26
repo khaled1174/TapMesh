@@ -25,8 +25,7 @@ def test_text_target_validation_is_explicit_ordinary_and_non_submitting():
 
 
 class Physical:
-    def __init__(self, state):
-        self.state = state
+    def __init__(self):
         self.invoked = []
     async def close(self):
         pass
@@ -35,36 +34,26 @@ class Physical:
                  'connection_epoch': 1, 'ready': True,
                  'capabilities': {'input.text': {'status': 'supported'}}}]
     async def sensitive_state(self, device):
-        return {'state': self.state, 'reason': 'Controlled sensitivity test'}
+        raise AssertionError('Physical text entry has no accessibility preflight')
     async def invoke(self, tool, device, arguments, context):
-        self.invoked.append((tool, arguments, context.get('sensitive_state')))
+        self.invoked.append((tool, arguments))
         return {'delivery': 'sent', 'verified': False}
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('state,declared,expected', [
-    ('protected', True, 'protected_action_requires_human'),
-    ('unknown', True, 'prerequisite_required'),
-    ('unqualified', False, 'prerequisite_required'),
-    ('unqualified', True, 'success'),
-    ('clear', False, 'success'),
-])
-async def test_human_field_declaration_never_overrides_locked_or_unknown_state(tmp_path, state, declared, expected):
-    backend = Physical(state)
+@pytest.mark.parametrize('declared', [True, False])
+async def test_physical_text_entry_runs_without_accessibility_preflight(tmp_path, declared):
+    backend = Physical()
     router = Router(backend, state_dir=tmp_path)
     args = {'device_id': 'ios:fixture', 'text': 'TapMesh', 'input_method': 'clipboard'}
     if declared:
         args['field_context'] = 'ordinary_app'
-    initial = await router.call('owner-test', 'type_text', args)
-    assert initial['error']['code'] == 'approval_required'
-    assert not backend.invoked
     assert router.policy('type_text', args) == 'S'
-    router.approvals.decide(initial['error']['details']['approval_id'], 'allow')
     result = await router.call('owner-test', 'type_text', args)
-    if expected == 'success':
-        assert result['status'] == 'success'
-        assert backend.invoked[0][2]['state'] == state
-    else:
-        assert result['error']['code'] == expected
+    if result['status'] == 'error' and result['error']['code'] == 'approval_required':
         assert not backend.invoked
+        router.approvals.decide(result['error']['details']['approval_id'], 'allow')
+        result = await router.call('owner-test', 'type_text', args)
+    assert result['status'] == 'success'
+    assert backend.invoked == [('type_text', args)]
     await router.close()

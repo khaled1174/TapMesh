@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -8,6 +8,9 @@ import hashlib
 import hmac
 import json
 import os
+import re
+import stat
+import tempfile
 import time
 import uuid
 
@@ -35,8 +38,25 @@ def read_secret(filename):
     return secret
 
 
+def read_secret_fd(fd):
+    if fd < 3: raise RuntimeError('Invalid inherited approval credential descriptor')
+    with os.fdopen(fd,'rb') as source:
+        if not stat.S_ISFIFO(os.fstat(source.fileno()).st_mode): raise RuntimeError('Approval credential must arrive through a pipe')
+        value=source.read(66).removesuffix(b'\n')
+    if not re.fullmatch(rb'[0-9a-f]{64}',value): raise RuntimeError('Invalid inherited approval credential')
+    return value.decode('ascii')
+
+
+def inherited_approval_secret():
+    descriptor=os.environ.pop('TAPMESH_APPROVAL_TOKEN_FD',None)
+    if descriptor is None: return None
+    try: fd=int(descriptor)
+    except ValueError: raise RuntimeError('Invalid inherited approval credential descriptor') from None
+    return read_secret_fd(fd)
+
+
 def authenticates(header, secret):
-    return bool(header and hmac.compare_digest(header, 'Bearer '+secret))
+    return bool(header and hmac.compare_digest(header.encode(),('Bearer '+secret).encode()))
 
 
 class PathGrants:
@@ -59,10 +79,91 @@ class PathGrants:
         raise BridgeError('unsafe_path','Path is outside configured grants')
 
 
+GRANT_SESSION='ai-clients'
+GRANT_TOOL='allow_ai_control'
+_UNSET=object()
+
+
+class ControlAccess:
+    """Durable control preferences and the current native app's session."""
+    def __init__(self, path=None, *, fast_control=True, forced_off=False):
+        self.path=Path(path) if path is not None else None
+        self.forced_off=forced_off
+        self.fast_control=fast_control and not forced_off
+        self.agent_devices=set()
+        self.owner_session=None
+        if self.path is not None:
+            try:
+                settings=json.loads(self.path.read_text())
+                if not isinstance(settings,dict) or set(settings)!={'fast_control','agent_devices'} or not isinstance(settings['fast_control'],bool):
+                    raise ValueError('Invalid control settings')
+                self.agent_devices=self._device_set(settings['agent_devices'])
+                self.fast_control=settings['fast_control'] and not forced_off
+            except FileNotFoundError: pass
+            except (OSError, ValueError, BridgeError):
+                self.fast_control=False
+                self.agent_devices=set()
+
+    @staticmethod
+    def _device_set(devices):
+        if not isinstance(devices,list) or len(devices)>64 or any(not isinstance(device,str) or not 1<=len(device)<=256 or not device.startswith('ios:') for device in devices):
+            raise BridgeError('invalid_arguments','Allowed devices must be a list of up to 64 iOS device identifiers')
+        return set(devices)
+
+    def snapshot(self):
+        return {'fast_control':self.fast_control,'agent_devices':sorted(self.agent_devices)}
+
+    def _save(self, settings):
+        temporary=None
+        try:
+            with tempfile.NamedTemporaryFile(mode='w',dir=self.path.parent,prefix='.control-settings-',delete=False) as stream:
+                temporary=Path(stream.name)
+                json.dump(settings,stream)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary,self.path)
+        except OSError as exc:
+            raise BridgeError('backend_failure','TapMesh could not save the device control settings') from exc
+        finally:
+            if temporary is not None:
+                with suppress(OSError): temporary.unlink(missing_ok=True)
+
+    def update(self, *, fast_control=_UNSET, agent_devices=_UNSET, owner_session=_UNSET):
+        if fast_control is _UNSET: fast_control=self.fast_control
+        if not isinstance(fast_control,bool): raise BridgeError('invalid_arguments','fast_control must be true or false')
+        if fast_control and self.forced_off: raise BridgeError('invalid_arguments','Fast control is turned off by the service configuration')
+        devices=self.agent_devices if agent_devices is _UNSET else self._device_set(agent_devices)
+        if owner_session is _UNSET: owner_session=self.owner_session
+        elif not isinstance(owner_session,str) or not 1<=len(owner_session)<=128:
+            raise BridgeError('invalid_arguments','owner_session must contain 1–128 characters')
+        settings={'fast_control':fast_control,'agent_devices':sorted(devices)}
+        if self.path is not None and (fast_control!=self.fast_control or devices!=self.agent_devices):
+            self._save(settings)
+        self.fast_control,self.agent_devices,self.owner_session=fast_control,devices,owner_session
+        return settings
+
+    def allow_device(self, device_id):
+        devices=self._device_set([device_id]) | self.agent_devices
+        return self.update(agent_devices=sorted(devices))
+
+    def immediate(self, session, device):
+        owner=self.owner_session is not None and session==self.owner_session
+        return self.fast_control and (owner or device['backend']=='simulator' or device['device_id'] in self.agent_devices)
+
+    def needs_device_grant(self, session, device):
+        return self.fast_control and device['backend']=='physical' and not self.immediate(session,device)
+
+
 class Approvals:
+    """Exact-action approvals and one-time grants for device control."""
     def __init__(self, ttl=120, maximum=512, terminal_ttl=300):
         self.ttl=ttl; self.maximum=maximum; self.terminal_ttl=terminal_ttl
         self.records={}; self.actions={}
+    def revoke_pending(self, policy, *, matching=None):
+        for record in self.records.values():
+            if record['policy']==policy and record['decision']=='pending' and (matching is None or matching(record)):
+                self._terminal(record,'revoked')
+        self._prune()
     def _terminal(self, record, decision):
         record['decision']=decision; record['_terminal_at']=time.monotonic()
     def _prune(self):
@@ -77,21 +178,21 @@ class Approvals:
                 if self.actions.get(record['digest'])==aid: self.actions.pop(record['digest'],None)
     def revoke_device(self, device, *, preserve=None):
         for record in self.records.values():
-            if record['device_id']==device and record['id']!=preserve:
+            if record['device_id']==device and record['id']!=preserve and record['policy']!='A':
                 self._terminal(record,'revoked')
         self._prune()
     def _digest(self, session, device, epoch, tool, arguments, policy):
         raw=json.dumps([session,device,epoch,tool,arguments,policy],sort_keys=True,separators=(',',':'),allow_nan=False).encode()
         return hashlib.sha256(raw).hexdigest()
-    def require(self, session, device, epoch, tool, arguments, *, policy, consume=False):
-        if policy=='O': return
+    def require(self, session, device, epoch, tool, arguments, *, policy, consume=False, immediate=False):
+        if policy=='O' or policy=='C' and immediate: return
         self._prune()
         digest=self._digest(session,device,epoch,tool,arguments,policy)
         aid=self.actions.get(digest); record=self.records.get(aid)
         if record and record['decision']=='deny':
-            # Surface the denied outcome once before a subsequent explicit request
-            # can ask for a new decision. The old ID never authorizes anything.
-            self.actions.pop(digest,None)
+            # An exact action may ask again. Keep a denied device grant stable
+            # until pruning so an agent cannot repeatedly prompt the owner.
+            if policy!='A': self.actions.pop(digest,None)
             raise BridgeError('approval_denied','Local coordinator denied this action',details={'approval_id':aid})
         if record and record['decision']=='allow':
             if consume:
@@ -106,12 +207,14 @@ class Approvals:
             # arguments remain in the digest and never enter logs/history/UI.
             record['argument_summary']={k:('[redacted]' if k in {'text','instructions','environment','url'} else v if isinstance(v,(str,int,float,bool)) else '[structured]') for k,v in arguments.items()}
             self.records[aid]=record; self.actions[digest]=aid
+        if policy=='A':
+            raise BridgeError('approval_required','The owner must allow AI control of this device in the TapMesh app',details={'approval_id':aid,'policy':'A','scope':'device'})
         code='protected_action_requires_human' if policy=='U' else 'approval_required'
         raise BridgeError(code,'Complete this action in the local coordinator',details={'approval_id':aid,'policy':policy})
     def pending(self):
         self._prune()
         return [{k:v for k,v in record.items() if not k.startswith('_')} for record in self.records.values() if record['decision']=='pending' and record['_expires']>time.monotonic()]
-    def decide(self, aid, decision):
+    def decide(self, aid, decision, *, on_allow=None):
         self._prune()
         record=self.records.get(aid)
         if not record: raise BridgeError('invalid_arguments','Unknown approval ID')
@@ -119,12 +222,19 @@ class Approvals:
         if record['decision']=='expired' or record['_expires']<time.monotonic(): raise BridgeError('approval_expired','Local approval expired')
         if record['decision']!='pending': raise BridgeError('invalid_arguments','Approval was already decided')
         if decision=='deny': self._terminal(record,decision)
-        else: record['decision']=decision
-        return {k:v for k,v in record.items() if not k.startswith('_')}
+        else:
+            if on_allow is not None: on_allow(record)
+            if record['policy']=='A':
+                # The persistent allowlist is the authority. No reusable
+                # approval should survive removal of the device from that list.
+                self._terminal(record,'consumed')
+                self.actions.pop(record['digest'],None)
+            else: record['decision']=decision
+        return {**{k:v for k,v in record.items() if not k.startswith('_')},'decision':decision}
 
 
 class Observations:
-    def __init__(self, max_age=30, maximum=256):
+    def __init__(self, max_age=300, maximum=256):
         self.max_age=max_age; self.maximum=maximum; self.records={}; self.revisions={}
         self._capture=ContextVar('tapmesh_observation_capture',default=None)
     def invalidate(self, device):

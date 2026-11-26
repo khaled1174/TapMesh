@@ -10,8 +10,9 @@ There are no required cloud accounts or public backend services.
 The app bundles its Python interpreter, pinned packages, idb companion and
 system-framework OCR/media helper. A user installs TapMesh.app and opens it.
 First launch creates a private profile at
-`~/Library/Application Support/TapMesh/Local`; credentials are generated locally,
-never packaged. Services bind only to loopback on dynamically allocated ports.
+`~/Library/Application Support/TapMesh/Local`. Services bind only to loopback
+on dynamically allocated ports. The app keeps its owner approval credential
+in memory and passes it to its services through inherited pipes.
 Closing the window keeps the app available to MCP clients. Quitting stops its
 owned local services. A crashed app's supervisor detects the lost parent and
 stops its children. No launch agent, SSH, Docker, uv or Python installation is
@@ -24,22 +25,28 @@ actual capabilities of each device; it does not promise unsupported Apple
 operations. Local Vision language support is queried at runtime. Build folders
 are granted explicitly in Settings; TapMesh does not grant the whole home folder.
 
-## Owner's private TNAS environment
+## Optional advanced connection
 
-The owner's existing root `TapMesh/connection.json`, credentials, services and
-TNAS deployment remain a separate advanced development connection. The default
-public app does not read or overwrite it. The public binary contains no owner
-credentials, NAS endpoint, SSH identity or preconfigured user devices.
-`scripts/manage.py` remains the private deployment utility, not public onboarding.
+The default app runs local services and does not require a NAS, SSH tunnel or
+remote backend. Advanced users can select an existing local connection file in
+Settings. Custom services remain separately managed. No configured endpoint,
+credential, SSH identity or device list is included in the public source.
+`scripts/manage.py` is an optional development utility, not public onboarding.
 
 ## Distribution gates
 
-An embedded local runtime alone is not a public release. A release additionally
-needs fresh relocated-bundle and native first-launch/restart/quit evidence,
-license notices and complete corresponding source with build instructions,
-recursive Developer ID signing, notarization, supported-OS/device qualification,
-and the planned installation/update/soak checks. Release manifests must retain
-false/unverified status for gates that have not actually passed.
+The 0.2.0 Developer Preview requires recursive Developer ID signing,
+notarization, third-party notices, and complete corresponding source with build
+instructions. Qualify the exact build on clean supported Macs for Finder launch,
+installation, update, restart, and quit. Release manifests record each gate when
+the corresponding artifact has passed it.
+
+The owner-attended live-control trial covers tap and swipe latency, portrait and
+landscape video, locking during typing, cable reconnect, Wi-Fi fallback,
+selection across two devices, sleep and wake, per-device consent, and Stop and
+Resume. For frame-rate measurement, play moving content on the phone and close
+other live previews. Keep measurements and results under `docs/` and resolve
+failed steps before distribution.
 
 The package requires macOS 15 or later, matching the embedded companion's actual
 deployment target. The initially qualified binary architecture is Apple Silicon. Intel support is

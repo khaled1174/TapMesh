@@ -5,9 +5,9 @@ on:
       release_tag:
         description: Draft release containing the exact notarized ZIP and manifest
         required: true
-        default: v0.1.0
+        default: v0.2.0
       update_fixture_sha256:
-        description: Optional SHA-256 of the disposable notarized build 3-to-4 update fixtures
+        description: Optional SHA-256 of the notarized staging fixture for this exact release ZIP
         required: false
         default: ''
 permissions:
@@ -31,7 +31,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
-        run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern TapMesh-CI-update-build3-4.zip --dir release-input
+        run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern TapMesh-CI-update.zip --dir release-input
       - uses: actions/upload-artifact@v4
         with:
           name: notarized-release-input
@@ -59,22 +59,29 @@ jobs:
         env:
           UPDATE_FIXTURE_SHA256: ${{ inputs.update_fixture_sha256 }}
         run: |
-          python3 - <<'PY'
-          import hashlib,json,os,pathlib,re,subprocess
+          uv run --no-sync python - <<'PY'
+          import hashlib,json,os,pathlib,plistlib,re,subprocess
           root=pathlib.Path(os.environ['RUNNER_TEMP'])/'release-input'
           manifest=json.loads((root/'release-manifest.json').read_text())
           assert manifest['product']=='TapMesh' and manifest['notarized'] is True
+          assert manifest['updater_configured'] is True and manifest['source_compliance_verified'] is True
           assert pathlib.Path(manifest['archive']).name==manifest['archive']
           archive=root/manifest['archive']
-          assert hashlib.sha256(archive.read_bytes()).hexdigest()==manifest['sha256']
+          with archive.open('rb') as stream:
+              assert hashlib.file_digest(stream,'sha256').hexdigest()==manifest['sha256']
           destination=pathlib.Path(os.environ['RUNNER_TEMP'])/'release-Applications'
           destination.mkdir(mode=0o700)
           subprocess.run(['/usr/bin/ditto','-x','-k',str(archive),str(destination)],check=True)
+          info=plistlib.loads((destination/'TapMesh.app/Contents/Info.plist').read_bytes())
+          assert info['CFBundleIdentifier']=='io.tapmesh.mac'
+          assert info['CFBundleVersion']==str(manifest['build_number'])
+          assert info['CFBundleShortVersionString']==manifest['version']
           expected=os.environ['UPDATE_FIXTURE_SHA256']
           if expected:
               assert re.fullmatch('[a-f0-9]{64}',expected)
-              fixture=root/'TapMesh-CI-update-build3-4.zip'
-              assert hashlib.sha256(fixture.read_bytes()).hexdigest()==expected
+              fixture=root/'TapMesh-CI-update.zip'
+              with fixture.open('rb') as stream:
+                  assert hashlib.file_digest(stream,'sha256').hexdigest()==expected
               target=pathlib.Path(os.environ['RUNNER_TEMP'])/'update-fixtures'
               target.mkdir(mode=0o700)
               subprocess.run(['/usr/bin/ditto','-x','-k',str(fixture),str(target)],check=True)
@@ -83,7 +90,12 @@ jobs:
         run: uv run --no-sync python scripts/qualify_native_install.py --bundle "$RUNNER_TEMP/release-Applications/TapMesh.app" --workspace "$RUNNER_TEMP/native-release-qualification" --report "dist/native-${{ matrix.os }}.json"
       - name: Verify clean-host native update and profile preservation
         if: inputs.update_fixture_sha256 != ''
-        run: uv run --no-sync python scripts/qualify_native_update.py --fixtures "$RUNNER_TEMP/update-fixtures/TapMeshCIUpdate" --report "dist/native-update-${{ matrix.os }}.json"
+        run: |
+          uv run --no-sync python scripts/qualify_native_update.py \
+            --fixtures "$RUNNER_TEMP/update-fixtures/TapMeshCIUpdate" \
+            --release-manifest "$RUNNER_TEMP/release-input/release-manifest.json" \
+            --release-bundle "$RUNNER_TEMP/release-Applications/TapMesh.app" \
+            --report "dist/native-update-${{ matrix.os }}.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

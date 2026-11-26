@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "tapmesh": {
+      "command": "/Applications/TapMesh.app/Contents/MacOS/tapmesh-mcp"
+    }
+  }
+}

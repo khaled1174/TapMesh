@@ -95,11 +95,12 @@ def main():
         assert visible['workspace_window_visible'] is True
         report['ui_automation_trusted']=visible.get('ui_automation_trusted')
         passed('Native workspace window is visible')
+        assert 'approval_token_file' not in configuration and not (profile/'approvals.token').exists()
         credentials={name:hashlib.sha256((profile/name).read_bytes()).hexdigest()
-            for name in ('server.token','agent.token','approvals.token')}
+            for name in ('server.token','agent.token')}
         asyncio.run(check_mcp(app,profile,workspace,env))
         assert all(hashlib.sha256((profile/name).read_bytes()).hexdigest()==value for name,value in credentials.items())
-        passed('Native MCP bridge attaches and preserves profile credentials')
+        passed('Native MCP bridge attaches and preserves disk credentials; approval stays in memory')
         stopped=json.loads(command([probe,'quit',process.pid,binary]))
         assert stopped['termination_requested'] is True
         assert process.wait(timeout=55)==0

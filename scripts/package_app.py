@@ -26,8 +26,8 @@ def main() -> None:
     mode.add_argument("--standalone", dest="standalone", action="store_true", default=True, help="Embed the qualified local runtime and helpers (default)")
     mode.add_argument("--external-services", dest="standalone", action="store_false", help="Private development UI only; not a standalone user app")
     parser.add_argument("--python-runtime", type=Path, help="Unverified developer runtime override; default uses the checksum-pinned archive")
-    parser.add_argument('--build-number',type=int,default=2)
-    parser.add_argument('--version',default='0.1.0')
+    parser.add_argument('--build-number',type=int,required=True)
+    parser.add_argument('--version',default='0.2.0')
     parser.add_argument('--update-feed')
     parser.add_argument('--update-public-key')
     parser.add_argument('--staging-updates',action='store_true',help='Disposable localhost update qualification only; never a public release')
@@ -74,7 +74,11 @@ def main() -> None:
         "LSApplicationCategoryType": "public.app-category.developer-tools",
         "NSAppTransportSecurity": {"NSAllowsLocalNetworking": True},
         "NSLocalNetworkUsageDescription": "TapMesh connects to the Apple devices you select for local development and control.",
+        "CFBundleDevelopmentRegion": "en", "CFBundleLocalizations": ["en", "ar"],
     }
+    # English text in the code is the key; Arabic comes from macos/Localization/ar.lproj.
+    for lproj in sorted((ROOT / "macos/Localization").glob("*.lproj")):
+        shutil.copytree(lproj, staging / "Contents/Resources" / lproj.name)
     if args.update_feed:
         info.update(SUFeedURL=args.update_feed,SUPublicEDKey=args.update_public_key,SUEnableAutomaticChecks=False,SUSendProfileInfo=False)
     if args.staging_updates: info['TapMeshUpdateStagingMode']=True
@@ -84,6 +88,9 @@ def main() -> None:
     candidates=list((CACHE/'artifacts').glob('*/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework'))
     if len(candidates)!=1: raise SystemExit('The checksum-pinned Sparkle framework artifact is missing or ambiguous.')
     shutil.copytree(candidates[0],frameworks/'Sparkle.framework',symlinks=True)
+    notices=staging/'Contents/Resources/Licenses'
+    notices.mkdir()
+    shutil.copyfile(candidates[0].parents[2]/'LICENSE',notices/'Sparkle.txt')
     clean_developer_rpaths(executable)
     subprocess.run(['/usr/bin/xcrun','swift-stdlib-tool','--copy','--scan-executable',str(executable),'--platform','macosx','--destination',str(frameworks)],check=True,capture_output=True)
     framework_count=sign_embedded(frameworks,args.identity)
