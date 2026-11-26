@@ -2,6 +2,7 @@ import Foundation
 
 /// A user-originated action can authorize only the pending ID returned by that
 /// immediately preceding request. The service binds that ID to its full digest.
+/// Device grants and human handoffs require explicit decisions in Approvals.
 public enum LocalApprovalBinding {
     public static func matches(response: ToolEnvelope, record: JSONValue, sessionID: String, tool: String) -> Bool {
         guard response.error?.code == "approval_required", response.error?.sideEffectState == "not_sent",

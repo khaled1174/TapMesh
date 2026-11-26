@@ -1,5 +1,19 @@
 # TapMesh release qualification
 
+## Developer Preview 0.2.0
+
+This branch contains the source for the build 23 candidate. The app requires
+Apple Silicon and macOS 15 or later. The local candidate passed automated
+tests, isolated native launch, and bundled HTTP and MCP checks. Build 23
+updates swipe timing and USB lock checks. Its performance and controls still
+need to be measured on a physical iPhone.
+
+Public distribution awaits real-device qualification, Apple notarization,
+matching corresponding source and clean-Mac installation and update checks
+for the release archive.
+
+## Build 9 release history
+
 See [build 9 release qualification](BUILD9_RELEASE_QUALIFICATION.md) for
 the frozen source, signing and installation checks and remaining physical
 and Finder qualification.

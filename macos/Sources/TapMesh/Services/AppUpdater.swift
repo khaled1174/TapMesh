@@ -161,13 +161,13 @@ final class AppUpdater: NSObject, ObservableObject, SPUUpdaterDelegate {
 
     func showPausedUpdate(_ error: (any Error)? = nil) {
         let alert = NSAlert()
-        alert.messageText = "TapMesh update paused"
-        alert.informativeText = "Finish the current recording, build, or device action, then try updating again. Keep TapMesh open while that work completes."
+        alert.messageText = String(localized: "TapMesh update paused")
+        alert.informativeText = String(localized: "Finish the current recording, build, or device action, then try updating again. Keep TapMesh open while that work completes.")
         if let local = error as? LocalRuntimeError, let message = local.errorDescription,
            message.utf8.count <= 512, message.unicodeScalars.allSatisfy({ !CharacterSet.controlCharacters.contains($0) }) {
             alert.informativeText = message
         }
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: String(localized: "OK"))
         alert.runModal()
     }
 }

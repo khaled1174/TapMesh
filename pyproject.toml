@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tapmesh"
-version = "0.1.0"
+version = "0.2.0"
 description = "TapMesh owner-controlled iOS device agent and authenticated MCP coordinator"
 license = "GPL-3.0-or-later"
 requires-python = ">=3.12,<3.14"

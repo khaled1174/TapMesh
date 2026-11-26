@@ -43,6 +43,21 @@ async def test_device_selection_is_never_implicit_or_shared(router):
     assert (await r.call('a','get_device_info',{}))['device_id']=='sim:fixture'
 
 
+async def test_list_devices_reports_tool_availability(router):
+    r, fixture = router
+
+    async def discover(include_all=False):
+        fixture.health = {'simctl': 'unavailable', 'devicectl': 'unavailable', 'details': 'private'}
+        return []
+
+    fixture.discover = discover
+    result = await r.call('a', 'list_devices', {})
+
+    assert result['status'] == 'success'
+    assert result['data']['devices'] == []
+    assert result['data']['tools'] == {'simctl': 'unavailable', 'devicectl': 'unavailable'}
+
+
 async def test_batch_preflight_rejects_mixed_device_without_side_effects(router):
     r,f=router
     result=await r.call('a','batch_commands',{'device_id':'sim:fixture','commands':[{'tool':'open_url','arguments':{'url':'https://example.com','device_id':'other'}}]})
@@ -55,6 +70,39 @@ async def test_ambiguous_text_never_delivers_a_tap(router):
     result=await allow(r,'a','tap_text',{'device_id':'sim:fixture','match':{'text':'Save','match':'exact'}})
     assert result['error']['code']=='ambiguous_text_match'
     assert [c[0] for c in f.calls]==['list_elements']
+
+
+@pytest.mark.parametrize('scenario', ['aligned','different_observation','rotated','invalidated'])
+async def test_swipe_validates_both_points_against_one_live_geometry(router, scenario):
+    r,f=router
+    device='sim:fixture'
+    logical={'width':100,'height':200}
+    observed=r.observations.issue('a',device,1,logical,None,'fixture',orientation='portrait')
+    end_observed=observed
+    if scenario=='different_observation':
+        end_observed=r.observations.issue('a',device,1,logical,None,'fixture',orientation='portrait')
+    reads=[]
+
+    async def geometry(current):
+        reads.append(current['device_id'])
+        if scenario=='rotated':
+            return {'logical_size':{'width':200,'height':100},'orientation':'landscape_left'}
+        if scenario=='invalidated':
+            r.observations.invalidate(device)
+        return {'logical_size':logical,'orientation':'portrait'}
+
+    f.geometry=geometry
+    result=await allow(r,'a','swipe',{'device_id':device,
+        'start':{'x':75,'y':100,'coordinate_space':'device_points','observation_id':observed['observation_id']},
+        'end':{'x':25,'y':100,'coordinate_space':'device_points','observation_id':end_observed['observation_id']}})
+    assert reads == ([] if scenario=='different_observation' else [device])
+    if scenario=='aligned':
+        assert result['status']=='success'
+        assert [tool for tool,_ in f.calls]==['swipe']
+    else:
+        assert result['error']['code']=='stale_observation'
+        assert result['error']['side_effect_state']=='not_sent'
+        assert not f.calls
 
 
 async def test_mutation_ownership_is_held_across_awaits(router):

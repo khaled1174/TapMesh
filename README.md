@@ -1,53 +1,45 @@
 # TapMesh
 
-تطبيق Mac أصلي لعرض أجهزة iPhone وiPad ومحاكيات iOS والتحكم بها، مع واجهة يدوية وربط MCP. تعمل الواجهة وخادم HTTP/MCP وOCR والتخزين محليًا على Mac الخاص بكل مستخدم. المشروع مفتوح المصدر بترخيص **GPL-3.0-or-later**؛ راجع [LICENSE](LICENSE) و[NOTICE](NOTICE).
+[العربية](README.ar.md)
 
-المصدر العام: [khaled1174/TapMesh](https://github.com/khaled1174/TapMesh). الحزمة الحالية مرشح اختبار داخلي؛ لم تُنشر نسخة ثنائية معتمدة بعد. تفاصيل الأنظمة المدعومة وحالة النشر في [RELEASE_STATUS](docs/RELEASE_STATUS.md).
+TapMesh is a Mac workspace for your iPhone, iPad, and iOS simulators. See the device screen, control it with your mouse and keyboard, and inspect or build apps. You can also connect an MCP client to the same devices from your AI app.
 
-## آخر التحققات — 14 نوفمبر 2026
+## Get started
 
-المصدر الحالي يطابق برنامج الحزمة 9 الموقّعة والموثّقة من Apple. نجح [اختبار التثبيت والتحديث](docs/CLEAN_MAC_BUILD9_REPORT.md) في 26 فحصًا على Macين نظيفين بإصداري macOS 15.8.2 و26.7.2، مع حفظ بيانات الدخول ومطابقة ملفات الحزمة بعد التحديث.
+You need an Apple Silicon Mac running macOS 15 or later. Install Xcode, open it once, and accept its license. For simulators, install the iOS runtime you want in Xcode. For an iPhone or iPad, connect by cable, unlock it, tap **Trust**, and turn on Developer Mode in **Settings › Privacy & Security** on the device.
 
-أكد [فحص الآيفون الحقيقي](docs/PHYSICAL_TEXT_BUILD9_REPORT.md) إدخال الإنجليزية والعربية والحذف بقراءات مستقلة، مع حفظ الرفض الآمن للمحاولات الأخرى. ما زال اعتماد التكرار أثناء التحرير النشط مفتوحًا قبل نشر الحزمة. راجع [ملاحظات تحديث المصدر العام](docs/PUBLIC_SOURCE_UPDATE_20261114.md) لنطاق الملفات والأدلة المنشورة.
+1. Get the Developer Preview ZIP from [TapMesh releases](https://github.com/khaled1174/TapMesh/releases) when the preview is available. Unzip it, move **TapMesh.app** to **Applications**, and open it from Finder. See [release status](docs/RELEASE_STATUS.md) for the current qualification.
+2. Select a device in the sidebar. If the device needs setup, follow the steps shown in TapMesh and choose **Check Again**.
+3. Start a simulator if needed. A wired iPhone or iPad can show live video. Simulators and Wi-Fi devices use refreshed screenshots.
 
-## المتطلبات والتشغيل
+The app bundles its services. Close the window to keep them available to clients. Quit TapMesh to stop them. To build an app from Xcode sources, add its project folder in **Settings › Build Folders**.
 
-- Mac بمعالج Apple Silicon وmacOS 15 أو أحدث.
-- Xcode وأدواته، مع runtime مناسب إذا أردت استخدام المحاكيات.
-- للأجهزة الحقيقية: الثقة بالـMac، وتفعيل نمط المطوّر، وفتح القفل عندما يطلب النظام ذلك.
+## Connect an AI agent
 
-تتضمن الحزمة Python والمكتبات ومساعد التحكم؛ لا يحتاج المستخدم تثبيت Python أو uv أو Docker أو إعداد SSH. بعد توفر الإصدار المعتمد، انقل `TapMesh.app` إلى التطبيقات وافتحه. ينشئ التطبيق ملفه المحلي ومفاتيحه داخل `~/Library/Application Support/TapMesh/Local`، وتستمع الخدمات إلى loopback فقط.
+Open **Settings › AI Agents** or **Help › Connect an AI Agent…**.
 
-اختر الجهاز صراحةً من الشريط الجانبي. تعرض الواجهة صورة الجهاز والعناصر والتطبيقات والبناء والتسجيل والملفات والنشاط والموافقات. امنح مجلدات مشاريعك من الإعدادات قبل البناء. إغلاق النافذة يترك خدمات التطبيق متاحة؛ إنهاء التطبيق يوقف خدماته المملوكة له.
+1. Copy the configuration.
+2. Add it to your AI app. Paste the JSON into your app's MCP settings, or run the Claude Code command in Terminal.
+3. Ask the agent to list devices. Then ask it to select the device you want to use.
 
-## ربط MCP
+Both options include the actual TapMesh install path. No key is needed. An agent can't approve its own requests. On an iPhone or iPad you decide once whether agents may control it. Each client keeps its own device selection.
 
-توجد 50 أداة بعقود مغلقة في `Contracts/catalog.py`. أضف الأمر المضمّن إلى عميل MCP:
+## Control and approvals
 
-```json
-{
-  "mcpServers": {
-    "tapmesh": {
-      "command": "/Applications/TapMesh.app/Contents/MacOS/tapmesh-mcp"
-    }
-  }
-}
-```
+With fast control on, TapMesh can tap, swipe, type, press buttons, and open apps immediately. AI clients can do the same on simulators and on physical devices you allow. The first request for ordinary control on a new phone or tablet appears in **Approvals**. You can remove access in **Settings › General**. When an agent acts on the selected device, **Stop** pauses it and **Resume** lets it continue. Turning off fast control requires approval for each ordinary control action.
 
-عدّل المسار إذا ثبّت التطبيق في مجلد آخر. يبدأ الأمر التطبيق تلقائيًا ويقرأ الاتصال المحلي؛ لا تنسخ المفاتيح إلى إعدادات العميل. لكل عميل اختيار جهاز مستقل. يستطيع عميل HTTP استخدام `/mcp` مع إعداداته المحلية ومصادقة Bearer. لا يحصل عميل النموذج على صلاحية الموافقة المحلية.
+Sensitive actions such as reading the clipboard, pasting through it, saving recordings, and simulating location require a separate approval (**S**). Uninstalling or replacing an app requires destructive confirmation (**D**). Running a build requires host-execution approval (**H**) in a folder you've allowed. Protected steps such as unlocking the device need your direct input (**U**). [Tool contracts](docs/TOOL_CONTRACTS.md) describe all 50 tools.
 
-## التحكم والخصوصية
+## Privacy and files
 
-يعرض كل جهاز قدراته الفعلية؛ وجود الأداة في MCP لا يعني أن جميع الأجهزة تدعمها. ترتبط الإحداثيات والمراجع بملاحظة حديثة وحالة الاتصال. يرفض التطبيق المرجع القديم، ولا يعيد تلقائيًا عملية قد تكون وصلت قبل انقطاع الاتصال.
+The app, device services, screen processing, and storage run on your Mac. TapMesh keeps the approval credential in memory. **Saved Files** lists screenshots, recordings, and logs produced during the current workspace session and shows usage for stored copies. When a service starts or saves an artifact, it removes artifacts older than 30 days and keeps at most 5 GiB in its store. The device service clears derived build data older than seven days at startup. Use **Delete All Saved Files…** to clear both stores, including copies from earlier sessions. Copies you exported to another folder stay there.
 
-يفصل الفاحص بين عناصر الوصول ونتائج OCR. يذكر OCR مصدره ويعيد النصوص والمواضع دون اختراع أدوار وصول. تستخدم النسخة المحلية إطار Vision على Mac، وتختلف اللغات المتاحة بحسب النظام. بعض مسارات وصول idb على Xcode 27 تعيد نتائج غير صالحة بعد إعادة تشغيل التطبيق؛ يظهر ذلك كقدرة متدهورة ويظل OCR متاحًا عند نجاحه.
+To uninstall, quit TapMesh and delete **TapMesh.app**. To remove the default local profiles, saved files, and caches, also delete `~/Library/Application Support/TapMesh` and `~/Library/Caches/TapMesh`. This removes your saved files and device permissions from those profiles.
 
-تتطلب العمليات الحساسة موافقة مرتبطة بالجلسة والجهاز والمعاملات والمدة. لا يدخل التطبيق رمز قفل الجهاز أو يتجاوز المصادقة. لا تعني نتيجة إرسال الضغط نجاح عملية داخل التطبيق.
+## Known limits
 
-يمكن تصدير تقرير تشخيص محلي من الإعدادات. يتضمن نسخ التطبيق وحالة الخدمات والأعداد ومراجع أخطاء محدودة، ويستبعد مفاتيح الاتصال ومحتوى الشاشة والنصوص المدخلة ومعرّفات الأجهزة ومسارات المستخدم.
+- Live video uses USB and one active USB tunnel at a time.
+- Physical screen input is limited by device orientation and capabilities. Use portrait for general input and landscape-left where the capability lists support.
+- iOS updates can change the undocumented device interfaces TapMesh uses. The app shows available capabilities for the selected device.
 
-## البناء والمساهمة
-
-راجع [SOURCE_BUILD](docs/SOURCE_BUILD.md) للبناء والاختبارات، و[DEPENDENCY_SOURCES](docs/DEPENDENCY_SOURCES.md) للمصدر المقابل للمكتبات، و[PRODUCT_SCOPE](docs/PRODUCT_SCOPE.md) لنطاق المنتج. الاختبارات الحقيقية اختيارية وصريحة، ولا يُحسب الاختبار المتخطى نجاحًا.
-
-تبقى بيئة TNAS الخاصة بالمالك اتصال تطوير اختياريًا في الإعدادات المتقدمة. لا تعتمد نسخة المستخدمين عليه، ولا تتضمن عنوانه أو مفاتيحه أو أجهزة المالك. يمكن للمطوّر إعداد اتصال خاص باستخدام `scripts/manage.py --help`.
+TapMesh is licensed under GPL-3.0-or-later. Build the app from the source repository or from the source included with the release. Public binary releases require a matching corresponding-source archive. [License](LICENSE) · [Notices](NOTICE) · [Build instructions](docs/SOURCE_BUILD.md) · [Dependency sources](docs/DEPENDENCY_SOURCES.md)

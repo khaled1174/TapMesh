@@ -64,7 +64,7 @@ public struct Capability: Sendable {
     public let status: String
     public let reason: String
     public let limits: JSONValue?
-    public init(_ value: JSONValue) { status = value["status"]?.stringValue ?? "unknown"; reason = value["reason"]?.stringValue ?? "No qualification details supplied."; limits = value["limits"] }
+    public init(_ value: JSONValue) { status = value["status"]?.stringValue ?? "unknown"; reason = value["reason"]?.stringValue ?? String(localized: "No qualification details supplied."); limits = value["limits"] }
 }
 
 public struct Device: Identifiable, Sendable {
@@ -73,7 +73,9 @@ public struct Device: Identifiable, Sendable {
     public let backend: String
     public let nativeID: String
     public let ready: Bool
+    public let readinessCode: String?
     public let reasons: [String]
+    public let osVersion: String?
     public let epoch: String
     public let capabilities: [String: Capability]
     public init?(_ value: JSONValue) {
@@ -81,7 +83,15 @@ public struct Device: Identifiable, Sendable {
         self.id = id; name = value["name"]?.stringValue ?? id; backend = value["backend"]?.stringValue ?? "unknown"
         nativeID = value["native_id"]?.stringValue ?? String(id.split(separator: ":", maxSplits: 1).last ?? "")
         ready = value["ready"]?.boolValue ?? false
+        readinessCode = value["readiness_code"]?.stringValue
         reasons = value["readiness_reasons"]?.arrayValue?.map(\.scalarDescription) ?? []
+        let version = value["os_version"]?.stringValue
+        if backend == "simulator", let version, version.hasPrefix("iOS ") {
+            let legacyVersion = version.dropFirst(4).split(separator: " ").joined(separator: ".")
+            osVersion = legacyVersion.isEmpty ? nil : legacyVersion
+        } else {
+            osVersion = version == "unknown" || version?.isEmpty == true ? nil : version
+        }
         epoch = value["connection_epoch"]?.scalarDescription ?? "unknown"
         capabilities = value["capabilities"]?.objectValue?.mapValues(Capability.init) ?? [:]
     }

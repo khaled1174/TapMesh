@@ -195,7 +195,7 @@ def main():
     env = {key: os.environ[key] for key in ("HOME", "TMPDIR", "LANG") if key in os.environ}
     env["PATH"] = "/usr/bin:/bin:/usr/sbin:/sbin"
     process = subprocess.Popen([str(resources / "runtime/bin/python3"), "-I", "-B", "-m", "tapmesh_runtime", "supervise",
-        "--state-dir", str(profile), "--resources", str(resources), "--parent-pid", str(os.getpid())],
+        "--state-dir", str(profile), "--resources", str(resources), "--parent-pid", str(os.getpid()), "--approval-secret-file"],
         cwd=workspace, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     configuration = None
     client = None

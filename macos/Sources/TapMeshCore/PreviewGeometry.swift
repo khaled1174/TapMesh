@@ -42,10 +42,19 @@ public struct Observation: Sendable {
     public let observedAt: String
     public let source: String
     public let freshness: JSONValue?
+    /// The device's logical screen size (points) for this observation, also present on element
+    /// snapshots, which carry no image. Nil when absent or not positive and finite.
+    public let logicalSize: PlaneSize?
+    /// The service's orientation string, "unknown" when absent.
+    public let orientation: String
     public init?(_ value: JSONValue) {
         guard let id = value["observation_id"]?.stringValue else { return nil }
         self.id = id; snapshotID = value["snapshot_id"]?.stringValue; deviceID = value["device_id"]?.stringValue; epoch = value["connection_epoch"]?.scalarDescription
         observedAt = value["observed_at"]?.stringValue ?? ""; source = value["source"]?.stringValue ?? "unknown"; freshness = value["freshness"]
+        orientation = value["orientation"]?.stringValue ?? "unknown"
+        if let lw = value["logical_size"]?["width"]?.doubleValue, let lh = value["logical_size"]?["height"]?.doubleValue, lw.isFinite, lh.isFinite, lw > 0, lh > 0 {
+            logicalSize = PlaneSize(width: lw, height: lh)
+        } else { logicalSize = nil }
         if let iw = value["image_size"]?["width"]?.doubleValue, let ih = value["image_size"]?["height"]?.doubleValue,
            let lw = value["logical_size"]?["width"]?.doubleValue, let lh = value["logical_size"]?["height"]?.doubleValue,
            let transformJSON = value["image_to_device_transform"], let transform = ImageTransform(transformJSON) {

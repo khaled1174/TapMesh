@@ -52,12 +52,15 @@ class Profile:
         self.root = Path(root).expanduser().absolute()
         self.lock = None
 
-    def prepare(self):
+    def prepare(self, *, approval_file=True):
         _private_directory(self.root)
         for name in ('agent-state', 'server-state', 'Exports'):
             _private_directory(self.root / name)
         for name in self.tokens:
             path = self.root / name
+            if name == 'approvals.token' and not approval_file:
+                path.unlink(missing_ok=True)
+                continue
             try:
                 fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
             except FileExistsError:
@@ -95,15 +98,16 @@ class Profile:
             os.close(self.lock)
             self.lock = None
 
-    def configure(self, agent_port, server_port, instance):
+    def configure(self, agent_port, server_port, instance, *, approval_file=True):
         configuration = {
             'api_url': f'http://127.0.0.1:{server_port}',
             'agent_url': f'http://127.0.0.1:{agent_port}',
             'server_token_file': str(self.root / 'server.token'),
             'agent_token_file': str(self.root / 'agent.token'),
-            'approval_token_file': str(self.root / 'approvals.token'),
             'instance_id': instance, 'profile': 'local',
         }
+        if approval_file:
+            configuration['approval_token_file'] = str(self.root / 'approvals.token')
         temporary = self.root / ('.connection-' + secrets.token_hex(8))
         fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         try:
@@ -170,7 +174,6 @@ def service_environment(profile, resources, configuration):
     env.update({
         'TAPMESH_AGENT_TOKEN_FILE': configuration['agent_token_file'],
         'TAPMESH_SERVER_TOKEN_FILE': configuration['server_token_file'],
-        'TAPMESH_APPROVAL_TOKEN_FILE': configuration['approval_token_file'],
         'TAPMESH_INSTANCE_ID': configuration['instance_id'],
         'TAPMESH_AGENT_URL': configuration['agent_url'],
         'TAPMESH_AGENT_PORT': configuration['agent_url'].rsplit(':', 1)[1],
@@ -182,6 +185,8 @@ def service_environment(profile, resources, configuration):
         'TAPMESH_BUNDLED_RUNTIME': '1',
         'TAPMESH_EXPORT_ROOTS': str(profile.root / 'Exports'),
     })
+    if 'approval_token_file' in configuration:
+        env['TAPMESH_APPROVAL_TOKEN_FILE'] = configuration['approval_token_file']
     companion = resources / 'idb_companion/idb_companion'
     if companion.is_file():
         env['TAPMESH_IDB_COMPANION'] = str(companion)
@@ -262,9 +267,63 @@ def _stop(process, seconds):
         process.wait(timeout=5)
 
 
-def supervise(profile, resources, parent_pid):
+def _open_service_log(profile, service):
+    logs = profile.root / 'logs'
+    logs.mkdir(exist_ok=True, mode=0o700)
+    directory = os.open(logs, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        if os.fstat(directory).st_uid != os.getuid():
+            raise RuntimeErrorCode('unsafe_profile', 'The local service log directory must be owned by this user.')
+        os.fchmod(directory, 0o700)
+        fd = os.open(service + '.log', os.O_RDWR | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK,
+                     0o600, dir_fd=directory)
+    finally:
+        os.close(directory)
+    output = os.fdopen(fd, 'ab')
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_nlink != 1:
+            raise RuntimeErrorCode('unsafe_profile', 'Local service logs must be regular files owned by this user.')
+        os.fchmod(fd, 0o600)
+        limit = 256 * 1024
+        if info.st_size > limit:
+            tail = os.pread(fd, limit, info.st_size - limit)
+            os.ftruncate(fd, 0)
+            output.write(tail)
+            output.flush()
+        return output
+    except BaseException:
+        output.close()
+        raise
+
+
+def _spawn_service(profile, service, environment, listener, approval_secret):
+    fd = listener.fileno()
+    env = {**environment, 'TAPMESH_LISTEN_FD': str(fd)}
+    inherited = (fd,)
+    with _open_service_log(profile, service) as stderr:
+        approval_fd = None
+        try:
+            if approval_secret is not None:
+                approval_fd, output_fd = os.pipe()
+                with os.fdopen(output_fd, 'wb') as output:
+                    output.write(approval_secret + b'\n')
+                env['TAPMESH_APPROVAL_TOKEN_FD'] = str(approval_fd)
+                inherited += (approval_fd,)
+            return subprocess.Popen(
+                [sys.executable, '-I', '-B', '-m', service + '.app'], env=env, cwd=str(profile.root),
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=stderr,
+                start_new_session=True, pass_fds=inherited,
+            )
+        finally:
+            if approval_fd is not None: os.close(approval_fd)
+
+
+def supervise(profile, resources, parent_pid, *, approval_secret=None):
     if parent_pid != os.getppid():
         raise RuntimeErrorCode('invalid_parent', 'The local runtime must be launched directly by its owner application.')
+    if approval_secret is not None and not re.fullmatch(rb'[0-9a-f]{64}', approval_secret):
+        raise RuntimeErrorCode('unsafe_credential', 'The local owner credential is invalid.')
     _private_directory(profile.root)
     profile.check_update_fence(resources)
     stopped = False
@@ -273,62 +332,95 @@ def supervise(profile, resources, parent_pid):
         nonlocal stopped
         stopped = True
 
+    def running():
+        return not stopped and os.getppid() == parent_pid
+
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, stop)
     owned=profile.acquire()
     if not owned:
         deadline = time.monotonic() + 45
-        while not stopped and os.getppid() == parent_pid and time.monotonic() < deadline:
+        while running() and time.monotonic() < deadline:
             fenced=profile.check_update_fence(resources)
             if profile.acquire():
                 owned=True
                 break
             configuration = _read_json(profile.root / 'connection.json')
             if not fenced and configuration and _ready(configuration):
-                _emit({'status': 'ready', 'config_path': str(profile.root / 'connection.json'), 'instance_id': configuration['instance_id'], 'owner': False})
+                if running(): _emit({'status': 'ready', 'config_path': str(profile.root / 'connection.json'), 'instance_id': configuration['instance_id'], 'owner': False})
                 return
             time.sleep(.2)
         if not owned:
+            if not running(): return
             raise RuntimeErrorCode('profile_in_use', 'Another TapMesh process owns this profile but its services are unavailable.')
-    children = []
+    children = {}
+    sockets = []
     try:
         profile.check_update_fence(resources,consume=True)
-        profile.prepare()
+        approval_file = approval_secret is None
+        profile.prepare(approval_file=approval_file)
         sockets = listeners()
-        try:
-            configuration = profile.configure(*(listener.getsockname()[1] for listener in sockets), secrets.token_hex(16))
-            environments = service_environment(profile, resources, configuration)
-            for module, env, listener in zip(('agent.app', 'server.app'), environments, sockets):
-                env['TAPMESH_LISTEN_FD'] = str(listener.fileno())
-                children.append(subprocess.Popen(
-                    [sys.executable, '-I', '-B', '-m', module], env=env, cwd=str(profile.root),
-                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                    start_new_session=True, pass_fds=(listener.fileno(),),
-                ))
-        finally:
-            for listener in sockets: listener.close()
+        configuration = profile.configure(*(listener.getsockname()[1] for listener in sockets), secrets.token_hex(16),
+                                          approval_file=approval_file)
+        environments = service_environment(profile, resources, configuration)
+        services = dict(zip(('agent', 'server'), zip(environments, sockets)))
+        for service, (environment, listener) in services.items():
+            if not running(): return
+            children[service] = _spawn_service(profile, service, environment, listener, approval_secret)
+
+        exits = {service: [] for service in services}
+        restart_at = {}
+        recovering = set()
+        announced_ready = False
         deadline = time.monotonic() + 45
-        while not stopped and os.getppid() == parent_pid:
-            if any(child.poll() is not None for child in children):
-                raise RuntimeErrorCode('service_exited', 'A bundled local service stopped. Reconnect to start it again.')
-            if _ready(configuration):
-                break
-            if time.monotonic() >= deadline:
-                raise RuntimeErrorCode('startup_timeout', 'The bundled local services did not become ready in time.')
-            time.sleep(.2)
-        if stopped or os.getppid() != parent_pid:
-            return
-        _emit({'status': 'ready', 'config_path': str(profile.root / 'connection.json'), 'instance_id': configuration['instance_id'], 'owner': True})
-        while not stopped and os.getppid() == parent_pid:
-            if any(child.poll() is not None for child in children):
-                raise RuntimeErrorCode('service_exited', 'A bundled local service stopped. Reconnect to start it again.')
-            time.sleep(.2)
+        while running():
+            now = time.monotonic()
+            for service, (environment, listener) in services.items():
+                child = children.get(service)
+                if child is not None and child.poll() is not None:
+                    if not running(): return
+                    del children[service]
+                    exits[service] = [when for when in exits[service] if now - when < 60] + [now]
+                    count = len(exits[service])
+                    if count == 5:
+                        raise RuntimeErrorCode('service_exited', 'A bundled local service stopped repeatedly. Reconnect to start it again.')
+                    restart_at[service] = now + (1, 2, 5, 5)[count - 1]
+                    if announced_ready and not recovering: deadline = now + 45
+                    recovering.add(service)
+                if service in restart_at and now >= restart_at[service]:
+                    if not running(): return
+                    children[service] = _spawn_service(profile, service, environment, listener, approval_secret)
+                    del restart_at[service]
+
+            if not announced_ready or recovering:
+                if not restart_at and _ready(configuration):
+                    if not running(): return
+                    if not announced_ready:
+                        _emit({'status': 'ready', 'config_path': str(profile.root / 'connection.json'), 'instance_id': configuration['instance_id'], 'owner': True})
+                        announced_ready = True
+                    else:
+                        for service in services:
+                            if service in recovering:
+                                _emit({'status': 'restarted', 'service': service})
+                    recovering.clear()
+                elif time.monotonic() >= deadline:
+                    if not running(): return
+                    raise RuntimeErrorCode('startup_timeout', 'The bundled local services did not become ready in time.')
+            pause = .2
+            if restart_at:
+                pause = min(pause, max(0, min(restart_at.values()) - time.monotonic()))
+            time.sleep(pause)
     finally:
         # Stop public intake before the device agent. ASGI graceful shutdown
         # cancels in-flight requests and lets their owned process cleanup finish.
-        for index, child in enumerate(reversed(children)):
-            _stop(child, 5 if index == 0 else 40)
-        profile.release()
+        try:
+            try:
+                if 'server' in children: _stop(children['server'], 5)
+            finally:
+                if 'agent' in children: _stop(children['agent'], 40)
+        finally:
+            for listener in sockets: listener.close()
+            profile.release()
 
 
 def stdio_bridge(profile, app_bundle):
@@ -349,8 +441,7 @@ def stdio_bridge(profile, app_bundle):
             time.sleep(.2)
         else:
             raise RuntimeErrorCode('startup_timeout', 'Open TapMesh and check its local runtime before reconnecting the MCP client.')
-    os.environ['TAPMESH_SERVER_TOKEN_FILE'] = str(profile.root / 'server.token')
-    os.environ['TAPMESH_SERVER_URL'] = configuration['api_url']
+    os.environ['TAPMESH_CONNECTION_FILE'] = str(profile.root / 'connection.json')
     from server.stdio import main as run_stdio
     run_stdio()
 
@@ -363,6 +454,9 @@ def main():
     supervisor.add_argument('--state-dir', type=Path, required=True)
     supervisor.add_argument('--resources', type=Path, required=True)
     supervisor.add_argument('--parent-pid', type=int, required=True)
+    credential_source = supervisor.add_mutually_exclusive_group()
+    credential_source.add_argument('--approval-secret-stdin', action='store_true', help='Read the app-owned approval secret from standard input')
+    credential_source.add_argument('--approval-secret-file', action='store_true', help='Use the private profile approval token file (development default)')
     bridge = subparsers.add_parser('stdio')
     bridge.add_argument('--app-bundle', type=Path, required=True)
     bridge.add_argument('--state-dir', type=Path, default=Path.home() / 'Library/Application Support/TapMesh/Local')
@@ -371,7 +465,8 @@ def main():
         if args.command == 'stdio':
             stdio_bridge(Profile(args.state_dir), args.app_bundle.absolute())
         else:
-            supervise(Profile(args.state_dir), args.resources.absolute(), args.parent_pid)
+            approval_secret = sys.stdin.buffer.readline(66).removesuffix(b'\n') if args.approval_secret_stdin else None
+            supervise(Profile(args.state_dir), args.resources.absolute(), args.parent_pid, approval_secret=approval_secret)
     except RuntimeErrorCode as exc:
         if args.command == 'stdio':
             print(exc.message, file=sys.stderr)

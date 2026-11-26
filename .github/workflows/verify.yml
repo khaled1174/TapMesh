@@ -36,5 +36,5 @@ jobs:
       - run: uv run --no-sync pytest -q
       - run: swift test --package-path macos --scratch-path "$RUNNER_TEMP/tapmesh-tests" --jobs 2
       - run: uv run --no-sync python scripts/setup_companion.py
-      - run: uv run --no-sync python scripts/package_app.py --configuration release
+      - run: uv run --no-sync python scripts/package_app.py --configuration release --build-number "$GITHUB_RUN_NUMBER"
       - run: uv run --no-sync python scripts/qualify_local_runtime.py --bundle "$HOME/Library/Caches/TapMesh/packages/TapMesh.app" --report "dist/ci-${{ matrix.os }}.json"
