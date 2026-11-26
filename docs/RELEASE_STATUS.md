@@ -14,12 +14,9 @@ source. Local launch, relocated services and archive-integrity checks passed.
 The current development source also includes SDK/actor compatibility fixes added
 after that staged candidate; it is not a claim that build 23 contains those fixes.
 
-The release gates remain open: the owner-attended physical-control matrix,
-latency and landscape/lock interruption checks, and clean-Mac
-installation/update for the exact final ZIP. Earlier attended trials retained
-failed latency and landscape outcomes. Source tests and read-only observations
-do not substitute for those gates. No new live device qualification is claimed
-by this publication.
+The [Build 25 follow-up](#build-25-packaging-follow-up) records the current
+candidate and its completed wired iPhone checks. The attended control matrix
+and clean-Mac installation and update checks remain open.
 
 See [0.2.0 behavior and limits](RELEASE_NOTES_0.2.0.md),
 [build instructions](SOURCE_BUILD.md), [tool contracts](TOOL_CONTRACTS.md) and
@@ -39,10 +36,14 @@ conceptual cover illustration. Six verified runtime regressions and three DMG
 publication-failure cases are corrected and retained as evidence. Build 24 was
 superseded before upload; its Apple acceptance does not qualify build 25.
 
-Attended physical-control, latency/orientation/lock interruption, clean-Mac
-installation/update and Finder first-open remain unqualified for these exact
-final artifacts. Binary assets remain draft-only. No production appcast change
-or public binary publication has occurred.
+The Build 25 wired iPhone trial passed the read-only checks on 2026-11-26.
+The first video frame arrived in 1,405.9 ms, the stream delivered 60.5 fps over
+10 seconds, and the median of 20 screenshots was 108.4 ms. The viewer count
+returned to zero after disconnect. [Wired iPhone report](LIVE_CONTROL_QUALIFICATION_BUILD25.md).
+
+The owner deferred the five-swipe trial. The attended physical-control matrix,
+clean-Mac installation and update, and Finder first-open remain open.
+Binary assets remain draft-only.
 
 ## Historical 0.1.0 evidence
 

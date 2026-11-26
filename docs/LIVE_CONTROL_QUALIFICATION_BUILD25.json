@@ -1,0 +1,28 @@
+{
+  "mode": "read-only",
+  "checks": [
+    {
+      "check": "Live video performance",
+      "status": "passed",
+      "first_frame_ms": 1405.9,
+      "frame_count": 605,
+      "frames_per_second": 60.5,
+      "viewer_count_before": 0,
+      "viewer_count_during": 1,
+      "viewer_count_after": 0
+    },
+    {
+      "check": "Viewer closes on disconnect",
+      "status": "passed"
+    },
+    {
+      "check": "Screenshot latency",
+      "status": "passed",
+      "median_ms": 108.4,
+      "p90_ms": 275.8,
+      "max_ms": 344.6,
+      "samples": 20
+    }
+  ],
+  "status": "passed"
+}
