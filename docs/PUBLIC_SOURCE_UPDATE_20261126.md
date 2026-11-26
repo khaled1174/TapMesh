@@ -24,3 +24,13 @@ This publishes source and documentation only. No binary asset is uploaded or
 published, no release tag is changed and production appcast.xml stays byte-for-byte
 unchanged. Final distribution still needs the attended device gates, notarization,
 matching corresponding source and exact final installation/update qualification.
+
+## English presentation and DMG packaging
+
+The repository front page now includes an original conceptual cover illustration
+and editable English diagrams for connection and development workflow.
+`docs/ARCHITECTURE.md` describes the implemented components and verification
+methodology. `scripts/package_dmg.py` creates a signed DMG from an existing
+Developer ID app without modifying it or overwriting previous artifacts.
+Documentation assets and the packaging script are included in corresponding source.
+Binary candidates remain draft-only while release gates are open.

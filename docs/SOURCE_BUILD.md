@@ -16,7 +16,7 @@ build prerequisites, not requirements to install the resulting app.
 uv venv --python 3.12 .venv
 uv pip sync --python .venv/bin/python --require-hashes requirements-mac.lock
 .venv/bin/python scripts/setup_companion.py
-.venv/bin/python scripts/package_app.py --configuration release --standalone --build-number 20
+.venv/bin/python scripts/package_app.py --configuration release --standalone --build-number 24
 ```
 
 The packager downloads a checksum-pinned Python build-standalone archive,
@@ -32,6 +32,25 @@ For updates, also pass the production HTTPS appcast with `--update-feed` and
 its Sparkle Ed25519 public verification key with `--update-public-key`. Submit
 the signed package for notarization. Native builds and codesigning use local
 APFS caches. You can copy the finished archive to network storage.
+
+## Make a DMG
+
+After signing and, for distribution, notarizing and stapling the app, create a
+signed drag-to-Applications image from the exact bundle:
+
+```sh
+.venv/bin/python scripts/package_dmg.py \
+  --app "$HOME/Library/Caches/TapMesh/packages/TapMesh.app" \
+  --output dist/TapMesh-0.2.0-build24-macos-arm64.dmg \
+  --identity '<Developer ID Application identity>'
+```
+
+The DMG packager checks the app's Developer ID signature, preserves the input
+bundle, adds an Applications shortcut and installation instructions, signs the
+image and verifies its integrity. It refuses to overwrite an existing output.
+Submit the DMG itself for notarization and staple the accepted ticket before
+publication. Packaging alone does not satisfy the device or clean-Mac release
+gates. [Release status](RELEASE_STATUS.md)
 
 ## Verify
 

@@ -21,9 +21,9 @@ PYTHON_URL = 'https://github.com/astral-sh/python-build-standalone/releases/down
 
 
 def source_files():
-    roots=['agent','server','Contracts','tapmesh_runtime','macos','scripts','tests','Fixtures','.github','examples']
+    roots=['agent','server','Contracts','tapmesh_runtime','macos','scripts','tests','Fixtures','.github','examples','docs/assets']
     files=[ROOT/name for name in ('.gitignore','LICENSE','NOTICE','README.md','README.ar.md','CHANGELOG.md','appcast.xml','pyproject.toml','uv.lock','requirements-product.lock','requirements-mac.lock','requirements-test.lock','requirements-server.lock')]
-    files += [ROOT/('docs/'+name) for name in ('PRODUCT_SCOPE.md','SOURCE_BUILD.md','DEPENDENCY_SOURCES.md','NATIVE_DEPENDENCY_SOURCE_AUDIT.md','RELEASE_STATUS.md','RELEASE_NOTES_0.2.0.md','TOOL_CONTRACTS.md','CONNECTING_AGENTS.md','CONNECTING_AGENTS.ar.md','PUBLIC_SOURCE_UPDATE_20261126.md')]
+    files += [ROOT/('docs/'+name) for name in ('PRODUCT_SCOPE.md','SOURCE_BUILD.md','DEPENDENCY_SOURCES.md','NATIVE_DEPENDENCY_SOURCE_AUDIT.md','RELEASE_STATUS.md','RELEASE_NOTES_0.2.0.md','TOOL_CONTRACTS.md','CONNECTING_AGENTS.md','CONNECTING_AGENTS.ar.md','ARCHITECTURE.md','PUBLIC_SOURCE_UPDATE_20261126.md')]
     for name in roots:
         directory=ROOT/name
         if directory.exists():

@@ -25,6 +25,19 @@ See [0.2.0 behavior and limits](RELEASE_NOTES_0.2.0.md),
 [build instructions](SOURCE_BUILD.md), [tool contracts](TOOL_CONTRACTS.md) and
 [publication scope](PUBLIC_SOURCE_UPDATE_20261126.md).
 
+## Build 24 packaging follow-up
+
+A new build 24 candidate is being prepared from this publication branch. Its
+English documentation includes the MCP connection architecture, project workflow
+and a conceptual cover illustration. The candidate adds no device-control
+behavior changes relative to this branch's tested source.
+
+Signed app, ZIP, DMG, notarization, source and checksum receipts are tracked with
+the exact draft release artifacts. A build number or Apple acceptance alone is
+not a public-release qualification. Attended physical-control and exact-artifact
+clean-Mac installation/update remain required. No production appcast update is
+authorized while these gates are open.
+
 ## Historical 0.1.0 evidence
 
 Existing build 3/7/8/9 qualification reports and failed or refused attempts are
