@@ -961,7 +961,7 @@ async def test_physical_capture_waits_for_display_geometry_before_publishing_an_
     async def send(tool,device,args,context):
         taps.append((tool,*context['targets']['target'][:2]))
         return {'delivery':'sent'}
-    backend.discover=discover;backend.geometry=display;backend._capture=capture;backend._native_input=send
+    backend._discover=discover;backend.geometry=display;backend._capture=capture;backend._native_input=send
     router=Router(backend,state_dir=tmp_path/'router',fast_control=True)
     router.access.allow_device(DEVICE['device_id'])
     arguments={'device_id':DEVICE['device_id']}

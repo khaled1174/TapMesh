@@ -106,11 +106,15 @@ class Router:
         self.recording_locks={}; self.creation_lock=asyncio.Lock()
         self.update_deadline=0.0; self.update_lease=None; self.active_downloads=0
         self.live_views=weakref.WeakSet()
+        self.live_generation=0; self.live_end_reason=None
         from .diagnostics import MetadataDiagnostics
         self.diagnostics=MetadataDiagnostics(state_dir)
         from .nas_ocr import NASOCR
         self.ocr=NASOCR.configured()
     def end_live(self, reason):
+        # Fence handshakes awaiting discovery or subscription as well as views
+        # already registered. A later resume cannot revive an old handshake.
+        self.live_generation+=1; self.live_end_reason=reason
         for view in list(self.live_views): view.close(reason)
     async def close(self):
         self.end_live('shutdown')
@@ -142,19 +146,25 @@ class Router:
         policy (O: no approval, ownership lock or takeover). Viewing is
         read-only and records no history entry; it never sends input."""
         if time.monotonic()<self.update_deadline: raise BridgeError('overloaded','TapMesh is preparing an update; reconnect after it restarts',retryable=True)
+        generation=self.live_generation
         self._session(session)
         if not isinstance(device_id,str) or not 1<=len(device_id)<=256: raise BridgeError('invalid_arguments','device_id must contain 1–256 characters')
         device=await self.device(session,{'device_id':device_id})
         await self._preflight('take_screenshot',{},device)
         self.approvals.require(session,device['device_id'],device['connection_epoch'],'take_screenshot',{},policy=self.policy('take_screenshot',{}))
         if not device.get('ready') or not hasattr(self.backend,'live'): raise BridgeError('live_unavailable','This device has no live video stream; use screenshots')
+        if generation!=self.live_generation: raise BridgeError('overloaded','The live connection was interrupted; reconnect after the update',retryable=True)
         view=await self.backend.live(device)
+        if generation!=self.live_generation:
+            view.close(self.live_end_reason)
+            raise BridgeError('overloaded','The live connection was interrupted; reconnect after the update',retryable=True)
         self.live_views.add(view)
         return view
-    async def devices(self, all=False):
+    async def devices(self, all=False, *, fresh=False):
         # Discovery adapters can reuse mutable dictionaries. A request's bound
         # identity/epoch must survive later discoveries unchanged.
-        devices=deepcopy(await self.backend.discover(all))
+        discover=self.backend.refresh_discovery if fresh and hasattr(self.backend,'refresh_discovery') else self.backend.discover
+        devices=deepcopy(await discover(all))
         ocr_ready=await self.ocr.available() if self.ocr else False
         for device in devices:
             if self.ocr:
@@ -168,10 +178,10 @@ class Router:
             if did in self.epochs and self.epochs[did]!=epoch: self.observations.invalidate(did)
             self.epochs[did]=epoch
         return devices
-    async def device(self, session, args):
+    async def device(self, session, args, *, fresh=False):
         did=args.get('device_id') or self.sessions.get(session)
         if not did: raise BridgeError('device_not_selected','Select a device for this session or provide device_id')
-        for device in await self.devices(True):
+        for device in await self.devices(True,fresh=fresh):
             if device['device_id']==did: return device
         raise BridgeError('device_not_found','The explicit device ID was not discovered')
     def capability(self, tool, device):
@@ -255,8 +265,10 @@ class Router:
             # Close admission before cancelling so new agent work cannot enter
             # while earlier device work is releasing input.
             if device_id not in self.holds: self._replace_holds(self.holds | {device_id},proof)
+            # Recording finalization already in progress is cleanup, just as
+            # for takeover; let it finish while new writes stay blocked.
             tasks=[task for task,work in self.work.get(device_id,{}).items()
-                   if not task.done() and not self._is_owner(work['session_id'],work['owner_authorized'])]
+                   if work['takeover_eligible'] and not task.done() and not self._is_owner(work['session_id'],work['owner_authorized'])]
             await self._cancel_work(tasks)
         elif device_id in self.holds: self._replace_holds(self.holds - {device_id},proof)
         return {'device_id':device_id,'held':device_id in self.holds}
@@ -616,7 +628,7 @@ class Router:
             else: result=await self.backend.invoke(tool,device,args,context)
             # Check connection after input. Never auto-retry a post-send disconnect.
             if CATALOG[tool]['mutation'] and tool not in {'shut_down_simulator','stop_recording'}:
-                try: current=await self.device(session,{'device_id':did})
+                try: current=await self.device(session,{'device_id':did},fresh=True)
                 except BridgeError as exc: raise BridgeError('delivery_outcome_unknown','Device disappeared after sending the action',side_effect_state='unknown') from exc
                 if current['connection_epoch']!=epoch or not current['ready']: raise BridgeError('delivery_outcome_unknown','Connection changed after sending the action',side_effect_state='unknown')
             return result

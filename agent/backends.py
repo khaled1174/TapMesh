@@ -240,12 +240,16 @@ class MacBackend:
         output=await self.runner.run(argv,timeout=timeout+2,input=input,mutation=mutation)
         try: return json.loads(output.stdout).get('result',{})
         except (ValueError,AttributeError) as exc: raise BridgeError('backend_failure','Apple backend returned invalid structured output',side_effect_state='unknown' if mutation else 'not_sent') from exc
-    async def discover(self, include_all=False):
+    async def refresh_discovery(self, include_all=False):
+        # Post-send validation must bypass even a cache populated by a discovery
+        # that was already in flight when the input completed.
+        return await self.discover(include_all, fresh=True)
+    async def discover(self, include_all=False, *, fresh=False):
         cached=self.discovery_cache.get(include_all)
-        if cached and time.monotonic()<cached[0]: return deepcopy(cached[1])
+        if not fresh and cached and time.monotonic()<cached[0]: return deepcopy(cached[1])
         async with self.discovery_lock:
             cached=self.discovery_cache.get(include_all)
-            if cached and time.monotonic()<cached[0]: return deepcopy(cached[1])
+            if not fresh and cached and time.monotonic()<cached[0]: return deepcopy(cached[1])
             results=await self._discover(include_all)
             if self.discovery_ttl>0: self.discovery_cache[include_all]=(time.monotonic()+self.discovery_ttl,deepcopy(results))
             return results

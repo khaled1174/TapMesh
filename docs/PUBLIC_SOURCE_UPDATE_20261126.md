@@ -34,3 +34,16 @@ methodology. `scripts/package_dmg.py` creates a signed DMG from an existing
 Developer ID app without modifying it or overwriting previous artifacts.
 Documentation assets and the packaging script are included in corresponding source.
 Binary candidates remain draft-only while release gates are open.
+
+## Verified review corrections
+
+Six deterministic, device-free regression cases reproduced stale post-input
+discovery, in-flight live-view admission across update preparation, and Stop
+cancelling recording finalization. The fixes require fresh post-send discovery,
+fence live handshakes across update/shutdown, and preserve already running
+recording cleanup. The corrected source requires a new candidate build.
+
+Validation of the corrected source: 417 Python tests and 28 subtests pass; four
+explicit live opt-ins are skipped. The 139 directly affected tests pass.
+A geometry fixture now replaces the discovery source rather than bypassing
+the real cache/refresh interface. No live device qualification is inferred.

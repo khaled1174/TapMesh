@@ -25,12 +25,16 @@ See [0.2.0 behavior and limits](RELEASE_NOTES_0.2.0.md),
 [build instructions](SOURCE_BUILD.md), [tool contracts](TOOL_CONTRACTS.md) and
 [publication scope](PUBLIC_SOURCE_UPDATE_20261126.md).
 
-## Build 24 packaging follow-up
+## Build 25 packaging follow-up
 
-A new build 24 candidate is being prepared from this publication branch. Its
+A new build 25 candidate is being prepared from this publication branch. Its
 English documentation includes the MCP connection architecture, project workflow
-and a conceptual cover illustration. The candidate adds no device-control
-behavior changes relative to this branch's tested source.
+and a conceptual cover illustration. The candidate includes verified review corrections for post-input discovery,
+live-view admission during update preparation, and recording finalization during Stop.
+
+Build 24 was signed and accepted by Apple, then superseded before upload when
+review regressions demonstrated those three defects. Its source and receipts
+are retained separately. Six regression cases failed before the corrections.
 
 Signed app, ZIP, DMG, notarization, source and checksum receipts are tracked with
 the exact draft release artifacts. A build number or Apple acceptance alone is

@@ -16,7 +16,7 @@ build prerequisites, not requirements to install the resulting app.
 uv venv --python 3.12 .venv
 uv pip sync --python .venv/bin/python --require-hashes requirements-mac.lock
 .venv/bin/python scripts/setup_companion.py
-.venv/bin/python scripts/package_app.py --configuration release --standalone --build-number 24
+.venv/bin/python scripts/package_app.py --configuration release --standalone --build-number 25
 ```
 
 The packager downloads a checksum-pinned Python build-standalone archive,
@@ -41,7 +41,7 @@ signed drag-to-Applications image from the exact bundle:
 ```sh
 .venv/bin/python scripts/package_dmg.py \
   --app "$HOME/Library/Caches/TapMesh/packages/TapMesh.app" \
-  --output dist/TapMesh-0.2.0-build24-macos-arm64.dmg \
+  --output dist/TapMesh-0.2.0-build25-macos-arm64.dmg \
   --identity '<Developer ID Application identity>'
 ```
 
