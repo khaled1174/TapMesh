@@ -25,7 +25,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
-        run: gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern release-manifest.json --pattern 'TapMesh-*-standalone-macos-arm64.zip' --dir release-input
+        run: |
+          set -euo pipefail
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern release-manifest.json --dir release-input
+          archive=$(jq -er '.archive | select(type == "string" and test("^TapMesh-[A-Za-z0-9._-]+-macos-arm64[.]zip$"))' release-input/release-manifest.json)
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "$archive" --dir release-input
       - name: Download optional notarized update fixtures
         if: inputs.update_fixture_sha256 != ''
         env:
