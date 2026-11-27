@@ -434,6 +434,9 @@ class MacBackend:
                     self.lock_refreshes[did]=asyncio.create_task(refresh_lock())
             return
         if not await self._read_lock_state(device,serial): raise locked_input_error()
+    def checks_target_geometry_at_dispatch(self, tool, device):
+        return device['backend']=='physical' and tool in FRESH_GESTURE_TOOLS
+
     async def _native_input(self, tool, device, args, context):
         # The router dispatch flag is refined here to the first actual native
         # input or explicit clipboard write, not transport/media setup.
@@ -446,7 +449,8 @@ class MacBackend:
         # and during a long gesture. A check before geometry adds no protection.
         if tool not in FRESH_GESTURE_TOOLS:
             await self._require_unlocked(device,serial,refresh=not fresh_checks)
-        geometry=await self.geometry(device)
+        validate_geometry=context.pop('validate_target_geometry',None)
+        geometry=await validate_geometry() if validate_geometry else await self.geometry(device)
         self._check_native_binding(device,serial)
         targets=context.get('targets',{})
         for _,_,record in targets.values():

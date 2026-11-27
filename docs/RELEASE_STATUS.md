@@ -22,6 +22,14 @@ See [0.2.0 behavior and limits](RELEASE_NOTES_0.2.0.md),
 [build instructions](SOURCE_BUILD.md), [tool contracts](TOOL_CONTRACTS.md) and
 [publication scope](PUBLIC_SOURCE_UPDATE_20261126.md).
 
+## Physical swipe follow-up
+
+The development source now validates physical swipe, drag and pinch
+coordinates and maps them to native input using one current display read.
+The same observation invalidation and lock checks still run before input.
+Automated tests cover the single read and safe refusal on display changes.
+The physical latency of a rebuilt candidate remains to be measured.
+
 ## Build 25 packaging follow-up
 
 Build 25 is prepared from application source `b66f8b4`. The app and DMG are

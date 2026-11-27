@@ -138,6 +138,66 @@ async def test_native_swipe_rejects_changes_after_router_validation(tmp_path, di
         await backend.close()
 
 
+@pytest.mark.parametrize('display_state', ['aligned', 'rotated', 'invalidated'])
+async def test_physical_swipe_reads_geometry_once_at_dispatch(tmp_path, display_state):
+    from agent.backends import MacBackend
+    from agent.core import Router
+
+    backend = MacBackend(tmp_path / 'backend')
+    device = {
+        'device_id': 'ios:fixture', 'native_id': 'fixture', 'connection_epoch': 1,
+        'ready': True, 'backend': 'physical', 'capabilities': {'input.swipe': {'status': 'supported'}},
+    }
+    device_id = device['device_id']
+    backend.native_serials[device_id] = 'paired-usb'
+    router = Router(backend, state_dir=tmp_path / 'router', fast_control=True)
+    router.access.allow_device(device_id)
+    dimensions = {'width': 100, 'height': 200}
+    obs = router.observations.issue('client', device_id, 1, dimensions, None, 'fixture', orientation='portrait')
+    calls = []
+
+    async def discover(include_all=False):
+        return [device]
+
+    async def geometry(confirmed_device):
+        assert confirmed_device['device_id'] == device_id
+        calls.append('geometry')
+        if display_state == 'rotated':
+            return {'logical_size': {'width': 200, 'height': 100}, 'orientation': 'landscapeLeft'}
+        if display_state == 'invalidated':
+            router.observations.invalidate(device_id)
+        return {'logical_size': dimensions, 'orientation': 'portrait'}
+
+    async def lock_state(serial):
+        calls.append('lock')
+        return False
+
+    async def input(tool, serial, geometry, targets, arguments, *, guard, on_send, still_unlocked):
+        assert await still_unlocked()
+        calls.append('sent')
+        on_send()
+        return {'delivery': 'sent'}
+
+    backend._discover = discover
+    backend.geometry = geometry
+    backend.native_physical.lock_state = lock_state
+    backend.native_physical.input = input
+    target = {'coordinate_space': 'device_points', 'y': 100, 'observation_id': obs['observation_id']}
+    try:
+        result = await router.call('client', 'swipe', {
+            'device_id': device_id, 'start': {**target, 'x': 75}, 'end': {**target, 'x': 25},
+        })
+        if display_state == 'aligned':
+            assert result['status'] == 'success'
+            assert calls == ['geometry', 'lock', 'sent']
+        else:
+            assert result['error']['code'] == 'stale_observation'
+            assert result['error']['side_effect_state'] == 'not_sent'
+            assert calls == ['geometry']
+    finally:
+        await backend.close()
+
+
 @pytest.mark.parametrize('runtime,expected', [
     ('com.apple.CoreSimulator.SimRuntime.iOS-18-2', '18.2'),
     ('com.apple.CoreSimulator.SimRuntime.iOS-26-0', '26.0'),

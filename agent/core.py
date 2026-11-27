@@ -1,5 +1,6 @@
 """Policy and workflow coordinator. Every UI and MCP call crosses this router."""
 import asyncio
+import functools
 import hmac
 import json
 import logging
@@ -506,22 +507,24 @@ class Router:
         if not found or occurrence and occurrence>len(found): raise BridgeError('stale_element_reference','No matching element was observed')
         if len(found)>1 and not occurrence: raise BridgeError('ambiguous_text_match','Multiple elements match; choose an occurrence',details={'candidate_count':len(found)})
         return found[(occurrence or 1)-1]
-    async def _targets(self, session, device, args):
+    def _targets(self, session, device, args):
         did,epoch=device['device_id'],device['connection_epoch']
         targets={name:self.observations.resolve(session,did,epoch,args[name])
                  for name in ('target','start','end','center') if name in args}
         if 'start' in targets and 'end' in targets and targets['start'][2] is not targets['end'][2]:
             raise BridgeError('stale_observation','Gesture endpoints must share one observation')
-        if targets and hasattr(self.backend,'geometry'):
-            with self.observations.pinned(did,epoch) as capture:
-                current=await self.backend.geometry(device)
-                self.observations.check_capture(capture)
-            for _,_,record in targets.values():
-                public=record['public']
-                if current['logical_size']!=public['logical_size'] or public['orientation']!='unknown' and current.get('orientation')!=public['orientation']:
-                    self.observations.invalidate(did)
-                    raise BridgeError('stale_observation','Observed display geometry changed; obtain a fresh snapshot')
         return targets
+    async def _validate_target_geometry(self, device, targets):
+        did,epoch=device['device_id'],device['connection_epoch']
+        with self.observations.pinned(did,epoch) as capture:
+            current=await self.backend.geometry(device)
+            self.observations.check_capture(capture)
+        for _,_,record in targets.values():
+            public=record['public']
+            if current['logical_size']!=public['logical_size'] or public['orientation']!='unknown' and current.get('orientation')!=public['orientation']:
+                self.observations.invalidate(did)
+                raise BridgeError('stale_observation','Observed display geometry changed; obtain a fresh snapshot')
+        return current
     async def _execute(self, session, tool, args, device, context):
         did=device['device_id']; epoch=device['connection_epoch']
         if tool=='get_device_info':
@@ -612,7 +615,15 @@ class Router:
         # Physical text entry has no accessibility preflight; the backend refuses
         # input to a locked device, and the app asks the person for its own
         # confirmations.
-        targets=await self._targets(session,device,args)
+        targets=self._targets(session,device,args)
+        if targets and hasattr(self.backend,'geometry'):
+            validate_geometry=functools.partial(self._validate_target_geometry,device,targets)
+            checks_at_dispatch=getattr(self.backend,'checks_target_geometry_at_dispatch',None)
+            if checks_at_dispatch and checks_at_dispatch(tool,device):
+                # The native gesture maps coordinates using the same fresh read.
+                context['validate_target_geometry']=validate_geometry
+            else:
+                await validate_geometry()
         if tool in {'type_text','fill'} and device.get('backend')!='physical':
             snapshot=await self._elements(session,device,{'source':'accessibility','max_elements':1000},context)
             if any('secure' in e.get('role','').lower() or e.get('secure') for e in snapshot['elements']): raise BridgeError('protected_action_requires_human','Complete sensitive text entry on the device')
