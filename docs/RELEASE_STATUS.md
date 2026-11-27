@@ -15,9 +15,8 @@ The current development source also includes SDK/actor compatibility fixes added
 after that staged candidate; it is not a claim that build 23 contains those fixes.
 
 The [Build 25 follow-up](#build-25-packaging-follow-up) records the current
-candidate's wired iPhone measurements and installation checks on clean macOS
-hosts. The attended control matrix, native update and Finder first-open
-remain open.
+candidate's wired iPhone measurements and clean-macOS installation and update
+checks. The attended control matrix and Finder first-open remain open.
 
 See [0.2.0 behavior and limits](RELEASE_NOTES_0.2.0.md),
 [build instructions](SOURCE_BUILD.md), [tool contracts](TOOL_CONTRACTS.md) and
@@ -45,12 +44,19 @@ returned to zero after disconnect. [Wired iPhone report](LIVE_CONTROL_QUALIFICAT
 The attempted swipe measurement stopped at the device approval check before
 sending input. The attended physical-control matrix remains open.
 
-The exact notarized Build 25 ZIP passed all six native installation checks on
-each of two clean arm64 hosts, macOS 15.8.2 and 26.7.2. The checks covered
-Gatekeeper, workspace launch, HTTP and MCP services, clean quit and the
-application signature after execution. Native update and Finder first-open
-remain open. Binary assets remain draft-only.
-[Clean-host workflow results](https://github.com/khaled1174/TapMesh/actions/runs/46004113752).
+The exact notarized Build 25 ZIP passed six native installation and seven
+Sparkle update checks on each of two clean arm64 hosts, macOS 15.8.2
+and 26.7.2. A signed, notarized Build 24 staging copy used a loopback feed
+with the production verification key. Both updated apps matched the exact
+Build 25 bundle and preserved the default profile's service credentials.
+Gatekeeper, signature and ticket checks passed before and after installation.
+[Native installation workflow results](https://github.com/khaled1174/TapMesh/actions/runs/46004113752).
+Private qualification run `46005364236` records the exact-archive update.
+
+The Finder preflight in private run `46005647187` observed Chrome waiting for
+its normal first-open confirmation on both hosted Macs. The browser download
+and TapMesh Finder first-open remain untested. Binary release assets remain
+draft-only.
 
 ## Historical 0.1.0 evidence
 
