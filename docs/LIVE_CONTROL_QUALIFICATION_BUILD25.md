@@ -12,9 +12,13 @@ The iPhone was connected over USB and played moving content during the
 | Viewer cleanup | 0 → 1 → 0 viewers | Return to zero when the test viewer disconnects |
 | Screenshot latency | 20 screenshots, 108.4 ms median, 275.8 ms p90, 344.6 ms maximum | Median at most 250 ms |
 
-All measurements came from the read-only qualification script. The owner
-deferred the five Home Screen swipes, and the attended physical-control matrix
-remains open for this candidate.
+All measurements came from the read-only qualification script.
+
+On 2026-11-27, the swipe trial made two attempts to start. Both returned
+`approval_required` with delivery state `not_sent`. The Build 25 test profile
+had no saved permission for the physical phone. A separate test of the same
+signed app saved permission via the device menu for a mock phone. The physical
+swipe latency and attended control matrix remain open.
 
 [Raw measurements](LIVE_CONTROL_QUALIFICATION_BUILD25.json) ·
 [Signed and notarized candidate](BUILD25_PACKAGING_20261126.md) ·

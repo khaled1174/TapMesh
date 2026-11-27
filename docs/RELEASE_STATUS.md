@@ -15,8 +15,9 @@ The current development source also includes SDK/actor compatibility fixes added
 after that staged candidate; it is not a claim that build 23 contains those fixes.
 
 The [Build 25 follow-up](#build-25-packaging-follow-up) records the current
-candidate and its completed wired iPhone checks. The attended control matrix
-and clean-Mac installation and update checks remain open.
+candidate's wired iPhone measurements and installation checks on clean macOS
+hosts. The attended control matrix, native update and Finder first-open
+remain open.
 
 See [0.2.0 behavior and limits](RELEASE_NOTES_0.2.0.md),
 [build instructions](SOURCE_BUILD.md), [tool contracts](TOOL_CONTRACTS.md) and
@@ -41,9 +42,15 @@ The first video frame arrived in 1,405.9 ms, the stream delivered 60.5 fps over
 10 seconds, and the median of 20 screenshots was 108.4 ms. The viewer count
 returned to zero after disconnect. [Wired iPhone report](LIVE_CONTROL_QUALIFICATION_BUILD25.md).
 
-The owner deferred the five-swipe trial. The attended physical-control matrix,
-clean-Mac installation and update, and Finder first-open remain open.
-Binary assets remain draft-only.
+The attempted swipe measurement stopped at the device approval check before
+sending input. The attended physical-control matrix remains open.
+
+The exact notarized Build 25 ZIP passed all six native installation checks on
+each of two clean arm64 hosts, macOS 15.8.2 and 26.7.2. The checks covered
+Gatekeeper, workspace launch, HTTP and MCP services, clean quit and the
+application signature after execution. Native update and Finder first-open
+remain open. Binary assets remain draft-only.
+[Clean-host workflow results](https://github.com/khaled1174/TapMesh/actions/runs/46004113752).
 
 ## Historical 0.1.0 evidence
 
