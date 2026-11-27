@@ -28,7 +28,12 @@ The development source now validates physical swipe, drag and pinch
 coordinates and maps them to native input using one current display read.
 The same observation invalidation and lock checks still run before input.
 Automated tests cover the single read and safe refusal on display changes.
-The physical latency of a rebuilt candidate remains to be measured.
+Build 26 is signed with Developer ID and passes ten relocated-runtime checks
+on the development Mac. The portable and macOS 15 and 26 CI jobs passed for
+the [source revision](https://github.com/khaled1174/TapMesh/actions/runs/46026020697).
+The development Mac reported no USB-connected iPhone, so five wired swipes
+have yet to be measured on Build 26. The signed test build awaits notarization
+and exact-artifact qualification.
 
 ## Build 25 packaging follow-up
 
