@@ -25,8 +25,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
+          REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+          UPDATE_FIXTURE_SHA256: ${{ inputs.update_fixture_sha256 }}
         run: |
           set -euo pipefail
+          if [[ "$REPOSITORY_PRIVATE" != true ]]; then
+            draft=$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')
+            if [[ "$draft" != false || -n "$UPDATE_FIXTURE_SHA256" ]]; then
+              echo 'Run draft and update-fixture qualification in a private repository.' >&2
+              exit 1
+            fi
+          fi
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern release-manifest.json --dir release-input
           archive=$(jq -er '.archive | select(type == "string" and test("^TapMesh-[A-Za-z0-9._-]+-macos-arm64[.]zip$"))' release-input/release-manifest.json)
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "$archive" --dir release-input
