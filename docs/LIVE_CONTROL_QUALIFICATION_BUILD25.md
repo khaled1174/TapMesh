@@ -17,8 +17,12 @@ All measurements came from the read-only qualification script.
 On 2026-11-27, the swipe trial made two attempts to start. Both returned
 `approval_required` with delivery state `not_sent`. The Build 25 test profile
 had no saved permission for the physical phone. A separate test of the same
-signed app saved permission via the device menu for a mock phone. The physical
-swipe latency and attended control matrix remain open.
+signed app saved permission via the device menu for a mock phone.
+
+The owner later approved the physical phone from the Build 25 approval card
+on the Mac. The test profile confirmed the persisted grant. The warm-stream
+swipe trial timed out before observing its reference frame and sent zero
+gestures. Physical swipe latency and the attended control matrix remain open.
 
 [Raw measurements](LIVE_CONTROL_QUALIFICATION_BUILD25.json) ·
 [Signed and notarized candidate](BUILD25_PACKAGING_20261126.md) ·

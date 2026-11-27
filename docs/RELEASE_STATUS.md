@@ -41,7 +41,8 @@ The first video frame arrived in 1,405.9 ms, the stream delivered 60.5 fps over
 10 seconds, and the median of 20 screenshots was 108.4 ms. The viewer count
 returned to zero after disconnect. [Wired iPhone report](LIVE_CONTROL_QUALIFICATION_BUILD25.md).
 
-The attempted swipe measurement stopped at the device approval check before
+The physical iPhone grant was subsequently saved through the Mac app.
+The swipe measurement stopped while waiting for its reference frame, before
 sending input. The attended physical-control matrix remains open.
 
 The exact notarized Build 25 ZIP passed six native installation and seven
