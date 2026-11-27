@@ -35,6 +35,11 @@ The development Mac reported no USB-connected iPhone, so five wired swipes
 have yet to be measured on Build 26. The signed test build awaits notarization
 and exact-artifact qualification.
 
+A clean-host retry with the retained Build 10 fixture reached signed system
+Safari on macOS 15 and 26. The native browser handoff timed out before either
+host confirmed a download. Finder first-open remains pending for the release
+candidate.
+
 ## Build 25 packaging follow-up
 
 Build 25 is prepared from application source `b66f8b4`. The app and DMG are
