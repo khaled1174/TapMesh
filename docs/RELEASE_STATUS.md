@@ -41,9 +41,10 @@ The first video frame arrived in 1,405.9 ms, the stream delivered 60.5 fps over
 10 seconds, and the median of 20 screenshots was 108.4 ms. The viewer count
 returned to zero after disconnect. [Wired iPhone report](LIVE_CONTROL_QUALIFICATION_BUILD25.md).
 
-The physical iPhone grant was subsequently saved through the Mac app.
-The swipe measurement stopped while waiting for its reference frame, before
-sending input. The attended physical-control matrix remains open.
+The physical iPhone grant was saved through the Mac app. All five USB swipes
+changed the Home Screen. The median measured response was 328.9 ms,
+above the 250 ms qualification target. The attended physical-control matrix
+remains open. [Swipe measurements](LIVE_CONTROL_SWIPE_BUILD25.json).
 
 The exact notarized Build 25 ZIP passed six native installation and seven
 Sparkle update checks on each of two clean arm64 hosts, macOS 15.8.2

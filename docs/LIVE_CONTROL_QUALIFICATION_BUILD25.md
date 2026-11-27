@@ -21,8 +21,15 @@ signed app saved permission via the device menu for a mock phone.
 
 The owner later approved the physical phone from the Build 25 approval card
 on the Mac. The test profile confirmed the persisted grant. The warm-stream
-swipe trial timed out before observing its reference frame and sent zero
-gestures. Physical swipe latency and the attended control matrix remain open.
+swipe trial initially timed out before observing its reference frame and
+sent zero gestures.
+
+After the owner returned the iPhone to the Home Screen, all five swipes were
+accepted and changed the live image. The median time from request start to the
+first changed decoded frame was 328.9 ms. The five measurements were
+781.7, 328.9, 346.7, 326.1 and 313.2 ms. The latency criterion of a median
+at or below 250 ms remains unmet. The attended control matrix remains open.
+[Five-swipe trial measurements](LIVE_CONTROL_SWIPE_BUILD25.json).
 
 [Raw measurements](LIVE_CONTROL_QUALIFICATION_BUILD25.json) ·
 [Signed and notarized candidate](BUILD25_PACKAGING_20261126.md) ·

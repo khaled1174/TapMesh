@@ -1,0 +1,57 @@
+{
+  "mode": "owner-authorized physical Build 25 swipe trial",
+  "status": "failed",
+  "checks": [
+    {
+      "check": "Home Screen swipe latency",
+      "measurement": "Swipe request start to the first changed decoded frame on a warm live stream.",
+      "attempts": [
+        {
+          "attempt": 1,
+          "screenshot_anchor_ms": 220.0,
+          "request_ms": 1032.8,
+          "request_status": "success",
+          "changed_live_frame_ms": 781.7,
+          "attempt_elapsed_ms": 1032.8
+        },
+        {
+          "attempt": 2,
+          "screenshot_anchor_ms": 200.8,
+          "request_ms": 481.0,
+          "request_status": "success",
+          "changed_live_frame_ms": 328.9,
+          "attempt_elapsed_ms": 481.0
+        },
+        {
+          "attempt": 3,
+          "screenshot_anchor_ms": 161.1,
+          "request_ms": 521.5,
+          "request_status": "success",
+          "changed_live_frame_ms": 346.7,
+          "attempt_elapsed_ms": 521.5
+        },
+        {
+          "attempt": 4,
+          "screenshot_anchor_ms": 189.2,
+          "request_ms": 481.5,
+          "request_status": "success",
+          "changed_live_frame_ms": 326.1,
+          "attempt_elapsed_ms": 481.5
+        },
+        {
+          "attempt": 5,
+          "screenshot_anchor_ms": 156.8,
+          "request_ms": 513.2,
+          "request_status": "success",
+          "changed_live_frame_ms": 313.2,
+          "attempt_elapsed_ms": 513.2
+        }
+      ],
+      "median_ms": 328.9,
+      "p90_ms": 781.7,
+      "max_ms": 781.7,
+      "samples": 5,
+      "status": "failed"
+    }
+  ]
+}
