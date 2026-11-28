@@ -44,6 +44,23 @@ Safari on macOS 15 and 26. The native browser handoff timed out before either
 host confirmed a download. Finder first-open remains pending for the release
 candidate.
 
+## Build 27 wired iPhone verification
+
+Build 27 reads the current passcode-required state through trusted USB
+Lockdown before each native gesture. The iPhone under test advertised the
+CoreDevice lock-state action and replied that it was unimplemented. That
+sent Build 26 through Xcode and added about 140 ms before warm gestures.
+Build 27 retains the existing fallback for unavailable or unrecognized lock
+state and closes an interrupted query's channel before reuse.
+
+All five wired Home Screen swipes reached the iPhone on the signed Build 27.
+The median to the first changed decoded live frame was 140.9 ms and the
+slowest was 211.1 ms. The 250 ms median target passed. The test measured five
+swipes after a stable reference frame. Automated tests cover newly observed
+lock state and interrupted reads. Notarization and remaining release
+qualification are pending for this build.
+[Build 27 swipe report](LIVE_CONTROL_SWIPE_BUILD27.json).
+
 ## Build 25 packaging follow-up
 
 Build 25 is prepared from application source `b66f8b4`. The app and DMG are

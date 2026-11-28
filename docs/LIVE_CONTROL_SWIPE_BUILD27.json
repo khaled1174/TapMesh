@@ -1,0 +1,62 @@
+{
+  "build": 27,
+  "source_revision": "ea1328b9adf1e21b4ad5505f5f3c8683906b4c83",
+  "mode": "owner-authorized wired Home Screen swipe measurement",
+  "status": "passed",
+  "checks": [
+    {
+      "check": "Home Screen swipe latency",
+      "status": "passed",
+      "target_median_ms": 250,
+      "measurement": "Swipe request start to the first changed decoded frame on a warm live stream.",
+      "attempts": [
+        {
+          "attempt": 1,
+          "screenshot_anchor_ms": 241.1,
+          "request_ms": 416.2,
+          "request_status": "success",
+          "changed_live_frame_ms": 211.1,
+          "attempt_elapsed_ms": 416.2
+        },
+        {
+          "attempt": 2,
+          "screenshot_anchor_ms": 204.9,
+          "request_ms": 371.8,
+          "request_status": "success",
+          "changed_live_frame_ms": 157.4,
+          "attempt_elapsed_ms": 371.8
+        },
+        {
+          "attempt": 3,
+          "screenshot_anchor_ms": 196.8,
+          "request_ms": 348.0,
+          "request_status": "success",
+          "changed_live_frame_ms": 116.8,
+          "attempt_elapsed_ms": 348.0
+        },
+        {
+          "attempt": 4,
+          "screenshot_anchor_ms": 160.4,
+          "request_ms": 335.2,
+          "request_status": "success",
+          "changed_live_frame_ms": 140.9,
+          "attempt_elapsed_ms": 335.2
+        },
+        {
+          "attempt": 5,
+          "screenshot_anchor_ms": 173.8,
+          "request_ms": 337.6,
+          "request_status": "success",
+          "changed_live_frame_ms": 121.5,
+          "attempt_elapsed_ms": 337.6
+        }
+      ],
+      "first_decoded_frame_ms": 369.3,
+      "frames": 251,
+      "median_ms": 140.9,
+      "p90_ms": 211.1,
+      "max_ms": 211.1,
+      "samples": 5
+    }
+  ]
+}
