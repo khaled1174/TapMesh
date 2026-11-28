@@ -52,6 +52,9 @@ Submit the DMG itself for notarization and staple the accepted ticket before
 publication. Packaging alone does not satisfy the device or clean-Mac release
 gates. [Release status](RELEASE_STATUS.md)
 
+Attach the notarized DMG to each GitHub release for manual installation.
+Attach the Sparkle-signed ZIP referenced by the appcast for in-app updates.
+
 ## Verify
 
 ```sh
