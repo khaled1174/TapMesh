@@ -11,10 +11,30 @@ import subprocess
 import platform
 import re
 import base64
+import tempfile
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = Path.home() / "Library/Caches/TapMesh/swift-build"
+
+
+def build_app_icon(resources: Path) -> None:
+    source = ROOT / "macos/Resources/AppIcon.png"
+    with tempfile.TemporaryDirectory(prefix="tapmesh-app-icon-") as temporary:
+        iconset = Path(temporary) / "AppIcon.iconset"
+        iconset.mkdir()
+        for size in (16, 32, 128, 256, 512):
+            for scale, suffix in ((1, ""), (2, "@2x")):
+                pixels = str(size * scale)
+                output = iconset / f"icon_{size}x{size}{suffix}.png"
+                subprocess.run(
+                    ["/usr/bin/sips", "-z", pixels, pixels, str(source), "--out", str(output)],
+                    check=True, stdout=subprocess.DEVNULL,
+                )
+        subprocess.run(
+            ["/usr/bin/iconutil", "-c", "icns", str(iconset), "-o", str(resources / "AppIcon.icns")],
+            check=True,
+        )
 
 
 def main() -> None:
@@ -62,12 +82,15 @@ def main() -> None:
         shutil.rmtree(staging)
     executable = staging / "Contents/MacOS/TapMesh"
     executable.parent.mkdir(parents=True)
-    (staging / "Contents/Resources").mkdir()
+    resources = staging / "Contents/Resources"
+    resources.mkdir()
+    build_app_icon(resources)
     shutil.copyfile(Path(binary_dir) / "TapMesh", executable)
     executable.chmod(0o755)
     info = {
         "CFBundleExecutable": "TapMesh", "CFBundleIdentifier": "io.tapmesh.mac",
         "CFBundleName": "TapMesh", "CFBundleDisplayName": "TapMesh",
+        "CFBundleIconFile": "AppIcon.icns",
         "CFBundlePackageType": "APPL", "CFBundleShortVersionString": args.version,
         "CFBundleVersion": str(args.build_number), "LSMinimumSystemVersion": "15.0",
         "NSPrincipalClass": "NSApplication", "NSHighResolutionCapable": True,
@@ -78,7 +101,7 @@ def main() -> None:
     }
     # English text in the code is the key; Arabic comes from macos/Localization/ar.lproj.
     for lproj in sorted((ROOT / "macos/Localization").glob("*.lproj")):
-        shutil.copytree(lproj, staging / "Contents/Resources" / lproj.name)
+        shutil.copytree(lproj, resources / lproj.name)
     if args.update_feed:
         info.update(SUFeedURL=args.update_feed,SUPublicEDKey=args.update_public_key,SUEnableAutomaticChecks=False,SUSendProfileInfo=False)
     if args.staging_updates: info['TapMeshUpdateStagingMode']=True
@@ -97,7 +120,6 @@ def main() -> None:
     runtime_manifest = None
     if args.standalone:
         from bundle_runtime import embed, sign_embedded
-        resources = staging / 'Contents/Resources'
         shutil.copyfile(Path(binary_dir)/'TapMeshTools', resources/'TapMeshTools')
         (resources/'TapMeshTools').chmod(0o755)
         launcher = staging/'Contents/MacOS/tapmesh-mcp'
