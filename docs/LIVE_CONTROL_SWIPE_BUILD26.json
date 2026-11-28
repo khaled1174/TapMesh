@@ -1,0 +1,81 @@
+{
+  "build": 26,
+  "mode": "owner-authorized wired Home Screen swipe measurement",
+  "status": "failed",
+  "checks": [
+    {
+      "check": "Home Screen swipe latency",
+      "status": "failed",
+      "target_median_ms": 250,
+      "measurement": "Swipe request start to first changed live frame on a warm stream.",
+      "attempts": [
+        {
+          "attempt": 1,
+          "screenshot_anchor_ms": 474.4,
+          "request_ms": 624.4,
+          "request_status": "success",
+          "changed_live_frame_ms": 421.3,
+          "attempt_elapsed_ms": 624.4
+        },
+        {
+          "attempt": 2,
+          "screenshot_anchor_ms": 195.5,
+          "request_ms": 501.3,
+          "request_status": "success",
+          "changed_live_frame_ms": 309.4,
+          "attempt_elapsed_ms": 501.3
+        },
+        {
+          "attempt": 3,
+          "screenshot_anchor_ms": 192.6,
+          "request_ms": 513.9,
+          "request_status": "success",
+          "changed_live_frame_ms": 315.5,
+          "attempt_elapsed_ms": 513.9
+        },
+        {
+          "attempt": 4,
+          "screenshot_anchor_ms": 198.1,
+          "request_ms": 522.0,
+          "request_status": "success",
+          "changed_live_frame_ms": 334.4,
+          "attempt_elapsed_ms": 522.0
+        },
+        {
+          "attempt": 5,
+          "screenshot_anchor_ms": 212.3,
+          "request_ms": 527.6,
+          "request_status": "success",
+          "changed_live_frame_ms": 344.6,
+          "attempt_elapsed_ms": 527.6
+        }
+      ],
+      "warmup": {
+        "status": "not_needed"
+      },
+      "first_decoded_frame_ms": 8143.8,
+      "video_frames_received": 282,
+      "median_ms": 334.4,
+      "p90_ms": 421.3,
+      "max_ms": 421.3,
+      "samples": 5
+    }
+  ],
+  "startup_attempts": [
+    {
+      "test_input_sent": false,
+      "reason": "The trial timed out waiting for a stable or changed live frame."
+    },
+    {
+      "test_input_sent": false,
+      "reason": "The trial timed out waiting for live frame evidence.",
+      "first_decoded_frame_wait_limit_ms": 25000
+    },
+    {
+      "test_input_sent": false,
+      "reason": "The trial timed out waiting for live frame evidence.",
+      "first_decoded_frame_wait_limit_ms": 35000,
+      "video_frames_received": 0
+    }
+  ]
+}

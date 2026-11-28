@@ -31,9 +31,13 @@ Automated tests cover the single read and safe refusal on display changes.
 Build 26 is signed with Developer ID and passes ten relocated-runtime checks
 on the development Mac. The portable and macOS 15 and 26 CI jobs passed for
 the [source revision](https://github.com/khaled1174/TapMesh/actions/runs/46026020697).
-The development Mac reported no USB-connected iPhone, so five wired swipes
-have yet to be measured on Build 26. The signed test build awaits notarization
-and exact-artifact qualification.
+The November 28 wired trial delivered all five Home Screen swipes. Build 26
+measured a 334.4 ms median and a 421.3 ms maximum to the first changed
+decoded frame. The 250 ms median target remains open. Three earlier attempts
+stopped before sending input while waiting for a live reference frame. The
+completed trial required no warm-up swipe. The signed test build awaits
+notarization and exact-artifact qualification.
+[Build 26 swipe report](LIVE_CONTROL_SWIPE_BUILD26.json).
 
 A clean-host retry with the retained Build 10 fixture reached signed system
 Safari on macOS 15 and 26. The native browser handoff timed out before either
