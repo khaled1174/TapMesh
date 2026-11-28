@@ -757,6 +757,16 @@ async def clipboard_service(rsd):
 @asynccontextmanager
 async def core_device_service(rsd, name):
     """Read-only CoreDevice services kept open on the persistent session."""
+    if name=='lockdown':
+        from pymobiledevice3.lockdown import create_using_remote
+        connection=await rsd.start_lockdown_service('com.apple.mobile.lockdown.remote.trusted')
+        try:
+            lockdown=await create_using_remote(connection,identifier=rsd.udid,autopair=False)
+        except asyncio.CancelledError:
+            await settle_cleanup(asyncio.create_task(connection.close()))
+            raise
+        async with lockdown:yield lockdown
+        return
     if name=='capture':
         from pymobiledevice3.remote.core_device.screen_capture_service import ScreenCaptureService as Service
     elif name in {'info','lock'}:
@@ -999,14 +1009,14 @@ class NativePhysical:
             async with asyncio.timeout(READ_TIMEOUT_SECONDS):
                 return await call(await self._service(session,name))
         except asyncio.CancelledError:
-            if name=='lock':
+            if name in {'lockdown','lock'}:
                 # A cancelled request may have left its reply on the connection.
                 await settle_cleanup(asyncio.create_task(self._drop_service(session,name)))
             raise
         except Exception:
             # A failed read may mean a dead tunnel. Drop the whole session
             # unless an input owns it or only the dedicated lock channel failed.
-            if name=='lock':await settle_cleanup(asyncio.create_task(self._drop_service(session,name)))
+            if name in {'lockdown','lock'}:await settle_cleanup(asyncio.create_task(self._drop_service(session,name)))
             elif self.input_lock(session.serial).locked():await self._drop_service(session,name)
             else:await self._discard(session)
             return None
@@ -1116,6 +1126,12 @@ class NativePhysical:
         return result
 
     @staticmethod
+    async def _lockdown_state_call(service):
+        # PasswordProtected is the current lock state, not passcode configuration.
+        required=await service.get_value(key='PasswordProtected')
+        return required if type(required) is bool else None
+
+    @staticmethod
     async def _lock_state_call(service):
         result=await service.get_lockstate()
         required=result.get('passcodeRequired') if isinstance(result,dict) else None
@@ -1129,7 +1145,9 @@ class NativePhysical:
                 # Cleanup stays under the query lock, so later reads cannot
                 # observe a leftover reply on the cancelled channel.
                 async with session.lock_query:
-                    state=await self._read_in(session,'lock',self._lock_state_call)
+                    state=await self._read_in(session,'lockdown',self._lockdown_state_call)
+                    if state is None and not session.closed:
+                        state=await self._read_in(session,'lock',self._lock_state_call)
                     return state if not session.closed else None
         except (_NoFastPath,TimeoutError):return None
 

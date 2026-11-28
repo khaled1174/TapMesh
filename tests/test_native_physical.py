@@ -38,6 +38,7 @@ class Fakes:
         self.services_opened=[];self.capture_error=None;self.image=png('red');self.captures=0
         self.capture_calls_while_streaming=0;self.frames_served=[]
         self.lock_state_reply=None
+        self.password_protected=None
         from PIL import Image
         self.stream_image=Image.new('RGB',(1320,2868),'blue')
     @asynccontextmanager
@@ -76,6 +77,9 @@ class Fakes:
                 if isinstance(fakes.lock_state_reply,Exception):raise fakes.lock_state_reply
                 if callable(fakes.lock_state_reply):return await fakes.lock_state_reply()
                 return fakes.lock_state_reply
+            async def get_value(self, *, key):
+                assert name=='lockdown' and key=='PasswordProtected'
+                return fakes.password_protected
         yield Service()
     def adapter(self, probe=usb, **kwargs):
         from agent.native_physical import NativePhysical
@@ -436,8 +440,19 @@ async def test_native_lock_state_needs_a_warm_tunnel_and_reads_boolean_without_c
         for observed,expected in ((False,False),(True,True),('false',None),(0,None),(None,None)):
             fakes.lock_state_reply={'passcodeRequired':observed}
             assert await adapter.lock_state('bound') is expected
-        assert fakes.services_opened==['info','lock']
+        assert fakes.services_opened==['info','lockdown','lock']
         assert fakes.tunnels_opened==1 and fakes.tunnels_closed==0
+    finally:await adapter.aclose()
+
+async def test_trusted_lockdown_reads_fresh_lock_state_before_using_coredevice():
+    fakes=Fakes();adapter=fakes.adapter()
+    try:
+        await adapter.display_info('bound')
+        fakes.lock_state_reply=RuntimeError('CoreDevice lock query is not implemented')
+        for state in (False,True,False):
+            fakes.password_protected=state
+            assert await adapter.lock_state('bound') is state
+        assert fakes.services_opened==['info','lockdown']
     finally:await adapter.aclose()
 
 
@@ -458,27 +473,33 @@ async def test_native_lock_failure_only_replaces_its_own_channel(monkeypatch,sta
         assert fakes.streaming() and fakes.tunnels_closed==0
         fakes.lock_state_reply={'passcodeRequired':True}
         assert await adapter.lock_state('bound') is True
-        assert fakes.services_opened==['info','lock','lock']
+        assert fakes.services_opened==['info','lockdown','lock','lock']
     finally:await adapter.aclose()
 
 
-async def test_cancelled_native_lock_query_closes_before_next_query():
+@pytest.mark.parametrize('lock_channel',['lockdown','lock'])
+async def test_cancelled_native_lock_query_closes_before_next_query(lock_channel):
     fakes=Fakes();entered=asyncio.Event();closing=asyncio.Event();allow_close=asyncio.Event()
     next_started=asyncio.Event()
     channels=[]
 
     @asynccontextmanager
     async def service(rsd,name):
-        if name!='lock':
+        if name!=lock_channel:
             async with fakes.service(rsd,name) as instance:yield instance
             return
         channel=len(channels)+1;channels.append(channel)
         class LockInfo:
-            async def get_lockstate(self):
+            async def read(self):
                 if channel==1:
                     entered.set()
                     await asyncio.Future()
-                return {'passcodeRequired':True}
+                return True
+            async def get_lockstate(self):
+                return {'passcodeRequired':await self.read()}
+            async def get_value(self, *, key):
+                assert key=='PasswordProtected'
+                return await self.read()
         try:yield LockInfo()
         finally:
             if channel==1:
